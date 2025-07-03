@@ -18,6 +18,17 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+// Add this to your services configuration
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.ExpireTimeSpan = TimeSpan.FromDays(30); // Persistent cookie duration
+    options.SlidingExpiration = true;
+});
+
+// Add this with your other service registrations
+builder.Services.AddScoped<ProjectManagementSystem.Services.Interface.IActivityLogger,
+                           ProjectManagementSystem.Services.ActivityLogger>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline

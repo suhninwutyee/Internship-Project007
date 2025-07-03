@@ -1,0 +1,256 @@
+﻿@model IEnumerable<AdminActivityLog>
+
+<div class="activity-log-container">
+    <div class="log-header">
+        <h3><i class="fas fa-history"></i> Activity Logs</h3>
+        <div class="log-actions">
+            <button class="btn btn-refresh" id="refreshLogs">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="log-table">
+            <thead>
+                <tr>
+                    <th class="timestamp-col">Timestamp</th>
+                    <th class="name-col">User</th>
+                    <th class="action-col">Action</th>
+                    <th class="ip-col">IP Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var log in Model.OrderByDescending(x => x.Timestamp))
+                {
+                    <tr class="log-entry">
+                        <td class="timestamp">
+                            <span class="date">@log.Timestamp.ToString("MMM dd")</span>
+                            <span class="time">@log.Timestamp.ToString("h:mm tt")</span>
+                        </td>
+                        <td class="user">
+                            <div class="user-badge">@log.LoggedName?.FirstOrDefault()</div>
+                            <span>@log.LoggedName</span>
+                        </td>
+                        <td class="action">
+                            <span class="action-text">@log.Action</span>
+                            @if (log.Action.Contains("Login"))
+                            {
+                                <span class="badge badge-success">Auth</span>
+                            }
+                            else if (log.Action.Contains("Delete"))
+                            {
+                                <span class="badge badge-danger">Critical</span>
+                            }
+                        </td>
+                        <td class="ip-address">
+                            @log.IpAddress
+                            <button class="btn btn-info btn-sm lookup-btn" data-ip="@log.IpAddress">
+                                <i class="fas fa-search-location"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="log-footer">
+        Showing @Model.Count() most recent activities
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        :root {
+            --wine-red: #722f37;
+            --light-wine: #a0535b;
+            --snow-white: #fff;
+            --soft-gray: #f8f9fa;
+            --medium-gray: #e0e0e0;
+        }
+
+        .activity-log-container {
+            background: var(--snow-white);
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 1.5rem;
+            background: var(--wine-red);
+            color: white;
+        }
+
+            .log-header h3 {
+                margin: 0;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+        .btn-refresh {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+            .btn-refresh:hover {
+                background: rgba(255,255,255,0.25);
+            }
+
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .log-table th {
+                background: var(--light-wine);
+                color: white;
+                padding: 1rem;
+                text-align: left;
+                font-weight: 500;
+            }
+
+        .log-entry {
+            border-bottom: 1px solid var(--medium-gray);
+            transition: background 0.2s ease;
+        }
+
+            .log-entry:hover {
+                background: rgba(114, 47, 55, 0.03);
+            }
+
+        .log-table td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+        .timestamp {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .date {
+            font-weight: 500;
+            color: var(--wine-red);
+        }
+
+        .time {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--wine-red);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .action-text {
+            margin-right: 8px;
+        }
+
+        .badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: rgba(40, 167, 69, 0.15);
+            color: #28a745;
+        }
+
+        .badge-danger {
+            background: rgba(220, 53, 69, 0.15);
+            color: #dc3545;
+        }
+
+        .ip-address {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lookup-btn {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            background: rgba(0, 123, 255, 0.1);
+            color: #007bff;
+            border: none;
+        }
+
+        .log-footer {
+            padding: 1rem 1.5rem;
+            background: var(--soft-gray);
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @@media (max-width: 768px) {
+            .log-table th, .log-table td {
+                padding: 0.75rem;
+            }
+
+            .timestamp-col {
+                width: 120px;
+            }
+
+            .name-col {
+                width: 150px;
+            }
+
+            .ip-col {
+                width: 140px;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Refresh button functionality
+            $('#refreshLogs').click(function() {
+                location.reload();
+            });
+
+            // IP lookup button functionality
+            $('.lookup-btn').click(function() {
+                const ip = $(this).data('ip');
+                window.open(`https://whatismyipaddress.com/ip/${ip}`, '_blank');
+            });
+
+            // Highlight important actions
+            $('.log-entry').each(function() {
+                const action = $(this).find('.action-text').text();
+                if (action.includes('Delete')) {
+                    $(this).css('background', 'rgba(220, 53, 69, 0.05)');
+                }
+            });
+        });
+    </script>
+}

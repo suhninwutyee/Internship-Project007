@@ -32,13 +32,22 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Email> Emails { get; set; }
 
 
+    public DbSet<AdminActivityLog> AdminActivityLogs { get; set; }
+
+
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
+      
+
         modelBuilder.Entity<Email>()
        .HasKey(e => e.Email_PkId);
         base.OnModelCreating(modelBuilder);
 
+        
 
         // Configure composite key for ProjectMember
         modelBuilder.Entity<ProjectMember>()

@@ -7,7 +7,6 @@ namespace ProjectManagementSystem.Models
     {
         [Required(ErrorMessage = "Full name is required")]
         [StringLength(100, ErrorMessage = "Full name cannot exceed 100 characters")]
-        public string FullName { get; set; } = "";
-      
+        public string FullName { get; set; }="";
     }
 }

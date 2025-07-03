@@ -1,0 +1,492 @@
+﻿@model IEnumerable<Email>
+
+@{
+    ViewData["Title"] = "Manage Final Year Emails";
+    Layout = "_TeacherLayout";
+}
+
+<div class="email-container">
+    <h2 class="page-title">@ViewData["Title"]</h2>
+    
+    <!-- Add New Email Form -->
+    <div class="email-card">
+        <div class="card-header">
+            <h3>Add Multiple Emails</h3>
+            <div class="header-decoration"></div>
+        </div>
+        <form asp-action="BulkCreate" method="post" class="email-form">
+            <div class="form-group">
+                <label>Enter Emails (one per line):</label>
+                <textarea name="EmailsRaw" rows="6" class="form-textarea" placeholder="student1@example.com&#10;student2@example.com"></textarea>
+            </div>
+            <button type="submit" class="submit-btn">
+                <span class="btn-text">Add Emails</span>
+                <span class="btn-icon">+</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- Email Table -->
+    <div class="email-card">
+        <div class="card-header">
+            <h3>Current Email List</h3>
+            <div class="header-decoration"></div>
+        </div>
+        <div class="table-responsive">
+            <table id="emailTable" class="email-table">
+                <thead>
+                    <tr>
+                        <th>Email Address</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var email in Model)
+                    {
+                        <tr data-id="@email.Email_PkId" class="email-row">
+                            <td class="email-address">
+                                <span class="address-text">@email.EmailAddress</span>
+                                <input type="email" class="edit-input" value="@email.EmailAddress" style="display:none;" />
+                            </td>
+                            <td class="action-buttons">
+                                <button class="action-btn edit-btn">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn delete-btn">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                                <button class="action-btn save-btn" style="display:none;">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="action-btn cancel-btn" style="display:none;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --snow-white: #fff;
+            --wine-red: #722f37;
+            --light-wine: #a0535b;
+            --dark-wine: #4a1c22;
+            --soft-gray: #f5f5f5;
+            --medium-gray: #e0e0e0;
+            --text-dark: #333;
+            --text-light: #666;
+            --success-green: #4caf50;
+            --error-red: #f44336;
+        }
+
+        body {
+            background-color: var(--soft-gray);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-dark);
+        }
+
+        .email-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .page-title {
+            color: var(--wine-red);
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .page-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: var(--wine-red);
+            border-radius: 3px;
+        }
+
+        .email-card {
+            background: var(--snow-white);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .email-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .card-header {
+            background: var(--wine-red);
+            color: var(--snow-white);
+            padding: 15px 20px;
+            position: relative;
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-weight: 500;
+        }
+
+        .header-decoration {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--wine-red), var(--light-wine), var(--wine-red));
+        }
+
+        .email-form {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 6px;
+            resize: vertical;
+            min-height: 120px;
+            font-family: inherit;
+            transition: border 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--light-wine);
+            box-shadow: 0 0 0 3px rgba(114, 47, 55, 0.2);
+        }
+
+        .submit-btn {
+            background: var(--wine-red);
+            color: var(--snow-white);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .submit-btn:hover {
+            background: var(--dark-wine);
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-icon {
+            margin-left: 10px;
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+        }
+
+        .submit-btn:hover .btn-icon {
+            transform: rotate(90deg);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            padding: 0 20px 20px;
+        }
+
+        .email-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .email-table th {
+            background: var(--light-wine);
+            color: var(--snow-white);
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .email-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--medium-gray);
+            vertical-align: middle;
+        }
+
+        .email-row:hover {
+            background-color: rgba(114, 47, 55, 0.05);
+        }
+
+        .email-address {
+            position: relative;
+        }
+
+        .address-text {
+            display: block;
+            padding: 5px 0;
+        }
+
+        .edit-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        .edit-input:focus {
+            outline: none;
+            border-color: var(--light-wine);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 50%;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn i {
+            font-size: 14px;
+        }
+
+        .edit-btn {
+            color: var(--light-wine);
+            border: 1px solid var(--light-wine);
+        }
+
+        .edit-btn:hover {
+            background: var(--light-wine);
+            color: var(--snow-white);
+        }
+
+        .delete-btn {
+            color: var(--error-red);
+            border: 1px solid var(--error-red);
+        }
+
+        .delete-btn:hover {
+            background: var(--error-red);
+            color: var(--snow-white);
+        }
+
+        .save-btn {
+            color: var(--success-green);
+            border: 1px solid var(--success-green);
+        }
+
+        .save-btn:hover {
+            background: var(--success-green);
+            color: var(--snow-white);
+        }
+
+        .cancel-btn {
+            color: var(--text-light);
+            border: 1px solid var(--text-light);
+        }
+
+        .cancel-btn:hover {
+            background: var(--text-light);
+            color: var(--snow-white);
+        }
+
+        /* Animation for new rows */
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .email-row {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .email-container {
+                padding: 10px;
+            }
+            
+            .email-card {
+                border-radius: 8px;
+            }
+            
+            .email-table th, 
+            .email-table td {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Helper function to validate email (with escaped @@ symbols)
+            function isValidEmail(email) {
+                var re = /^[^@@\s]+@@[^@@\s]+\.[^@@\s]+$/;
+                return re.test(email);
+            }
+
+            // Edit button click handler
+            $('.edit-btn').click(function() {
+                var row = $(this).closest('.email-row');
+                row.find('.address-text').hide();
+                row.find('.edit-input').show().focus();
+                row.find('.edit-btn, .delete-btn').hide();
+                row.find('.save-btn, .cancel-btn').show();
+            });
+
+            // Rest of your JavaScript code remains the same...
+            // Cancel button click handler
+            $('.cancel-btn').click(function() {
+                var row = $(this).closest('.email-row');
+                row.find('.edit-input').hide();
+                row.find('.address-text').show();
+                row.find('.edit-btn, .delete-btn').show();
+                row.find('.save-btn, .cancel-btn').hide();
+            });
+
+            // Save button click handler
+            $('.save-btn').click(function() {
+                var row = $(this).closest('.email-row');
+                var id = row.data('id');
+                var newEmail = row.find('.edit-input').val();
+
+                if (!isValidEmail(newEmail)) {
+                    alert('Please enter a valid email address');
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("Edit", "Email")/' + id,
+                    type: 'POST',
+                    data: {
+                        Email_PkId: id,
+                        EmailAddress: newEmail,
+                        Class: 'FinalYear'
+                    },
+                    success: function() {
+                        row.find('.address-text').text(newEmail).show();
+                        row.find('.edit-input').hide();
+                        row.find('.edit-btn, .delete-btn').show();
+                        row.find('.save-btn, .cancel-btn').hide();
+
+                        // Add visual feedback
+                        row.css('background-color', 'rgba(76, 175, 80, 0.2)');
+                        setTimeout(function() {
+                            row.css('background-color', '');
+                        }, 1000);
+                    },
+                    error: function() {
+                        alert('Error updating email');
+                    }
+                });
+            });
+
+            // Delete button click handler
+            $('.delete-btn').click(function() {
+                if (!confirm('Are you sure you want to delete this email?')) return;
+
+                var row = $(this).closest('.email-row');
+                var id = row.data('id');
+
+                $.post('@Url.Action("DeleteConfirmed", "Email")', { id: id }, function() {
+                    // Add fade out animation before removing
+                    row.css('background-color', 'rgba(244, 67, 54, 0.2)');
+                    row.animate({
+                        opacity: 0,
+                        height: 0,
+                        padding: 0
+                    }, 300, function() {
+                        row.remove();
+                    });
+                }).fail(function() {
+                    alert('Error deleting email');
+                });
+            });
+
+            // Form submission with feedback
+            $('.email-form').submit(function(e) {
+                e.preventDefault();
+                var form = $(this);
+                var submitBtn = form.find('.submit-btn');
+
+                // Disable button and show loading state
+                submitBtn.prop('disabled', true);
+                submitBtn.html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: form.attr('method'),
+                    data: form.serialize(),
+                    success: function(response) {
+                        // Show success feedback
+                        submitBtn.html('<i class="fas fa-check"></i> Emails Added!');
+                        submitBtn.css('background-color', 'var(--success-green)');
+
+                        // Reload after a delay
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
+                    },
+                    error: function() {
+                        // Show error feedback
+                        submitBtn.html('<i class="fas fa-exclamation-triangle"></i> Error');
+                        submitBtn.css('background-color', 'var(--error-red)');
+
+                        // Reset button after delay
+                        setTimeout(function() {
+                            submitBtn.html('<span class="btn-text">Add Emails</span><span class="btn-icon">+</span>');
+                            submitBtn.css('background-color', 'var(--wine-red)');
+                            submitBtn.prop('disabled', false);
+                        }, 2000);
+                    }
+                });
+            });
+        });
+    </script>
+}
