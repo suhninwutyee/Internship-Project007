@@ -4,6 +4,7 @@
     ViewData["Title"] = "Project List";
     int count = (Model.PageNumber - 1) * Model.PageSize + 1;
     var total = Model.TotalItemCount;
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
 }
 
 <h3 class="mb-4">Project List</h3>

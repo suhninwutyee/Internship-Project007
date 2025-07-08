@@ -1,14 +1,13 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjectManagementSystem.Data;
 using ProjectManagementSystem.Models;
 using System;
-using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-[Authorize(Roles = "Admin")]
 public class EmailController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -18,119 +17,144 @@ public class EmailController : Controller
         _context = context;
     }
 
-    // GET: Email/Index
+    // GET: Email
     public async Task<IActionResult> Index()
     {
-        var emails = await _context.Emails
-            .Where(e => !e.IsDeleted && e.Class == "FinalYear")
-            .ToListAsync();
-
-        return View(emails);
+        return View(await _context.Emails.Where(e => !e.IsDeleted).ToListAsync());
     }
 
-    // POST: Email/Create (AJAX)
-    [HttpPost]
-    public async Task<IActionResult> Create([FromForm] Email email)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest("Invalid data.");
-
-        email.CreatedDate = DateTimeOffset.UtcNow;
-        email.IsDeleted = false;
-        email.Class = "FinalYear";  // Enforce FinalYear
-
-        _context.Add(email);
-        await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Email added successfully." });
-    }
-
-    // POST: Email/Edit/5 (AJAX)
-    [HttpPost]
-    public async Task<IActionResult> Edit(int id, [FromForm] Email updatedEmail)
-    {
-        if (id != updatedEmail.Email_PkId)
-            return BadRequest("ID mismatch.");
-
-        var email = await _context.Emails.FindAsync(id);
-        if (email == null || email.IsDeleted)
-            return NotFound();
-
-        if (!ModelState.IsValid)
-            return BadRequest("Invalid data.");
-
-        email.EmailAddress = updatedEmail.EmailAddress;
-        // Keep Class as FinalYear in case someone tries to change it
-        email.Class = "FinalYear";
-
-        _context.Update(email);
-        await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Email updated successfully." });
-    }
-
-    // POST: Email/DeleteConfirmed (AJAX)
-    [HttpPost]
-    public async Task<IActionResult> DeleteConfirmed(int id)
-    {
-        var email = await _context.Emails.FindAsync(id);
-        if (email == null || email.IsDeleted)
-            return NotFound();
-
-        email.IsDeleted = true;
-        _context.Emails.Update(email);
-        await _context.SaveChangesAsync();
-
-        return Ok(new { message = "Email deleted successfully." });
-    }
-
-    [HttpGet]
-    public IActionResult BulkCreate()
+    // GET: Email/Create (Single)
+    public IActionResult Create()
     {
         return View();
     }
 
+    // POST: Email/Create (Single)
     [HttpPost]
-    public async Task<IActionResult> BulkCreate(string EmailsRaw)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create([Bind("EmailAddress,RollNumber")] Email email)
     {
-        if (string.IsNullOrWhiteSpace(EmailsRaw))
+        if (ModelState.IsValid)
         {
-            ModelState.AddModelError("", "Please enter at least one email.");
+            email.Class = "Final Year";
+            email.CreatedDate = DateTimeOffset.Now;
+            _context.Add(email);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        return View(email);
+    }
+
+    // GET: Email/UploadBulk
+    public IActionResult UploadBulk()
+    {
+        return View();
+    }
+
+    // POST: Email/UploadBulk
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UploadBulk(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            TempData["Error"] = "Please upload a CSV file.";
             return View();
         }
 
-        var emails = EmailsRaw
-            .Split(new[] { '\r', '\n', ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
-            .Select(e => e.Trim())
-            .Where(e => !string.IsNullOrEmpty(e))
-            .Distinct()
-            .ToList();
-
-        var invalidEmails = emails.Where(e => !new EmailAddressAttribute().IsValid(e)).ToList();
-
-        if (invalidEmails.Any())
+        var emails = new List<Email>();
+        using (var stream = new StreamReader(file.OpenReadStream()))
         {
-            ModelState.AddModelError("", "Invalid emails: " + string.Join(", ", invalidEmails));
-            return View();
+            string line;
+            int lineNumber = 0;
+            while ((line = await stream.ReadLineAsync()) != null)
+            {
+                lineNumber++;
+                if (lineNumber == 1) continue; // Skip header
+
+                var parts = line.Split(',');
+                if (parts.Length < 2) continue;
+
+                var emailAddress = parts[0].Trim();
+                var rollNumber = parts[1].Trim();
+
+                if (string.IsNullOrWhiteSpace(emailAddress) || string.IsNullOrWhiteSpace(rollNumber))
+                    continue;
+
+                emails.Add(new Email
+                {
+                    EmailAddress = emailAddress,
+                    RollNumber = rollNumber,
+                    Class = "Final Year",
+                    CreatedDate = DateTimeOffset.Now
+                });
+            }
         }
 
-        // Create list of Email entities
-        var emailEntities = emails.Select(email => new Email
+        if (emails.Any())
         {
-            EmailAddress = email,
-            Class = "FinalYear",
-            CreatedDate = DateTimeOffset.UtcNow,
-            IsDeleted = false
-        }).ToList();
+            await _context.Emails.AddRangeAsync(emails);
+            await _context.SaveChangesAsync();
+            TempData["Success"] = $"{emails.Count} student emails uploaded successfully.";
+        }
+        else
+        {
+            TempData["Error"] = "No valid email entries found in the file.";
+        }
 
-        // Add all emails in one go using AddRange
-        _context.Emails.AddRange(emailEntities);
-
-        await _context.SaveChangesAsync();
-
-        TempData["SuccessMessage"] = $"{emails.Count} emails added successfully.";
-        return RedirectToAction("Index");
+        return View();
     }
 
 
+[HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult EditInline(int id, [Bind("EmailAddress,RollNumber,Class")] Email model)
+    {
+        if (!ModelState.IsValid)
+        {
+            var errors = ModelState
+                .Where(ms => ms.Value.Errors.Any())
+                .ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                );
+
+            return BadRequest(errors);
+        }
+
+        var existing = _context.Emails.FirstOrDefault(e => e.Email_PkId == id);
+        if (existing == null)
+        {
+            return NotFound();
+        }
+
+        existing.EmailAddress = model.EmailAddress;
+        existing.RollNumber = model.RollNumber;
+        existing.Class = model.Class;
+        _context.SaveChanges();
+
+        return Json(new { success = true });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult DeleteInline(int id)
+    {
+        var email = _context.Emails.Find(id);
+        if (email == null)
+        {
+            return NotFound();
+        }
+
+        _context.Emails.Remove(email);
+        _context.SaveChanges();
+
+        return Json(new { success = true });
+    }
+
+
+    private bool EmailExists(int id)
+    {
+        return _context.Emails.Any(e => e.Email_PkId == id && !e.IsDeleted);
+    }
 }

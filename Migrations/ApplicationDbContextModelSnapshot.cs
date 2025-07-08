@@ -22,33 +22,6 @@ namespace ProjectManagementSystem.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Email", b =>
-                {
-                    b.Property<int>("Email_PkId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Email_PkId"));
-
-                    b.Property<string>("Class")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("EmailAddress")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Email_PkId");
-
-                    b.ToTable("Emails");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -215,7 +188,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AdminActivityLogs");
+                    b.ToTable("AdminActivityLog", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.ApplicationUser", b =>
@@ -321,7 +294,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasIndex("Student_pkId");
 
-                    b.ToTable("AuditLogs");
+                    b.ToTable("AuditLogs", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.Company", b =>
@@ -359,7 +332,38 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasKey("Company_pkId");
 
-                    b.ToTable("Companies");
+                    b.ToTable("Companies", (string)null);
+                });
+
+            modelBuilder.Entity("ProjectManagementSystem.Models.Email", b =>
+                {
+                    b.Property<int>("Email_PkId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Email_PkId"));
+
+                    b.Property<string>("Class")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("EmailAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("RollNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Email_PkId");
+
+                    b.ToTable("Emails", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.Framework", b =>
@@ -382,7 +386,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasIndex("Language_pkId");
 
-                    b.ToTable("Frameworks");
+                    b.ToTable("Frameworks", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.InternCom", b =>
@@ -460,7 +464,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasKey("Language_pkId");
 
-                    b.ToTable("Languages");
+                    b.ToTable("Languages", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.NRCTownship", b =>
@@ -488,7 +492,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasKey("NRC_pkId");
 
-                    b.ToTable("NRCTownships");
+                    b.ToTable("NRCTownships", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.NRCType", b =>
@@ -511,7 +515,31 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasKey("NRCType_pkId");
 
-                    b.ToTable("NRCTypes");
+                    b.ToTable("NRCTypes", (string)null);
+                });
+
+            modelBuilder.Entity("ProjectManagementSystem.Models.OTP", b =>
+                {
+                    b.Property<int>("OTP_PkId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OTP_PkId"));
+
+                    b.Property<string>("OTPCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RollNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("SendTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("OTP_PkId");
+
+                    b.ToTable("OTPs", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.Project", b =>
@@ -578,7 +606,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasIndex("ProjectType_pkId");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.ProjectFile", b =>
@@ -617,7 +645,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasIndex("Project_pkId");
 
-                    b.ToTable("ProjectFiles");
+                    b.ToTable("ProjectFiles", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.ProjectMember", b =>
@@ -635,7 +663,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasIndex("Student_pkId");
 
-                    b.ToTable("ProjectMembers");
+                    b.ToTable("ProjectMembers", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.ProjectType", b =>
@@ -653,7 +681,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasKey("ProjectType_pkId");
 
-                    b.ToTable("ProjectTypes");
+                    b.ToTable("ProjectTypes", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.Student", b =>
@@ -714,7 +742,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasIndex("NRC_pkId");
 
-                    b.ToTable("Students");
+                    b.ToTable("Students", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.StudentDepartment", b =>
@@ -732,7 +760,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasKey("Department_pkID");
 
-                    b.ToTable("StudentDepartments");
+                    b.ToTable("StudentDepartments", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

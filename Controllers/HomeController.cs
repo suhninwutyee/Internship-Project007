@@ -1,31 +1,22 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using ProjectManagementSystem.Models;
 
-namespace ProjectManagementSystem.Controllers;
-
-public class HomeController : Controller
+namespace InternshipSystem.Controllers
 {
-    private readonly ILogger<HomeController> _logger;
-
-    public HomeController(ILogger<HomeController> logger)
+    public class HomeController : Controller
     {
-        _logger = logger;
-    }
+        // GET: /Home/Index
+        public IActionResult Index()
+        {
+            return View();
+        }
 
-    public IActionResult Index()
-    {
-        return View();
-    }
-
-    public IActionResult Privacy()
-    {
-        return View();
-    }
-
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        // POST: /Home/SubmitInterest (Optional - for form handling)
+        [HttpPost]
+        public IActionResult SubmitInterest(string email)
+        {
+            // Add logic to save email to DB or send notification
+            TempData["Message"] = "Thanks for your interest! We'll contact you soon.";
+            return RedirectToAction("Index");
+        }
     }
 }

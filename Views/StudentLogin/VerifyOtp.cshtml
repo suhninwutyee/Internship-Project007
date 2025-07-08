@@ -1,0 +1,18 @@
+﻿@model VerifyOtpViewModel
+
+<h2>Enter OTP</h2>
+
+<form asp-action="VerifyOtp" method="post">
+    <input type="hidden" asp-for="RollNumber" />
+    <div>
+        <label>OTP Code</label>
+        <input asp-for="OTPCode" class="form-control" />
+        <span asp-validation-for="OTPCode" class="text-danger"></span>
+    </div>
+    <button type="submit">Verify</button>
+</form>
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger mt-2">@ViewBag.Error</div>
+}

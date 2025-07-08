@@ -29,6 +29,12 @@ builder.Services.ConfigureApplicationCookie(options =>
 // Add this with your other service registrations
 builder.Services.AddScoped<ProjectManagementSystem.Services.Interface.IActivityLogger,
                            ProjectManagementSystem.Services.ActivityLogger>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
@@ -46,6 +52,9 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseExceptionHandler("/Home/Error");
+app.UseStatusCodePagesWithReExecute("/Home/Error/{0}");
+
 // Database Seeding
 using (var scope = app.Services.CreateScope())
 {
@@ -54,10 +63,7 @@ using (var scope = app.Services.CreateScope())
 
     try
     {
-        // Seed Companies
-        var context = services.GetRequiredService<ApplicationDbContext>();
-        await CompanySeeder.SeedCompanies(context);
-        logger.LogInformation("Company seeding completed");
+       
 
         // Seed Identity
         await IdentitySeeder.SeedRolesAndAdminAsync(services);

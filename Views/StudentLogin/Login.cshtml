@@ -1,0 +1,367 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Login | OTP Verification</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            display: flex;
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .graphic-side {
+            flex: 1;
+            background: linear-gradient(to bottom right, #4776E6, #8E54E9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            color: white;
+            text-align: center;
+        }
+        
+        .form-side {
+            flex: 1;
+            padding: 50px 40px;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo i {
+            font-size: 40px;
+        }
+        
+        .graphic-side h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .graphic-side p {
+            font-size: 16px;
+            opacity: 0.9;
+            line-height: 1.6;
+            max-width: 300px;
+        }
+        
+        .illustration {
+            width: 100%;
+            max-width: 280px;
+            margin-top: 30px;
+        }
+        
+        h2.form-title {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        label {
+            position: absolute;
+            top: 18px;
+            left: 15px;
+            color: #7f8c8d;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            background: white;
+            padding: 0 5px;
+        }
+        
+        input {
+            width: 100%;
+            height: 55px;
+            padding: 0 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            border-color: #4776E6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(71, 118, 230, 0.1);
+        }
+        
+        input:focus + label,
+        input:not(:placeholder-shown) + label {
+            top: -10px;
+            left: 12px;
+            font-size: 13px;
+            color: #4776E6;
+            background: white;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(to right, #4776E6, #8E54E9);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(71, 118, 230, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(71, 118, 230, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .alert-danger {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+        
+        .otp-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            display: none;
+        }
+        
+        .otp-input {
+            width: 60px;
+            height: 60px;
+            text-align: center;
+            font-size: 24px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+        }
+        
+        .resend-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #4776E6;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .resend-link:hover {
+            text-decoration: underline;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .footer a {
+            color: #4776E6;
+            text-decoration: none;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+       
+            
+            .graphic-side {
+                padding: 30px 20px;
+            }
+            
+            .illustration {
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="graphic-side">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h2>Student Portal Access</h2>
+            <p>Secure login with OTP verification to access your academic resources and information</p>
+            <img src="https://cdn.pixabay.com/photo/2018/03/22/02/37/email-3249062_1280.png" alt="OTP Verification" class="illustration">
+        </div>
+        
+        <div class="form-side">
+            <h2 class="form-title">Student Login</h2>
+            <p class="subtitle">Enter your credentials to receive OTP</p>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="text" id="rollNumber" placeholder=" " required>
+                    <label for="rollNumber">Roll Number</label>
+                </div>
+                
+                <div class="form-group">
+                    <input type="email" id="emailAddress" placeholder=" " required>
+                    <label for="emailAddress">Email Address</label>
+                </div>
+                
+                <button type="submit" class="btn">Send OTP</button>
+            </form>
+            
+            <div id="otpSection" class="otp-container">
+                <input type="text" class="otp-input" maxlength="1">
+                <input type="text" class="otp-input" maxlength="1">
+                <input type="text" class="otp-input" maxlength="1">
+                <input type="text" class="otp-input" maxlength="1">
+                <input type="text" class="otp-input" maxlength="1">
+                <input type="text" class="otp-input" maxlength="1">
+            </div>
+            
+            <div class="resend-link" id="resendLink">
+                Didn't receive OTP? <span>Resend Code</span>
+            </div>
+            
+            <div id="errorMessage" class="alert alert-danger">
+                Invalid credentials. Please check your roll number and email address.
+            </div>
+            
+            <div class="footer">
+                <p>Need help? <a href="#">Contact Support</a></p>
+                <p>© 2023 Student Portal. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Form submission and OTP flow
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const rollNumber = document.getElementById('rollNumber').value;
+            const emailAddress = document.getElementById('emailAddress').value;
+            
+            // Simple validation
+            if(rollNumber.trim() === '' || emailAddress.trim() === '') {
+                showError('Please fill in all fields');
+                return;
+            }
+            
+            if(!validateEmail(emailAddress)) {
+                showError('Please enter a valid email address');
+                return;
+            }
+            
+            // Simulate sending OTP (in a real app, this would be an API call)
+            setTimeout(() => {
+                // Hide form and show OTP section
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('otpSection').style.display = 'flex';
+                document.getElementById('resendLink').style.display = 'block';
+                
+                // Focus on first OTP input
+                document.querySelector('.otp-input').focus();
+            }, 800);
+        });
+        
+        // OTP input handling
+        const otpInputs = document.querySelectorAll('.otp-input');
+        otpInputs.forEach((input, index) => {
+            input.addEventListener('input', function() {
+                if(this.value.length === 1) {
+                    if(index < otpInputs.length - 1) {
+                        otpInputs[index + 1].focus();
+                    } else {
+                        // Submit OTP (simulate verification)
+                        setTimeout(() => {
+                            // This would be an API call to verify OTP
+                            // For demo, just show success
+                            alert('Login successful! Redirecting to dashboard...');
+                        }, 500);
+                    }
+                }
+            });
+            
+            // Allow backspace to go to previous input
+            input.addEventListener('keydown', function(e) {
+                if(e.key === 'Backspace' && this.value === '' && index > 0) {
+                    otpInputs[index - 1].focus();
+                }
+            });
+        });
+        
+        // Resend OTP functionality
+        document.getElementById('resendLink').addEventListener('click', function() {
+            // Simulate resending OTP
+            otpInputs.forEach(input => input.value = '');
+            otpInputs[0].focus();
+            alert('New OTP has been sent to your email!');
+        });
+        
+       
+        
+        // Show error message
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            
+            // Hide error after 5 seconds
+            setTimeout(() => {
+                errorElement.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

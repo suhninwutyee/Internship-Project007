@@ -1,0 +1,30 @@
+﻿@{
+    ViewData["Title"] = "Upload Student Emails";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+}
+
+<h3 class="mb-4">Bulk Upload Student Emails</h3>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<form asp-action="UploadBulk" method="post" enctype="multipart/form-data">
+    <div class="form-group mb-3">
+        <label for="file">Upload CSV File (EmailAddress, RollNumber):</label>
+        <input type="file" name="file" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-primary">Upload</button>
+    <button type="submit" class="btn btn-primary" asp-action="Index" asp-controller="Email">Back to List</button>
+</form>
+
+<p class="mt-4 text-muted">📌 Expected CSV format:</p>
+<pre>EmailAddress,RollNumber
+student1@example.com,1001
+student2@example.com,1002
+</pre>

@@ -1,8 +1,115 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Internship Project System";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<style>
+    .internship-card {
+        font-family: 'Segoe UI', sans-serif;
+        background: white;
+        width: 600px;
+        margin: 50px auto;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .internship-logo {
+        font-size: 24px;
+        font-weight: bold;
+        color: #2563eb;
+        margin-bottom: 30px;
+    }
+
+    .internship-title {
+        color: #1e293b;
+        font-size: 28px;
+        margin-bottom: 20px;
+    }
+
+    .internship-description {
+        color: #64748b;
+        line-height: 1.6;
+        margin-bottom: 25px;
+    }
+
+    .feature-list {
+        text-align: left;
+        margin: 25px 0;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        color: #334155;
+    }
+
+    .feature-icon {
+        margin-right: 10px;
+        color: #2563eb;
+    }
+
+    .btn-primary {
+        background: #2563eb;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+    .form-group {
+        margin: 20px 0;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="internship-card">
+    <div class="internship-logo">INTERNSHIP SYSTEM</div>
+    <h1 class="internship-title">PROJECT MANAGEMENT PORTAL</h1>
+    <p class="internship-description">
+        Streamline internship coordination from start to finish. Students submit proposals,
+        mentors track progress, and administrators generate reports—all in one unified platform.
+    </p>
+
+    <div class="feature-list">
+        <div class="feature-item">
+            <span class="feature-icon">✓</span> Student Project Submissions
+        </div>
+        <div class="feature-item">
+            <span class="feature-icon">✓</span> Mentor Approval Workflow
+        </div>
+        <div class="feature-item">
+            <span class="feature-icon">✓</span> Progress Analytics Dashboard
+        </div>
+    </div>
+
+    <!-- Optional Form -->
+    <form asp-action="SubmitInterest" method="post">
+        <div class="form-group">
+            <input type="email" name="email" class="form-control" placeholder="Enter email to get started" required>
+        </div>
+        <button type="submit" class="btn-primary">Request Access</button>
+    </form>
+
+    <!-- Status Message -->
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success mt-3">@TempData["Message"]</div>
+    }
 </div>

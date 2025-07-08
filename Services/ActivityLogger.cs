@@ -35,7 +35,7 @@ namespace ProjectManagementSystem.Services
                 Timestamp = DateTime.UtcNow
             };
 
-            _context.AdminActivityLogs.Add(log);
+            _context.AdminActivityLog.Add(log);
             await _context.SaveChangesAsync();
         }
     }

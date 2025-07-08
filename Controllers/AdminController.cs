@@ -99,7 +99,7 @@ namespace ProjectManagementSystem.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ActivityLogs()
         {
-            var logs = await _context.AdminActivityLogs
+            var logs = await _context.AdminActivityLog
                 .OrderByDescending(l => l.Timestamp)
                 .ToListAsync();
 

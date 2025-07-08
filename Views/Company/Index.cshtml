@@ -2,8 +2,9 @@
 
 @{
     ViewData["Title"] = "Company List";
-    int count = (Model.PageNumber - 1) * Model.PageSize + 1;
+    int count = (Model.PageNumber - 1) * Model.PageSize + 1;//
     var total = Model.TotalItemCount;
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
 }
 
 <h3 class="mb-4">Company List</h3>
@@ -18,7 +19,6 @@
         <tr>
             <th style="width:5%;">No</th>
             <th>Company Name</th>
-            <th>Incharge</th>
             <th>Address</th>
             <th>Contact</th>
             <th>Description</th>
@@ -30,8 +30,7 @@
         {
             <tr>
                 <td>@count</td>
-                <td>@item.CompanyName</td>
-                <td>@item.Incharge</td>
+                <td>@item.CompanyName</td> 
                 <td>@item.Address</td>
                 <td>@item.Contact</td>
                 <td>@item.Description</td>

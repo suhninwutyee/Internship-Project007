@@ -27,15 +27,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<NRCTownship> NRCTownships { get; set; }
     public DbSet<NRCType> NRCTypes { get; set; }
 
-    public DbSet<InternCom> InternComs { get; set; }
+    
 
     public DbSet<Email> Emails { get; set; }
 
+    public DbSet<OTP> OTPs { get; set; }
+<<<<<<< Updated upstream
+=======
 
-    public DbSet<AdminActivityLog> AdminActivityLogs { get; set; }
-
-
-
+    public DbSet<AdminActivityLog> AdminActivityLog { get; set; }
+>>>>>>> Stashed changes
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -49,13 +50,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
         
 
+      
         // Configure composite key for ProjectMember
         modelBuilder.Entity<ProjectMember>()
             .HasKey(pm => new { pm.Project_pkId, pm.Student_pkId });
 
         // Configure relationships
       
-
         modelBuilder.Entity<Student>()
             .HasOne(s => s.NRCType)
             .WithMany()
@@ -88,14 +89,25 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(f => f.Language_pkId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        
-
         modelBuilder.Entity<ProjectMember>().HasKey(pm => new { pm.Project_pkId, pm.Student_pkId });
 
-        modelBuilder.Entity<InternCom>().ToTable("InternCom");
+       
 
-        base.OnModelCreating(modelBuilder);
+    
 
+    
+
+       // modelBuilder.Entity<OTP>()
+       //.HasOne(o => o.Student)
+       //.WithMany(s => s.OTPs)
+       //.HasForeignKey(o => o.Student_pkId)
+       //.OnDelete(DeleteBehavior.Cascade);
+
+        //modelBuilder.Entity<Email>()
+        //.HasOne(e => e.Student)
+        //.WithMany(s => s.Emails)
+        //.HasForeignKey(e => e.Student_pkId)
+        //.HasPrincipalKey(s => s.Student_pkId);
 
     }
 }

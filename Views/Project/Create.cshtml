@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Create Project";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
 }
 
 <h2 class="mb-4">Create New Project</h2>
@@ -74,7 +75,7 @@
                 <select asp-for="Company_pkId" class="form-select" asp-items="ViewBag.Companies">
                     <option value="">-- Select Company --</option>
                 </select>
-                <a href="@Url.Action("Index", "Company")" target="_blank" class="btn btn-outline-success">+</a>
+                
             </div>
             <span asp-validation-for="Company_pkId" class="text-danger"></span>
         </div>
