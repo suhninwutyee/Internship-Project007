@@ -1,0 +1,42 @@
+﻿@model List<ProjectManagementSystem.Models.SuccessStory>
+
+@{
+    ViewData["Title"] = "Success Stories";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+
+<h2>Success Stories</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+
+@if (Model.Any())
+{
+    <div class="row">
+        @foreach (var story in Model)
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 shadow-sm">
+                    @if (!string.IsNullOrEmpty(story.ImageFileName))
+                    {
+                        <img src="~/uploads/successstories/@story.ImageFileName" class="card-img-top"
+                             style="height: 200px; object-fit: cover;" alt="@story.StudentName" />
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@story.InternshipCompany</h5>
+                        <p><strong>@story.StudentName</strong></p>
+                        <p>@story.Story</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p>No success stories yet.</p>
+}
+
+<a asp-action="SubmitSuccessStory" class="btn btn-primary mt-3">Share Your Success Story</a>

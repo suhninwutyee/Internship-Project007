@@ -297,6 +297,29 @@ namespace ProjectManagementSystem.Migrations
                     b.ToTable("AuditLogs", (string)null);
                 });
 
+            modelBuilder.Entity("ProjectManagementSystem.Models.City", b =>
+                {
+                    b.Property<int>("City_pkId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("City_pkId"));
+
+                    b.Property<string>("CityName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ImageFileName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("City_pkId");
+
+                    b.ToTable("Cities");
+                });
+
             modelBuilder.Entity("ProjectManagementSystem.Models.Company", b =>
                 {
                     b.Property<int>("Company_pkId")
@@ -310,6 +333,9 @@ namespace ProjectManagementSystem.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<int?>("City_pkId")
+                        .HasColumnType("int");
+
                     b.Property<string>("CompanyName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -320,18 +346,24 @@ namespace ProjectManagementSystem.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<string>("Incharge")
+                    b.Property<string>("ImageFileName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Company_pkId");
 
+                    b.HasIndex("City_pkId");
+
+                    b.ToTable("Companies");
                     b.ToTable("Companies", (string)null);
                 });
 
@@ -763,6 +795,35 @@ namespace ProjectManagementSystem.Migrations
                     b.ToTable("StudentDepartments", (string)null);
                 });
 
+            modelBuilder.Entity("ProjectManagementSystem.Models.SuccessStory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ImageFileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InternshipCompany")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Story")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StudentName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SuccessStories");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -825,6 +886,15 @@ namespace ProjectManagementSystem.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("ProjectManagementSystem.Models.Company", b =>
+                {
+                    b.HasOne("ProjectManagementSystem.Models.City", "City")
+                        .WithMany("Companies")
+                        .HasForeignKey("City_pkId");
+
+                    b.Navigation("City");
+                });
+
             modelBuilder.Entity("ProjectManagementSystem.Models.Framework", b =>
                 {
                     b.HasOne("ProjectManagementSystem.Models.Language", "Language")
@@ -857,7 +927,7 @@ namespace ProjectManagementSystem.Migrations
                         .IsRequired();
 
                     b.HasOne("ProjectManagementSystem.Models.ProjectType", "ProjectType")
-                        .WithMany()
+                        .WithMany("Projects")
                         .HasForeignKey("ProjectType_pkId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -928,6 +998,11 @@ namespace ProjectManagementSystem.Migrations
                     b.Navigation("StudentDepartment");
                 });
 
+            modelBuilder.Entity("ProjectManagementSystem.Models.City", b =>
+                {
+                    b.Navigation("Companies");
+                });
+
             modelBuilder.Entity("ProjectManagementSystem.Models.Framework", b =>
                 {
                     b.Navigation("Projects");
@@ -945,6 +1020,11 @@ namespace ProjectManagementSystem.Migrations
                     b.Navigation("Files");
 
                     b.Navigation("Members");
+                });
+
+            modelBuilder.Entity("ProjectManagementSystem.Models.ProjectType", b =>
+                {
+                    b.Navigation("Projects");
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.StudentDepartment", b =>

@@ -1,0 +1,130 @@
+﻿@model ProjectManagementSystem.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+
+<style>
+    .dashboard-card {
+        transition: transform 0.2s ease, box-shadow 0.3s ease;
+        border-radius: 0.5rem;
+        background-color: #fff;
+        box-shadow: 0 0.125rem 0.25rem rgb(0 0 0 / 0.05);
+        cursor: default;
+    }
+
+        .dashboard-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.12);
+        }
+
+    .dashboard-icon {
+        font-size: 2.4rem;
+        opacity: 0.75;
+        transition: opacity 0.3s ease;
+    }
+
+    .dashboard-card:hover .dashboard-icon {
+        opacity: 1;
+    }
+
+    h6 {
+        font-size: 0.9rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+        color: #6c757d;
+    }
+
+    h3 {
+        font-weight: 700;
+        font-size: 2rem;
+        margin: 0;
+        color: #212529;
+    }
+
+    .table thead th {
+        font-weight: 600;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+
+<div class="container py-4">
+    <h2 class="mb-4 fw-bold">📊 Dashboard Overview</h2>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card dashboard-card border-0 shadow-sm">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6>Total Projects</h6>
+                        <h3>@Model.ProjectCount</h3>
+                    </div>
+                    <i class="bi bi-journal-code dashboard-icon text-primary"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card dashboard-card border-0 shadow-sm">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6>Total Companies</h6>
+                        <h3>@Model.CompanyCount</h3>
+                    </div>
+                    <i class="bi bi-buildings dashboard-icon text-success"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card dashboard-card border-0 shadow-sm">
+                <div class="card-body d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6>Total Cities</h6>
+                        <h3>@Model.CityCount</h3>
+                    </div>
+                    <i class="bi bi-geo-alt dashboard-icon text-danger"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-5">
+        <h4 class="fw-semibold">🏢 Recent Companies</h4>
+        <div class="table-responsive mt-3">
+            <table class="table table-hover align-middle shadow-sm">
+                <thead class="table-primary">
+                    <tr>
+                        <th scope="col" style="width:5%;">#</th>
+                        <th scope="col">Company Name</th>
+                        <th scope="col" style="width:20%;">Date Registered</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.RecentCompanies != null && Model.RecentCompanies.Count > 0)
+                    {
+                        for (int i = 0; i < Model.RecentCompanies.Count; i++)
+                        {
+                            <tr>
+                                <td>@(i + 1)</td>
+                                <td>@Model.RecentCompanies[i].CompanyName</td>
+                                <td>@Model.RecentCompanies[i].CreatedAt.ToString("yyyy-MM-dd")</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="3" class="text-center text-muted">No recent companies found.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

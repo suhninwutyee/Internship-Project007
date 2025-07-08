@@ -1,0 +1,66 @@
+﻿@model IEnumerable<IGrouping<string, ProjectManagementSystem.Models.ProjectFile>>
+
+@{
+    ViewData["Title"] = "Project Files List";
+    int count = 1;
+}
+
+<!-- Include Bootstrap Icons for download icon -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+
+<h3>@ViewData["Title"]</h3>
+
+<a asp-action="Create" class="btn btn-primary mb-3">+ Upload Files</a>
+
+<table class="table table-striped table-hover shadow-sm align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th style="width:5%;">No</th>
+            <th>Project</th>
+            <th>Files</th>
+            <th>Uploader</th>
+            <th style="width:20%;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var group in Model)
+        {
+            var firstFile = group.First();
+            <tr>
+                <td>@count</td>
+                <td>@group.Key</td>
+                <td>
+                    @foreach (var file in group)
+                    {
+                        <div class="d-flex justify-content-start align-items-center mb-1 gap-1">
+                            <span>📎</span>
+                            <a href="@file.FilePath" target="_blank" class="text-decoration-none">
+                                @System.IO.Path.GetFileName(file.FilePath)
+                            </a>
+                            <a href="@file.FilePath" target="_blank" class="text-info" title="Download">
+                                <i class="bi bi-download"></i>
+                            </a>
+                        </div>
+                    }
+                </td>
+                <td>
+                    @foreach (var file in group)
+                    {
+                        <div class="mb-1">
+                            @file.UploadedBy
+                        </div>
+                    }
+                </td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <a asp-action="EditGroup" asp-route-projectId="@firstFile.Project_pkId" class="btn btn-sm btn-warning">Edit All</a>
+                        <form asp-action="DeleteGroup" asp-route-projectId="@firstFile.Project_pkId" method="post" onsubmit="return confirm('Delete all files in this project?');">
+                            <button type="submit" class="btn btn-sm btn-danger">Delete All</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            count++;
+        }
+    </tbody>
+</table>

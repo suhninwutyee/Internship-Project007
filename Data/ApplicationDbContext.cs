@@ -15,9 +15,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public DbSet<Student> Students { get; set; }
     public DbSet<StudentDepartment> StudentDepartments { get; set; }
-    public DbSet<Company> Companies { get; set; }
+    public DbSet<Company> Companies { get; set; }    
+    public DbSet<City> Cities { get; set; }
     public DbSet<Project> Projects { get; set; }
     public DbSet<ProjectMember> ProjectMembers { get; set; }
+    public DbSet<SuccessStory> SuccessStories { get; set; }
     public DbSet<ProjectType> ProjectTypes { get; set; }
     public DbSet<Language> Languages { get; set; }
     public DbSet<Framework> Frameworks { get; set; }
@@ -32,11 +34,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Email> Emails { get; set; }
 
     public DbSet<OTP> OTPs { get; set; }
-<<<<<<< Updated upstream
-=======
 
     public DbSet<AdminActivityLog> AdminActivityLog { get; set; }
->>>>>>> Stashed changes
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

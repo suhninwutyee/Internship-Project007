@@ -22,6 +22,8 @@
             <th>Address</th>
             <th>Contact</th>
             <th>Description</th>
+            <th>State/Region</th>
+            <th>Photo</th>
             <th style="width:20%;">Actions</th>
         </tr>
     </thead>
@@ -30,10 +32,21 @@
         {
             <tr>
                 <td>@count</td>
-                <td>@item.CompanyName</td> 
+                <td>@item.CompanyName</td>
                 <td>@item.Address</td>
                 <td>@item.Contact</td>
                 <td>@item.Description</td>
+                <td>@item.City?.CityName</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(item.ImageFileName))
+                    {
+                        <img src="@Url.Content("~/images/companies/" + item.ImageFileName)" alt="Company Photo" style="height:50px; width:auto;" class="rounded" />
+                    }
+                    else
+                    {
+                        <span class="text-muted">No Photo</span>
+                    }
+                </td>
                 <td>
                     <div class="d-flex flex-wrap gap-1">
                         <a asp-action="Edit" asp-route-id="@item.Company_pkId" class="btn btn-sm btn-warning">Edit</a>

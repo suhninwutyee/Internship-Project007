@@ -1,0 +1,107 @@
+﻿@model X.PagedList.IPagedList<ProjectManagementSystem.Models.Company>
+@using X.PagedList.Mvc.Core
+
+@{
+    ViewData["Title"] = "Internship Companies in " + ViewBag.CityName;
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+
+    var cityName = ViewBag.CityName as string;
+    var totalCompanies = ViewBag.TotalCompanies as int? ?? 0;
+    var cityId = ViewBag.CityId as int? ?? 0;
+}
+
+<style>
+    .small-dashboard-card {
+        display: inline-flex;
+        align-items: center;
+        background: #fff;
+        border-radius: 0.375rem;
+        padding: 0.3rem 0.7rem;
+        box-shadow: 0 0.125rem 0.25rem rgb(0 0 0 / 0.1);
+        min-width: 100px;
+        user-select: none;
+        margin-bottom: 1rem;
+    }
+
+    .small-dashboard-icon {
+        font-size: 1.3rem;
+        opacity: 0.6;
+        color: #0d6efd; /* bootstrap primary */
+        margin-right: 0.4rem;
+        flex-shrink: 0;
+    }
+
+    .small-dashboard-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1;
+    }
+
+        .small-dashboard-text .label {
+            font-size: 0.75rem;
+            color: #6c757d;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .small-dashboard-text .value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1;
+            color: #212529;
+        }
+</style>
+
+<div class="d-flex justify-content-between align-items-center flex-wrap mb-3 gap-2">
+    <h2 class="mb-0">Internship Companies in @cityName</h2>
+
+    <div class="small-dashboard-card" title="Total Companies">
+        <i class="bi bi-building small-dashboard-icon"></i>
+        <div class="small-dashboard-text">
+            <p class="label mb-0">Total Companies</p>
+            <p class="value mb-0">@totalCompanies</p>
+        </div>
+    </div>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <div class="row">
+        @foreach (var company in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    @if (!string.IsNullOrEmpty(company.ImageFileName))
+                    {
+                        <img src="@Url.Content("~/images/companies/" + company.ImageFileName)" class="card-img-top" alt="@company.CompanyName" style="height: 180px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <img src="~/images/placeholder-company.png" class="card-img-top" alt="No image" style="height: 180px; object-fit: cover;" />
+                    }
+
+                    <div class="card-body">
+                        <h5 class="card-title">@company.CompanyName</h5>
+                        <p class="mb-1"><strong>Address:</strong> @company.Address</p>
+                        <p class="mb-1"><strong>Contact:</strong> @company.Contact</p>
+                        @if (!string.IsNullOrWhiteSpace(company.Description))
+                        {
+                            <p class="card-text mt-2">@company.Description</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="d-flex justify-content-center mt-4">
+        @Html.PagedListPager(Model, page => Url.Action("CompaniesByCity", new { id = cityId, page }))
+    </div>
+}
+else
+{
+    <p class="text-muted">No internship companies found in this city.</p>
+}
+
+<a asp-action="InternshipCompanies" asp-controller="Public" class="btn btn-secondary mt-4">← Back to Cities</a>

@@ -1,0 +1,221 @@
+﻿@model ProjectManagementSystem.ViewModels.ProjectIdeasViewModel
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    ViewData["Title"] = "Student Projects";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
+}
+
+<style>
+    /* Card hover */
+    .project-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+        border-radius: 0.5rem;
+        background-color: #fff;
+        box-shadow: 0 0.125rem 0.25rem rgb(0 0 0 / 0.07);
+    }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            z-index: 5;
+        }
+
+    /* File list */
+    .file-list li {
+        list-style: none;
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.9rem;
+    }
+
+    .file-icon {
+        font-size: 1.1rem;
+        color: #0d6efd; /* Bootstrap primary */
+        flex-shrink: 0;
+    }
+
+    /* Pagination */
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #e7f1ff;
+        color: #0d6efd;
+    }
+
+    /* Filter select */
+    .filter-select {
+        max-width: 320px;
+    }
+
+    /* Header & total projects card */
+    .header-flex {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .small-dashboard-card {
+        display: inline-flex;
+        align-items: center;
+        background: #fff;
+        border-radius: 0.375rem;
+        padding: 0.3rem 0.7rem;
+        box-shadow: 0 0.125rem 0.25rem rgb(0 0 0 / 0.1);
+        min-width: 140px;
+        user-select: none;
+        gap: 0.5rem;
+        font-weight: 600;
+        color: #0d6efd; /* Bootstrap primary */
+        cursor: default;
+    }
+
+    .small-dashboard-icon {
+        font-size: 1.4rem;
+        opacity: 0.7;
+        color: #0d6efd;
+        flex-shrink: 0;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+    }
+
+    .card-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .card-text {
+        font-size: 0.95rem;
+    }
+</style>
+
+<div class="header-flex">
+    <h2 class="mb-0">@ViewData["Title"]</h2>
+
+    <div class="small-dashboard-card" title="Total Projects">
+        <i class="bi bi-journal-code small-dashboard-icon"></i>
+        <span>Total Projects: @Model.TotalProjects</span>
+    </div>
+
+    @if (Model.SelectedProjectTypeId.HasValue)
+    {
+        <a asp-action="ProjectIdeas" class="btn btn-outline-secondary btn-sm">
+            ← Back to All Projects
+        </a>
+    }
+</div>
+
+<!-- Filter by Project Type -->
+<form method="get" asp-action="ProjectIdeas" class="mb-4">
+    <div class="row justify-content-start">
+        <div class="col-auto">
+            <select name="projectTypeId" class="form-select filter-select" onchange="this.form.submit()" aria-label="Filter projects by type">
+                <option value="">-- Filter by Project Type --</option>
+                @foreach (SelectListItem type in Model.ProjectTypes)
+                {
+                    <option value="@type.Value" selected="@(type.Value == Model.SelectedProjectTypeId?.ToString() ? "selected" : null)">
+                        @type.Text
+                    </option>
+                }
+            </select>
+        </div>
+    </div>
+</form>
+
+<!-- Project Listing -->
+@if (!Model.Projects.Any())
+{
+    <p class="text-muted fst-italic fs-5">No projects found for the selected type.</p>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var project in Model.Projects)
+        {
+            <div class="col">
+                <div class="card project-card h-100 border-primary shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title fw-bold">@project.ProjectName</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Supervisor: @project.SupervisorName</h6>
+                        <p class="card-text mb-2">
+                            <span class="badge bg-info text-dark">Type: @project.ProjectType?.TypeName</span>
+                        </p>
+                        <p class="card-text flex-grow-1 text-truncate" style="max-height: 4.5rem; overflow: hidden;">
+                            Description: @project.Description
+                        </p>
+
+                        @if (project.Files != null && project.Files.Any())
+                        {
+                            <div class="mt-3">
+                                <strong>Files:</strong>
+                                <ul class="file-list ps-0 mt-1">
+                                    @foreach (var file in project.Files)
+                                    {
+                                        <li>
+                                            <i class="bi bi-file-earmark-text file-icon"></i>
+                                            <a href="@file.FilePath" target="_blank" class="text-decoration-none">
+                                                @System.IO.Path.GetFileName(file.FilePath)
+                                            </a>
+                                            <small class="text-muted">(@file.FileType, @(file.FileSize / 1024) KB)</small>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted fst-italic mt-3">No files uploaded.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<!-- Pagination -->
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center flex-wrap gap-2">
+            <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="ProjectIdeas"
+                   asp-route-projectTypeId="@Model.SelectedProjectTypeId"
+                   asp-route-page="@(Model.CurrentPage - 1)">
+                    &laquo; Previous
+                </a>
+            </li>
+
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.CurrentPage ? "active" : "")" aria-current="@(i == Model.CurrentPage ? "page" : null)">
+                    <a class="page-link"
+                       asp-action="ProjectIdeas"
+                       asp-route-projectTypeId="@Model.SelectedProjectTypeId"
+                       asp-route-page="@i">@i</a>
+                </li>
+            }
+
+            <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="ProjectIdeas"
+                   asp-route-projectTypeId="@Model.SelectedProjectTypeId"
+                   asp-route-page="@(Model.CurrentPage + 1)">
+                    Next &raquo;
+                </a>
+            </li>
+        </ul>
+    </nav>
+}

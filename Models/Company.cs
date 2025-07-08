@@ -11,7 +11,10 @@ namespace ProjectManagementSystem.Models
 
         [Required(ErrorMessage = "Company name is required")]
         [StringLength(100, ErrorMessage = "Company name cannot exceed 100 characters")]
-        public string CompanyName { get; set; } = "";
+        public string CompanyName { get; set; }
+        [Required(ErrorMessage = "Image is required")]
+        [StringLength(200)]
+        public string ImageFileName { get; set; }        
 
         [Required(ErrorMessage = "Address is required")]
         [StringLength(200, ErrorMessage = "Address cannot exceed 200 characters")]
@@ -22,6 +25,16 @@ namespace ProjectManagementSystem.Models
         public string Contact { get; set; } = "";
 
         [StringLength(500, ErrorMessage = "Description cannot exceed 500 characters")]
-        public string Description { get; set; } = "";
+        public string Description { get; set; }
+       
+        [ForeignKey(nameof(City))]
+        public int? City_pkId { get; set; }
+        public virtual City City { get; set; }
+
+        [Required]
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+
+
     }
 }
