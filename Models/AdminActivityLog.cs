@@ -1,11 +1,11 @@
-﻿// Models/AdminActivityLog.cs
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace ProjectManagementSystem.Models
 {
     public class AdminActivityLog
     {
+
         public int Id { get; set; }
 
         public string AdminId { get; set; }  // Stores the user ID (optional)

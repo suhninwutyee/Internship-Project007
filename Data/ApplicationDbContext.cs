@@ -28,14 +28,15 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     
     public DbSet<NRCTownship> NRCTownships { get; set; }
     public DbSet<NRCType> NRCTypes { get; set; }
+    public DbSet<AdminActivityLog> AdminActivityLogs { get; set; }
 
-    
+
 
     public DbSet<Email> Emails { get; set; }
 
     public DbSet<OTP> OTPs { get; set; }
 
-    public DbSet<AdminActivityLog> AdminActivityLog { get; set; }
+    
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -31,10 +31,6 @@ builder.Services.AddScoped<ProjectManagementSystem.Services.Interface.IActivityL
                            ProjectManagementSystem.Services.ActivityLogger>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
@@ -77,6 +73,6 @@ using (var scope = app.Services.CreateScope())
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Admin}/{action=Login}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

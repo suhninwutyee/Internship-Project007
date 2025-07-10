@@ -188,7 +188,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AdminActivityLog", (string)null);
+                    b.ToTable("AdminActivityLogs");
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.ApplicationUser", b =>
@@ -294,7 +294,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasIndex("Student_pkId");
 
-                    b.ToTable("AuditLogs", (string)null);
+                    b.ToTable("AuditLogs");
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.City", b =>
@@ -364,7 +364,6 @@ namespace ProjectManagementSystem.Migrations
                     b.HasIndex("City_pkId");
 
                     b.ToTable("Companies");
-                    b.ToTable("Companies", (string)null);
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.Email", b =>
@@ -395,7 +394,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasKey("Email_PkId");
 
-                    b.ToTable("Emails", (string)null);
+                    b.ToTable("Emails");
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.Framework", b =>
@@ -418,68 +417,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasIndex("Language_pkId");
 
-                    b.ToTable("Frameworks", (string)null);
-                });
-
-            modelBuilder.Entity("ProjectManagementSystem.Models.InternCom", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Image")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Industry")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<bool>("OffersInternships")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Website")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("InternCom", (string)null);
+                    b.ToTable("Frameworks");
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.Language", b =>
@@ -496,7 +434,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasKey("Language_pkId");
 
-                    b.ToTable("Languages", (string)null);
+                    b.ToTable("Languages");
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.NRCTownship", b =>
@@ -524,7 +462,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasKey("NRC_pkId");
 
-                    b.ToTable("NRCTownships", (string)null);
+                    b.ToTable("NRCTownships");
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.NRCType", b =>
@@ -547,7 +485,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasKey("NRCType_pkId");
 
-                    b.ToTable("NRCTypes", (string)null);
+                    b.ToTable("NRCTypes");
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.OTP", b =>
@@ -571,7 +509,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasKey("OTP_PkId");
 
-                    b.ToTable("OTPs", (string)null);
+                    b.ToTable("OTPs");
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.Project", b =>
@@ -638,7 +576,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasIndex("ProjectType_pkId");
 
-                    b.ToTable("Projects", (string)null);
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.ProjectFile", b =>
@@ -677,7 +615,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasIndex("Project_pkId");
 
-                    b.ToTable("ProjectFiles", (string)null);
+                    b.ToTable("ProjectFiles");
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.ProjectMember", b =>
@@ -695,7 +633,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasIndex("Student_pkId");
 
-                    b.ToTable("ProjectMembers", (string)null);
+                    b.ToTable("ProjectMembers");
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.ProjectType", b =>
@@ -713,7 +651,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasKey("ProjectType_pkId");
 
-                    b.ToTable("ProjectTypes", (string)null);
+                    b.ToTable("ProjectTypes");
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.Student", b =>
@@ -774,7 +712,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasIndex("NRC_pkId");
 
-                    b.ToTable("Students", (string)null);
+                    b.ToTable("Students");
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.StudentDepartment", b =>
@@ -792,7 +730,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasKey("Department_pkID");
 
-                    b.ToTable("StudentDepartments", (string)null);
+                    b.ToTable("StudentDepartments");
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.SuccessStory", b =>
