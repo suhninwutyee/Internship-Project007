@@ -26,15 +26,11 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = true;
 });
 
-// Add this with your other service registrations
 builder.Services.AddScoped<ProjectManagementSystem.Services.Interface.IActivityLogger,
                            ProjectManagementSystem.Services.ActivityLogger>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
@@ -77,6 +73,6 @@ using (var scope = app.Services.CreateScope())
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Admin}/{action=Login}/{id?}");
+    pattern: "{controller=Welcome}/{action=Index}/{id?}");
 
 app.Run();

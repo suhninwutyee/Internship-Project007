@@ -35,6 +35,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<OTP> OTPs { get; set; }
 
+
+
     public DbSet<AdminActivityLog> AdminActivityLog { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
