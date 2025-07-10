@@ -36,6 +36,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<OTP> OTPs { get; set; }
 
+<<<<<<< Updated upstream
+
+
+    public DbSet<AdminActivityLog> AdminActivityLog { get; set; }
+=======
+>>>>>>> Stashed changes
     
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

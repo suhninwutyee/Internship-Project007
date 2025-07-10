@@ -1,0 +1,203 @@
+﻿@{
+    Layout = null; // This ensures no layout is used
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Internship Project Information System</title>
+    <link rel="stylesheet" href="~/css/style.css" />
+</head>
+<body>
+    <header>
+        <div class="container nav-container">
+            <div class="logo">
+                <img src="~/images/logo.png" alt="Your Logo" />
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#home" class="active">Home</a></li>
+                    <li><a href="#about">About us</a></li>
+                    <li><a href="#info">Info</a></li>
+                    <li><a href="#contact">Contact us</a></li>
+                    <li><a href="@Url.Action("Login", "Admin")" class="login-btn">Login</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section id="home" class="hero">
+        <!-- Top wave -->
+        <div class="wave wave-top">
+            <svg viewBox="0 0 1200 100" preserveAspectRatio="none">
+                <path d="M0,30 C150,90 350,0 600,30 C850,60 1050,0 1200,30 L1200,0 L0,0 Z" />
+                <path d="M0,50 C200,10 400,90 600,50 C800,10 1000,90 1200,50 L1200,0 L0,0 Z" />
+            </svg>
+        </div>
+
+        <div class="container hero-inner">
+            <div class="hero-content">
+                <h1>Internship Project Information System</h1>
+                <p>
+                    Get ready to connect with industry projects and take 
+                    your internship journey to the next level.
+                </p>
+                <button class="hero-btn">Get Started</button>
+            </div>
+            <div class="hero-image">
+                <img src="~/images/hero.png" alt="Planning illustration" />
+            </div>
+        </div>
+
+        <!-- Bottom wave -->
+        <div class="wave wave-bottom">
+            <svg viewBox="0 0 1200 100" preserveAspectRatio="none">
+                <path d="M0,30 C150,90 350,0 600,30 C850,60 1050,0 1200,30 L1200,100 L0,100 Z" />
+                <path d="M0,50 C200,10 400,90 600,50 C800,10 1000,90 1200,50 L1200,100 L0,100 Z" />
+            </svg>
+        </div>
+    </section>
+
+    <!-- About Us -->
+    <section id="about" class="section fade-up">
+        <div class="about-wrapper container">
+            <div class="about-text">
+                <h2>About Us</h2>
+                <p class="about-lead">
+                    The Internship Project Information System is designed to connect students, teachers, and industry opportunities in a seamless way.
+                    Final-year students can upload and showcase their internship projects, normal students can explore and learn from them, and teachers manage the workflow and ensure academic standards.
+                    Our mission is to make internship tracking simple and transparent, fostering real-world skills and collaboration for future professionals.
+                </p>
+                <div class="about-cards">
+                    <div class="about-card">
+                        <div class="icon">🔍</div>
+                        <h3>Curated Company Matches</h3>
+                    </div>
+                    <div class="about-card">
+                        <div class="icon">📈</div>
+                        <h3>Progress Dashboard</h3>
+                    </div>
+                    <div class="about-card">
+                        <div class="icon">💬</div>
+                        <h3>Mentor Chat Support</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Info -->
+    <section id="info" class="section fade-up">
+        <div class="container">
+            <h2>Info</h2>
+            <p>
+                Dive into our expert guides: from crafting standout resumes to acing
+                interviews and maximizing your internship experience.
+            </p>
+            <div class="info-cards">
+                <div class="card">
+                    <h3>Resume Tips</h3>
+                    <p>Stand out with a polished, recruiter-friendly CV.</p>
+                </div>
+                <div class="card">
+                    <h3>Interview Prep</h3>
+                    <p>Mock questions, feedback, and confidence building.</p>
+                </div>
+                <div class="card">
+                    <h3>Career Advice</h3>
+                    <p>Long-term strategies for your professional journey.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Us -->
+    <section id="contact" class="section fade-up">
+        <div class="container contact-wrapper">
+            <!-- left: contact info -->
+            <div class="contact-info">
+                <h2>Contact Us</h2>
+                <p>Questions? Feedback? We'd love to hear from you.</p>
+                <ul>
+                    <li><span class="contact-icon">📍</span> University Of Computer(Mandalay)</li>
+                    <li><span class="contact-icon">✉️</span> support@internsync.com</li>
+                    <li><span class="contact-icon">📞</span> +95-796727093</li>
+                </ul>
+                <div class="socials">
+                    <a href="#"><span class="social-icon">🐦</span></a>
+                    <a href="#"><span class="social-icon">💼</span></a>
+                    <a href="#"><span class="social-icon">📘</span></a>
+                </div>
+            </div>
+
+            <!-- right: fancy form -->
+            <div class="contact-form">
+                <form>
+                    <div class="form-field">
+                        <input type="text" id="name" placeholder=" " required />
+                        <label for="name">Your Name</label>
+                    </div>
+                    <div class="form-field">
+                        <input type="email" id="email" placeholder=" " required />
+                        <label for="email">Your Email</label>
+                    </div>
+                    <div class="form-field">
+                        <textarea id="message"
+                                  rows="4"
+                                  placeholder=" "
+                                  required></textarea>
+                        <label for="message">Your Message</label>
+                    </div>
+                    <button type="submit" class="btn-submit">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (three-column style) -->
+    <footer id="footer-alt">
+        <div class="footer-overlay"></div>
+        <div class="footer-content container">
+            <!-- Left column: logo + blurb -->
+            <div class="footer-col footer-about">
+                <img src="~/images/logo.png"
+                     alt="Intern Sync Logo"
+                     class="footer-logo" />
+                <p>
+                    Intern Sync connects passionate students with top internships around
+                    the globe. Our platform offers real-time application tracking,
+                    expert resume tips, interview prep guides, and dedicated mentor
+                    support to kickstart your career.
+                </p>
+            </div>
+
+            <!-- Middle column: categories -->
+            <div class="footer-col footer-cats">
+                <h3>Categories</h3>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#about">About us</a></li>
+                    <li><a href="#info">Info</a></li>
+                    <li><a href="#contact">Contact us</a></li>
+                </ul>
+            </div>
+
+            <!-- Right column: contact details -->
+            <div class="footer-col footer-contact">
+                <h3>Contact Us</h3>
+                <ul>
+                    <li><span class="icon">📍</span> University Of Computer(Mandalay)li>
+                    <li><span class="icon">✉️</span> support@internsync.com</li>
+                    <li><span class="icon">📞</span> +95-796727093</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">© 2025 Intern Sync. All rights reserved.</div>
+    </footer>
+
+    <script src="~/js/script.js"></script>
+</body>
+</html>

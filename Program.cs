@@ -26,7 +26,6 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.SlidingExpiration = true;
 });
 
-// Add this with your other service registrations
 builder.Services.AddScoped<ProjectManagementSystem.Services.Interface.IActivityLogger,
                            ProjectManagementSystem.Services.ActivityLogger>();
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -73,6 +72,10 @@ using (var scope = app.Services.CreateScope())
 
 app.MapControllerRoute(
     name: "default",
+<<<<<<< Updated upstream
+    pattern: "{controller=Welcome}/{action=Index}/{id?}");
+=======
+>>>>>>> Stashed changes
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
