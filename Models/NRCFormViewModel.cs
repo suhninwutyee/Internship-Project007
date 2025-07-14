@@ -12,6 +12,7 @@
 
         public List<NRCTownship> TownshipList { get; set; }
         public List<StudentDepartment> DepartmentList { get; set; }
+        public List<ProjectMember> ProjectMembers { get; set; } = new();
 
     }
 

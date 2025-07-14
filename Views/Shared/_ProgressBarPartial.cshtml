@@ -1,0 +1,188 @@
+﻿<style>
+    .progress-steps {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        padding: 20px 10px;
+        margin-bottom: 40px;
+    }
+
+        .progress-steps::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            height: 6px;
+            background-color: #eee;
+            border-radius: 3px;
+            transform: translateY(-50%);
+            z-index: 0;
+        }
+
+    .step-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        width: 25%;
+    }
+
+    .step-circle {
+        width: 55px;
+        height: 55px;
+        border-radius: 50%;
+        background: #eee;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        font-size: 1.3em;
+        color: #000000;
+        transition: all 0.4s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border: 3px solid transparent;
+    }
+
+    .step-label {
+        margin-top: 10px;
+        font-size: 0.9em;
+        color: #000000;
+        font-weight: 500;
+        transition: color 0.3s;
+    }
+
+    .step-item.active .step-circle {
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        color: white;
+        border-color: #2575fc;
+        transform: scale(1.1);
+    }
+
+    .step-item.active .step-label {
+        color: #2575fc;
+        font-weight: bold;
+    }
+
+    .step-item.completed .step-circle {
+        background: #28a745;
+        border-color: #28a745;
+        color: white;
+    }
+
+    .step-item.completed .step-label {
+        color: #28a745;
+        font-weight: bold;
+    }
+
+    .step-circle i {
+        font-size: 1.2em;
+    }
+
+    .step-item.completed + .step-item::before {
+        content: '';
+        position: absolute;
+        left: -50%;
+        width: 100%;
+        height: 6px;
+        background: #28a745;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: -1;
+        border-radius: 3px;
+    }
+
+    .step-item.active::before {
+        content: '';
+        position: absolute;
+        left: -50%;
+        width: 50%;
+        height: 6px;
+        background: linear-gradient(to right, #28a745, #2575fc);
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: -1;
+        border-radius: 3px;
+    }
+
+    .step-item:first-child.active::before {
+        content: none;
+    }
+
+    .step-circle:hover {
+        cursor: pointer;
+        box-shadow: 0 0 10px rgba(100, 100, 255, 0.3);
+    }
+</style>
+<div class="progress-steps">
+    <div class="step-item @(ViewBag.CurrentStep >= 1 ? "completed" : "") @(ViewBag.CurrentStep == 1 ? "active" : "")">
+        <a href="@Url.Action("Login", "StudentLogin")">
+            <div class="step-circle" title="Student Login">
+                @if (ViewBag.CurrentStep > 1)
+                {
+                    <i class="fas fa-check"></i>
+                }
+                else
+                {
+                    <i class="fas fa-user-graduate"></i>
+                }
+            </div>
+        </a>
+        <div class="step-label">Step 1: Login</div>
+    </div>
+
+    <div class="step-item @(ViewBag.CurrentStep >= 2 ? "completed" : "") @(ViewBag.CurrentStep == 2 ? "active" : "")">
+        <a href="@Url.Action("Create", "Student")">
+            <!-- Assuming Register action -->
+            <div class="step-circle" title="Student Register">
+                @if (ViewBag.CurrentStep > 2)
+                {
+                    <i class="fas fa-check"></i>
+                }
+                else
+                {
+                    <i class="fas fa-user-edit"></i> <!-- Icon for register -->
+                }
+            </div>
+        </a>
+        <div class="step-label">Step 2: Student Register</div>
+    </div>
+
+   
+
+    <div class="step-item @(ViewBag.CurrentStep >= 4 ? "completed" : "") @(ViewBag.CurrentStep == 4 ? "active" : "")">
+        <a href="@Url.Action("Create", "Member")">
+            <!-- Assuming AddMember action -->
+            <div class="step-circle" title="Add Member">
+                @if (ViewBag.CurrentStep > 4)
+                {
+                    <i class="fas fa-check"></i>
+                }
+                else
+                {
+                    <i class="fas fa-users"></i>  <!-- Icon for members -->
+                }
+            </div>
+        </a>
+        <div class="step-label">Step 3: Add Member</div>
+    </div>
+    <div class="step-item @(ViewBag.CurrentStep >= 3 ? "completed" : "") @(ViewBag.CurrentStep == 3 ? "active" : "")">
+        <a href="@Url.Action("Create", "Project")">
+            <div class="step-circle" title="Project Submit">
+                @if (ViewBag.CurrentStep > 3)
+                {
+                    <i class="fas fa-check"></i>
+                }
+                else
+                {
+                    <i class="fas fa-file-upload"></i>  <!-- Icon for submit -->
+                }
+            </div>
+        </a>
+        <div class="step-label">Step 4: Project Submit</div>
+    </div>
+</div>
+

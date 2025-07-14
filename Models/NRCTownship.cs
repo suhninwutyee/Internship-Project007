@@ -10,6 +10,7 @@ namespace ProjectManagementSystem.Models
         public int NRC_pkId { get; set; }
 
         public string? RegionCode_E { get; set; }
+
         public string? RegionCode_M { get; set; }
 
         public string? TownshipCode_M { get; set; }

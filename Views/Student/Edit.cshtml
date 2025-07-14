@@ -1,0 +1,297 @@
+﻿@model NRCFormViewModel
+
+@functions {
+    int MyanmarDigitsToInt(string myanmarNumber)
+    {
+        var map = new Dictionary<char, int>
+            {
+                ['၀'] = 0,
+                ['၁'] = 1,
+                ['၂'] = 2,
+                ['၃'] = 3,
+                ['၄'] = 4,
+                ['၅'] = 5,
+                ['၆'] = 6,
+                ['၇'] = 7,
+                ['၈'] = 8,
+                ['၉'] = 9
+            };
+
+        int result = 0;
+        foreach (var ch in myanmarNumber)
+        {
+            if (map.TryGetValue(ch, out int digit))
+            {
+                result = result * 10 + digit;
+            }
+        }
+        return result;
+    }
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Edit Student</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        /* Your same CSS styles as Create.cshtml */
+        /* ... You can copy styles from Create view ... */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="registration-card">
+                    <div class="card-header">
+                        <div class="logo-container">
+                            <div class="logo">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <div class="logo-text">Edit Student</div>
+                        </div>
+                        <p class="mb-0 mt-2">Update student information</p>
+                    </div>
+
+                    <div class="card-body">
+                        <form asp-action="Edit" asp-route-id="@Model.Student.Student_pkId" method="post">
+                            <input type="hidden" asp-for="Student.Student_pkId" />
+                            <!-- Personal Information Section -->
+                            <h5 class="section-title">
+                                <i class="fas fa-user me-2"></i>Personal Information
+                            </h5>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Student.StudentName" class="form-label">Student Name</label>
+                                        <div class="input-icon">
+                                            <i class="fas fa-user"></i>
+                                            <input asp-for="Student.StudentName" class="form-control" placeholder="Enter full name" required />
+                                        </div>
+                                        <span asp-validation-for="Student.StudentName" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Student.RollNumber" class="form-label">Roll Number</label>
+                                        <div class="input-icon">
+                                            <i class="fas fa-id-card"></i>
+                                            <input asp-for="Student.RollNumber" class="form-control" placeholder="Enter roll number" required />
+                                        </div>
+                                        <span asp-validation-for="Student.RollNumber" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Student.Email" class="form-label">Email Address</label>
+                                        <div class="input-icon">
+                                            <i class="fas fa-envelope"></i>
+                                            <input asp-for="Student.Email" class="form-control" placeholder="Enter email" required />
+                                        </div>
+                                        <span asp-validation-for="Student.Email" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Student.PhoneNumber" class="form-label">Phone Number</label>
+                                        <div class="input-icon">
+                                            <i class="fas fa-phone"></i>
+                                            <input asp-for="Student.PhoneNumber" class="form-control" placeholder="Enter phone number" required />
+                                        </div>
+                                        <span asp-validation-for="Student.PhoneNumber" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Academic Information Section -->
+                            <h5 class="section-title">
+                                <i class="fas fa-book me-2"></i>Academic Information
+                            </h5>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Student.AcademicYear" class="form-label">Academic Year</label>
+                                        <div class="input-icon">
+                                            <i class="fas fa-calendar"></i>
+                                            <input asp-for="Student.AcademicYear" class="form-control" placeholder="e.g. 2023-2024" required />
+                                        </div>
+                                        <span asp-validation-for="Student.AcademicYear" class="text-danger"></span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label asp-for="Student.Department_pkID" class="form-label">Department</label>
+                                        <select asp-for="Student.Department_pkID" class="form-select"
+                                                asp-items="@(new SelectList(Model.DepartmentList, "Department_pkID", "DepartmentName"))" required>
+                                            <option value="">-- Select Department --</option>
+                                        </select>
+                                        <span asp-validation-for="Student.Department_pkID" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- NRC Information Section -->
+                            <div class="nrc-section">
+                                <h5 class="section-title">
+                                    <i class="fas fa-address-card me-2"></i>NRC Information
+                                </h5>
+
+                                <div class="row">
+                                    <!-- State Dropdown -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label class="form-label">State Number</label>
+                                            <select class="form-select" id="stateNumber"
+                                                    data-state-selector
+                                                    data-township-url="@Url.Action("GetTownshipsByRegion", "Student")" required>
+                                                <option value="">-- Select State --</option>
+                                                @foreach (var code in Model.RegionCodeMList.OrderBy(c => MyanmarDigitsToInt(c)))
+                                                {
+                                                    <option value="@code">@code</option>
+@*                                                     <option value="@code" @(Model.TownshipList.FirstOrDefault(t => t.NRC_pkId == Model.Student.NRC_pkId)?.RegionCode_M == code ? "selected" : "")>@code</option>
+ *@                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Township Dropdown -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label asp-for="Student.NRC_pkId" class="form-label">Township</label>
+                                           @*  <select asp-for="Student.NRC_pkId" class="form-select" id="township"
+                                                    data-township-selector required>
+                                                <option value="">-- Select Township --</option>
+                                                @foreach (var t in Model.TownshipList.Where(t => t.RegionCode_M == Model.TownshipList.FirstOrDefault(x => x.NRC_pkId == Model.Student.NRC_pkId)?.RegionCode_M))
+                                                {
+                                                    <option value="@t.NRC_pkId" @(t.NRC_pkId == Model.Student.NRC_pkId ? "selected" : "")>@t.TownshipCode_M</option>
+                                                }
+                                            </select> *@
+                                            <select asp-for="Student.NRC_pkId" class="form-select" id="township"
+                                                    data-township-selector required>
+                                                <option value="">-- Select Township --</option>
+                                            </select>
+                                            <span asp-validation-for="Student.NRC_pkId" class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- NRC Type Dropdown -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label asp-for="Student.NRCType_pkId" class="form-label">NRC Type</label>
+                                            <select asp-for="Student.NRCType_pkId" class="form-select" required>
+                                                <option value="">-- Select Type --</option>
+                                                @foreach (var type in Model.NRCTypeList)
+                                                {
+                                                    <option value="@type.NRCType_pkId">@type.TypeCode</option>
+                                                }
+                                               @*  @foreach (var type in Model.NRCTypeList)
+                                                {
+                                                    <option value="@type.NRCType_pkId" @(type.NRCType_pkId == Model.Student.NRCType_pkId ? "selected" : "")>@type.TypeCode</option>
+                                                } *@
+                                            </select>
+                                            <span asp-validation-for="Student.NRCType_pkId" class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- NRC Number Input -->
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label asp-for="Student.NRCNumber" class="form-label">NRC Number</label>
+                                            <input asp-for="Student.NRCNumber" id="nrcNumber" class="form-control" maxlength="6" placeholder="Enter NRC Number" required />
+                                            <span asp-validation-for="Student.NRCNumber" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                                <a asp-action="Dashboard" asp-route-id="@Model.Student.Student_pkId" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i>Update Student
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
+                        <strong>✔</strong> @TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+
+                <div class="text-center text-muted mb-4">
+                    <p>© 2023 Student Management System | Designed with Bootstrap 5</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script>
+            $(document).ready(function () {
+                // State number change handler
+                $('#stateNumber').change(function () {
+                    var selectedRegionCode = $(this).val();
+
+                    // Clear township dropdown and reset display
+                    $('#township').empty().append('<option value="">-- Select Township --</option>');
+
+                    if (selectedRegionCode) {
+                        $.ajax({
+                            url: '@Url.Action("GetTownshipsByRegion", "Student")',
+                            type: 'GET',
+                            data: { regionCode: selectedRegionCode },
+                            success: function (data) {
+                                $.each(data, function (i, item) {
+                                    const option = new Option(item.townshipCode_M, item.nRC_pkId);
+                                    $(option).data({
+                                        'township-code-m': item.townshipCode_M,
+                                        'township-code-e': item.townshipCode_E,
+                                        'township-name': item.townshipName
+                                    });
+                                    $('#township').append(option);
+                                });
+                                // Optionally auto-select if previously selected township belongs to this region
+                                var currentTownshipId = @Model.Student.NRC_pkId;
+                                $('#township').val(currentTownshipId);
+                            },
+                            error: function () {
+                                console.error('Error loading townships');
+                            }
+                        });
+                    }
+                });
+
+                // Trigger change on page load to populate township dropdown correctly
+                $('#stateNumber').val('@Model.TownshipList.FirstOrDefault(t => t.NRC_pkId == Model.Student.NRC_pkId)?.RegionCode_M').trigger('change');
+
+                // Township change handler (optional, if you display township code somewhere)
+                $('#township').change(function () {
+                    const selectedOption = $(this).find(':selected');
+
+                    // Example: update display or hidden fields if needed
+                    // $('#township-code-m').text(selectedOption.data('township-code-m') || '');
+                    // $('#township-code-e').text(selectedOption.data('township-code-e') || '');
+                });
+            });
+        </script>
+    }
+</body>
+</html>

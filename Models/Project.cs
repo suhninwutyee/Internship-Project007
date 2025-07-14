@@ -50,7 +50,7 @@ namespace ProjectManagementSystem.Models
         public virtual Framework Framework { get; set; }
        
         public virtual ICollection<ProjectFile> Files { get; set; }
-        public virtual ICollection<ProjectMember> Members { get; set; }
-        
+        public ICollection<ProjectMember> ProjectMembers { get; set; }
+
     }
 }

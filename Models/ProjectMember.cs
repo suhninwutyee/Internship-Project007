@@ -7,14 +7,17 @@ namespace ProjectManagementSystem.Models
     {
         [Key]
         public int ProjectMember_pkId { get; set; }
+        
+        [Required]
+        [StringLength(150)]
+        public string? Role { get; set; }
 
-        [ForeignKey(nameof(Project))]
-        public int Project_pkId { get; set; }
+        public int? Student_pkId { get; set; }
+        public Student? Student { get; set; }
 
-        [ForeignKey(nameof(Student))]
-        public int Student_pkId { get; set; }
+        public int? Project_pkId { get; set; }
+        public Project? Project { get; set; }
 
-        public virtual Project Project { get; set; }
-        public virtual Student Student { get; set; }
+        public bool IsDeleted { get; set; }  
     }
 }

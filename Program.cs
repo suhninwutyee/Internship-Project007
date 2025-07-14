@@ -72,10 +72,7 @@ using (var scope = app.Services.CreateScope())
 
 app.MapControllerRoute(
     name: "default",
-<<<<<<< Updated upstream
-    pattern: "{controller=Welcome}/{action=Index}/{id?}");
-=======
->>>>>>> Stashed changes
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=StudentLogin}/{action=Login}/{id?}");
+
 
 app.Run();

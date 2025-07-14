@@ -32,7 +32,7 @@ namespace ProjectManagementSystem.Models
         public virtual City City { get; set; }
 
         [Required]
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
 
 
 

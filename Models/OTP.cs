@@ -17,6 +17,8 @@ namespace ProjectManagementSystem.Models
 
         public DateTime SendTime { get; set; }
 
+        public bool IsUsed { get; set; } = false;  // New field to track usage
+
     }
 
 }

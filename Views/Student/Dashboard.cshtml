@@ -1,109 +1,289 @@
-﻿@{
+﻿@model StudentDashboardViewModel
+@using X.PagedList
+@{
     ViewData["Title"] = "Student Dashboard";
+    int count = (Model.Projects.PageNumber - 1) * Model.Projects.PageSize + 1;
+    int i = 1;
+    var total = Model.Projects.TotalItemCount;
 }
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<style>
-    body {
-        background: linear-gradient(135deg, #e0f7fa, #f8f9fa);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        min-height: 100vh;
-    }
-
-    .dashboard-header {
-        background: linear-gradient(120deg, #4361ee, #3f37c9);
-        color: white;
-        padding: 40px 30px;
-        border-radius: 15px 15px 0 0;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-        text-align: center;
-    }
-
-        .dashboard-header h1 {
-            font-weight: 700;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #e4eefd);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-    .dashboard-container {
-        background: white;
-        border-radius: 0 0 15px 15px;
-        padding: 40px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-    }
-
-    .card {
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-        transition: transform 0.2s ease-in-out;
-    }
-
-        .card:hover {
-            transform: translateY(-5px);
+        .dashboard-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
         }
 
-    .btn-primary {
-        background: linear-gradient(120deg, #4361ee, #3f37c9);
-        border: none;
-        font-weight: 600;
-        border-radius: 8px;
-    }
-
-        .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.4);
+        .card-header {
+            background: linear-gradient(120deg, #8c5dd1, #7b2cbf);
+            color: white;
+            padding: 25px 30px;
+            font-size: 1.5rem;
+            font-weight: bold;
         }
-</style>
 
-<div class="container mt-5">
-    <div class="dashboard-header">
-        <h1><i class="fas fa-tachometer-alt me-2"></i>Student Dashboard</h1>
-        <p class="mb-0">Manage student records and academic information efficiently.</p>
-    </div>
+        .table th {
+            background-color: #e0e7ff;
+        }
 
-    <div class="dashboard-container">
-        <div class="alert alert-success d-flex align-items-center" role="alert">
-            <i class="fas fa-check-circle me-2"></i>
-            Student created successfully! You can now manage student records.
+        .btn-sm {
+            padding: 0.4rem 0.75rem;
+        }
+
+        .action-btns .btn {
+            margin-right: 5px;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .btn-edit, .btn-project {
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 10px 20px;
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.2);
+        }
+
+        .btn-edit {
+            background: linear-gradient(120deg, #4cc9f0, #4361ee);
+            color: white;
+            border: none;
+        }
+
+        .btn-project {
+            background: linear-gradient(120deg, #3f37c9, #4895ef);
+            color: white;
+            border: none;
+        }
+
+            .btn-edit:hover, .btn-project:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 15px rgba(67, 97, 238, 0.3);
+            }
+
+        .text-muted {
+            font-size: 0.875rem;
+        }
+
+        .table-sm th, .table-sm td {
+            font-size: 0.875rem;
+        }
+
+        ul.pagination {
+            display: flex;
+            flex-wrap: wrap;
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+            ul.pagination li {
+                margin: 3px;
+            }
+
+                ul.pagination li a, ul.pagination li span {
+                    display: block;
+                    padding: 0.375rem 0.75rem;
+                    color: #8c5dd1;
+                    border: 1px solid #8c5dd1;
+                    border-radius: 0.25rem;
+                    text-decoration: none;
+                }
+
+                    ul.pagination li a:hover {
+                        background-color: #8c5dd1;
+                        color: white;
+                    }
+
+                ul.pagination li.active span {
+                    background-color: #8c5dd1;
+                    color: white;
+                    border-color: #8c5dd1;
+                }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="dashboard-card mb-5">
+            <div class="card-header">
+                <i class="fas fa-users me-2"></i>Student Dashboard
+            </div>
+
+            <div class="card-body p-4">
+                <div class="dashboard-actions">
+                    <a asp-controller="Student" asp-action="Create" class="btn btn-edit">
+                        <i class="fas fa-user-plus me-1"></i> Add Student
+                    </a>
+                    <a asp-controller="Project" asp-action="Create" class="btn btn-project">
+                        <i class="fas fa-file-upload me-1"></i> Submit Project
+                    </a>
+                </div>
+
+                @if (Model.Students.Any())
+                {
+                    <table class="table table-bordered table-striped align-middle">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Roll No</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Department</th>
+                                <th>Academic Year</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var student in Model.Students)
+                            {
+                                <tr>
+                                    <td>@i</td>
+                                    <td>@student.StudentName</td>
+                                    <td>@student.RollNumber</td>
+                                    <td>@student.Email</td>
+                                    <td>@student.PhoneNumber</td>
+                                    <td>@student.StudentDepartment?.DepartmentName</td>
+                                    <td>@student.AcademicYear</td>
+                                    <td class="action-btns">
+                                        <a asp-action="Edit" asp-route-id="@student.Student_pkId" class="btn btn-primary btn-sm" title="Edit Student">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                    </td>
+                                </tr>
+                                i++;
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="alert alert-info">No students registered yet.</div>
+                }
+            </div>
         </div>
 
-        <div class="row mt-4">
-            <div class="col-md-6">
-                <div class="card p-4">
-                    <div class="card-body">
-                        <h5 class="card-title text-primary">
-                            <i class="fas fa-users me-2"></i>Student Management
-                        </h5>
-                        <p class="card-text mb-3">You can perform the following actions:</p>
-                        <ul class="list-unstyled ps-3">
-                            <li><i class="fas fa-eye text-secondary me-2"></i>View student records</li>
-                            <li><i class="fas fa-edit text-secondary me-2"></i>Edit student information</li>
-                            <li><i class="fas fa-chart-line text-secondary me-2"></i>Track academic progress</li>
-                        </ul>
-                        <a href="@Url.Action("Create", "Student")" class="btn btn-primary mt-3">
-                            <i class="fas fa-plus me-2"></i>Add Another Student
+        <!-- Project Table -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <i class="fas fa-folder-open me-2"></i>Project List
+            </div>
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                    <div class="d-flex flex-wrap gap-2">
+                        <a asp-controller="Project" asp-action="Create" class="btn btn-project">
+                            <i class="bi bi-plus-circle-fill me-1"></i> Create New Project
+                        </a>
+                        <a asp-controller="Member" asp-action="Create" class="btn btn-edit">
+                            <i class="bi bi-person-plus-fill me-1"></i> Add Member 
                         </a>
                     </div>
+                    <span class="fw-semibold" style="color: #8c5dd1;">Total Projects: @total</span>
                 </div>
-            </div>
 
-            <!-- Optional: Additional feature card -->
-            <div class="col-md-6">
-                <div class="card p-4">
-                    <div class="card-body">
-                        <h5 class="card-title text-success">
-                            <i class="fas fa-cogs me-2"></i>Admin Tools
-                        </h5>
-                        <p class="card-text">Future features can include export, search, and batch management tools.</p>
-                        <button class="btn btn-outline-success" disabled>
-                            <i class="fas fa-lock me-2"></i>Coming Soon
-                        </button>
-                    </div>
+                <div class="table-responsive shadow-sm rounded">
+                    <table class="table align-middle mb-0 bg-white">
+                        <thead style="background-color: #8c5dd1; color: white;">
+                            <tr>
+                                <th>#</th>
+                                <th>Project Name</th>
+                                <th>Supervisor</th>
+                                <th>Project Type</th>
+                                <th>Language</th>
+                                <th>Framework</th>
+                                <th>Company</th>
+                                <th>Submitted</th>
+                                <th>Created By</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Projects.Any())
+                            {
+                                foreach (var project in Model.Projects)
+                                {
+                                    <tr>
+                                        <td>@count</td>
+                                        <td>@project.ProjectName</td>
+                                        <td>@project.SupervisorName</td>
+                                        <td>@project.ProjectType?.TypeName</td>
+                                        <td>@project.Language?.LanguageName</td>
+                                        <td>@project.Framework?.FrameworkName</td>
+                                        <td>@project.Company?.CompanyName</td>
+                                        <td>@project.ProjectSubmittedDate.ToShortDateString()</td>
+                                        <td>@project.CreatedBy</td>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <a asp-controller="Project" asp-action="Edit" asp-route-id="@project.Project_pkId" class="btn btn-sm btn-outline-warning">
+                                                    <i class="bi bi-pencil-fill"></i>
+                                                </a>
+                                                <form asp-controller="Project" asp-action="Delete" asp-route-id="@project.Project_pkId" method="post"
+                                                      onsubmit="return confirm('Are you sure you want to delete this project?');">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                        <i class="bi bi-trash-fill"></i>
+                                                    </button>
+                                                </form>
+                                                <a asp-controller="Project" asp-action="Details" asp-route-id="@project.Project_pkId" class="btn btn-sm btn-outline-info">
+                                                    <i class="bi bi-info-circle-fill"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    count++;
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="10" class="text-center text-muted py-4">No projects found.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="d-flex justify-content-center mt-4">
+                    @Html.PagedListPager(Model.Projects, page => Url.Action("Dashboard", new { page }),
+                             new X.PagedList.Web.Common.PagedListRenderOptions
+                    {
+                        UlElementClasses = new[] { "pagination", "pagination-sm" },
+                        LiElementClasses = new[] { "page-item" },
+                        PageClasses = new[] { "page-link" },
+                        ActiveLiElementClass = "active",
+                        LinkToPreviousPageFormat = "«",
+                        LinkToNextPageFormat = "»"
+                    })
                 </div>
             </div>
         </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
+                <strong>✔</strong> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
     </div>
-</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -18,14 +18,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Company> Companies { get; set; }    
     public DbSet<City> Cities { get; set; }
     public DbSet<Project> Projects { get; set; }
-    public DbSet<ProjectMember> ProjectMembers { get; set; }
     public DbSet<SuccessStory> SuccessStories { get; set; }
     public DbSet<ProjectType> ProjectTypes { get; set; }
     public DbSet<Language> Languages { get; set; }
     public DbSet<Framework> Frameworks { get; set; }
     public DbSet<ProjectFile> ProjectFiles { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
-    
+    public DbSet<ProjectMember> ProjectMembers { get; set; }
     public DbSet<NRCTownship> NRCTownships { get; set; }
     public DbSet<NRCType> NRCTypes { get; set; }
     public DbSet<AdminActivityLog> AdminActivityLogs { get; set; }
@@ -36,16 +35,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<OTP> OTPs { get; set; }
 
-<<<<<<< Updated upstream
 
 
     public DbSet<AdminActivityLog> AdminActivityLog { get; set; }
-=======
->>>>>>> Stashed changes
-    
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+
         base.OnModelCreating(modelBuilder);
 
       
@@ -70,19 +67,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ProjectFile>()
-    .HasOne(f => f.Project)
-    .WithMany(p => p.Files)  // Match the collection property name
-    .HasForeignKey(f => f.Project_pkId);
-
-        modelBuilder.Entity<ProjectMember>()
-            .HasOne(pm => pm.Project)
-            .WithMany(p => p.Members)
-            .HasForeignKey(pm => pm.Project_pkId);
-
-        modelBuilder.Entity<ProjectMember>()
-            .HasOne(pm => pm.Student)
-            .WithMany()
-            .HasForeignKey(pm => pm.Student_pkId);
+            .HasOne(f => f.Project)
+            .WithMany(p => p.Files)  
+            .HasForeignKey(f => f.Project_pkId);
 
         modelBuilder.Entity<AuditLog>()
             .HasOne(a => a.Student)
@@ -95,6 +82,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(f => f.Language_pkId)
             .OnDelete(DeleteBehavior.Restrict);
 
+
+        modelBuilder.Entity<ProjectMember>()
+           .HasOne(pm => pm.Student)
+           .WithMany(s => s.ProjectMembers)
+           .HasForeignKey(pm => pm.Student_pkId)
+           .OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<ProjectMember>().HasKey(pm => new { pm.Project_pkId, pm.Student_pkId });
 
        
@@ -103,17 +96,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     
 
-       // modelBuilder.Entity<OTP>()
-       //.HasOne(o => o.Student)
-       //.WithMany(s => s.OTPs)
-       //.HasForeignKey(o => o.Student_pkId)
-       //.OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<ProjectMember>()
+          .HasOne(pm => pm.Project)
+          .WithMany(p => p.ProjectMembers)
+          .HasForeignKey(pm => pm.Project_pkId)
+          .OnDelete(DeleteBehavior.Cascade);
 
-        //modelBuilder.Entity<Email>()
-        //.HasOne(e => e.Student)
-        //.WithMany(s => s.Emails)
-        //.HasForeignKey(e => e.Student_pkId)
-        //.HasPrincipalKey(s => s.Student_pkId);
+        base.OnModelCreating(modelBuilder);
 
     }
 }

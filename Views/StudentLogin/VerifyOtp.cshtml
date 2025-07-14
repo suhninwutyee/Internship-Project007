@@ -1,18 +1,149 @@
 ﻿@model VerifyOtpViewModel
 
-<h2>Enter OTP</h2>
+@{
+    ViewData["Title"] = "Verify OTP";
+    Layout = "_Layout"; // Ensure this uses your shared layout
+}
 
-<form asp-action="VerifyOtp" method="post">
-    <input type="hidden" asp-for="RollNumber" />
-    <div>
-        <label>OTP Code</label>
-        <input asp-for="OTPCode" class="form-control" />
-        <span asp-validation-for="OTPCode" class="text-danger"></span>
+<style>
+    /* Specific styles for the OTP verification card */
+    .otp-container {
+        background-color: #ffffff;
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        width: 100%;
+        max-width: 500px; /* Smaller max-width for OTP card */
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 100px; /* Adjust top margin to position it below the navbar */
+        margin-bottom: 50px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .otp-container h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .otp-container p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+    .form-group-otp {
+        width: 100%;
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #555;
+        margin-bottom: 8px;
+        display: block; /* Ensure label is on its own line */
+        text-align: left;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        text-align: center; /* Center the OTP input text */
+        font-size: 1.2em; /* Make OTP input larger */
+        letter-spacing: 2px; /* Add some spacing between OTP digits */
+    }
+
+    .btn-verify-otp {
+        background: linear-gradient(to right, #8c5dd1); /* Gradient button */
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 25px;
+        font-size: 1.1em;
+        width: 100%;
+        margin-top: 20px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-verify-otp:hover {
+            opacity: 0.9;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+    .text-danger {
+        font-size: 0.85em;
+        margin-top: 5px; /* Spacing for validation message */
+        display: block; /* Ensure validation message is on its own line */
+        text-align: left;
+    }
+
+    .resend-otp-link {
+        margin-top: 20px;
+        font-size: 0.9em;
+    }
+
+        .resend-otp-link a {
+            color: #2575fc;
+            text-decoration: none;
+        }
+
+            .resend-otp-link a:hover {
+                text-decoration: underline;
+            }
+</style>
+<div class="otp-container">
+    <h2>Enter OTP</h2>
+    <p>Please check your email and enter the 6-digit verification code sent to you.</p>
+
+    <form asp-action="VerifyOtp" method="post" class="w-100">
+        <input type="hidden" asp-for="RollNumber" />
+        <div class="form-group-otp">
+            <label asp-for="OTPCode" class="form-label">OTP Code</label>
+            <input asp-for="OTPCode" class="form-control" placeholder="______" maxlength="6" inputmode="numeric" pattern="[0-9]*" />
+            <span asp-validation-for="OTPCode" class="text-danger"></span>
+        </div>
+        <button type="submit" class="btn btn-verify-otp">Verify</button>
+    </form>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger mt-3" role="alert">@ViewBag.Error</div>
+    }
+    <div class="resend-otp-link">
+        Didn't receive the OTP? <a href="#" id="resendOtpLink">Resend OTP</a>
+        <div id="resendMessage" style="margin-top: 10px; display:none;"></div>
     </div>
-    <button type="submit">Verify</button>
-</form>
+</div>
 
-@if (ViewBag.Error != null)
-{
-    <div class="alert alert-danger mt-2">@ViewBag.Error</div>
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#resendOtpLink').click(function (e) {
+                e.preventDefault();
+
+                var rollNumber = $('input[name="RollNumber"]').val();
+
+                $.post('@Url.Action("ResendOtp", "StudentLogin")', { rollNumber: rollNumber })
+                    .done(function (response) {
+                        $('#resendMessage').show();
+                        if (response.success) {
+                            $('#resendMessage').css('color', 'green').text(response.message);
+                            // Optionally start cooldown timer here
+                        } else {
+                            $('#resendMessage').css('color', 'red').text(response.message);
+                        }
+                    })
+                    .fail(function () {
+                        $('#resendMessage').show().css('color', 'red').text('Error sending request.');
+                    });
+            });
+        });
+    </script>
 }

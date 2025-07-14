@@ -66,12 +66,12 @@ namespace ProjectManagementSystem.Controllers.Public
                 CityCount = _context.Cities.Count(),
 
                 RecentCompanies = _context.Companies
-                    .OrderByDescending(c => c.CreatedAt)
+                    .OrderByDescending(c => c.CreatedDate)
                     .Take(5)
                     .Select(c => new RecentCompanyViewModel
                     {
                         CompanyName = c.CompanyName,
-                        CreatedAt = c.CreatedAt
+                        CreatedAt = c.CreatedDate
                     })
                     .ToList()
             };

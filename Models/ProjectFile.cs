@@ -18,7 +18,7 @@ namespace ProjectManagementSystem.Models
         public string FilePath { get; set; }
 
         [Required(ErrorMessage = "File type is required")]
-        [StringLength(50, ErrorMessage = "File type cannot exceed 50 characters")]
+        [MaxLength(150, ErrorMessage = "File type cannot exceed 150 characters")]
         public string FileType { get; set; }
 
         [Range(1, long.MaxValue, ErrorMessage = "File size must be positive")]
