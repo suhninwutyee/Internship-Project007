@@ -1,0 +1,71 @@
+﻿@model ProjectManagementSystem.Models.Project
+@{
+    ViewData["Title"] = "Upload Project";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // Or your layout
+}
+
+<div class="container my-5" style="max-width: 700px;">
+    <h4 class="text-primary mb-3">Upload Project to Teacher</h4>
+
+    <form asp-action="Upload" method="post" onsubmit="return confirm('Are you sure you want to upload the project?');">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Project_pkId" />
+
+        <div class="mb-3">
+            <label class="form-label">Project Name</label>
+            <input class="form-control" value="@Model.ProjectName" readonly />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Supervisor</label>
+            <input class="form-control" value="@Model.SupervisorName" readonly />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Project Type</label>
+            <input class="form-control" value="@Model.ProjectType?.TypeName" readonly />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Language</label>
+            <input class="form-control" value="@Model.Language?.LanguageName" readonly />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Framework</label>
+            <input class="form-control" value="@Model.Framework?.FrameworkName" readonly />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Company</label>
+            <input class="form-control" value="@Model.Company?.CompanyName" readonly />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" rows="4" readonly>@Model.Description</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Existing Files</label>
+            @if (Model.Files != null && Model.Files.Any())
+            {
+                <ul class="list-group">
+                    @foreach (var file in Model.Files)
+                    {
+                        <li class="list-group-item">
+                            <a href="@file.FilePath" target="_blank">@System.IO.Path.GetFileName(file.FilePath)</a>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted">No files uploaded yet.</p>
+            }
+        </div>
+
+        <button type="submit" class="btn btn-success">Submit to Teacher</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>

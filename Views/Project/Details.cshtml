@@ -2,43 +2,80 @@
 
 @{
     ViewData["Title"] = "Project Details";
+    Layout = "~/Views/Student/_Layout.cshtml";
 }
 
-<h3>Project Details</h3>
+<style>
+    .custom-details-card {
+        max-width: 900px;
+        margin: 0 auto;
+        border-radius: 16px;
+    }
 
-<table class="table table-bordered">
-    <tr>
-        <th>Project Name</th>
-        <td>@Model.ProjectName</td>
-    </tr>
-    <tr>
-        <th>Supervisor</th>
-        <td>@Model.SupervisorName</td>
-    </tr>
-    <tr>
-        <th>Project Type</th>
-        <td>@Model.ProjectType?.TypeName</td>
-    </tr>
-    <tr>
-        <th>Language</th>
-        <td>@Model.Language?.LanguageName</td>
-    </tr>
-    <tr>
-        <th>Framework</th>
-        <td>@Model.Framework?.FrameworkName</td>
-    </tr>
-    <tr>
-        <th>Company</th>
-        <td>@Model.Company?.CompanyName</td>
-    </tr>
-    <tr>
-        <th>Submitted Date</th>
-        <td>@Model.ProjectSubmittedDate.ToShortDateString()</td>
-    </tr>
-    <tr>
-        <th>Created By</th>
-        <td>@Model.CreatedBy</td>
-    </tr>
-</table>
+    .custom-card-header {
+        background-color: #8c5dd1; /* Change this to your project color */
+        color: white;
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
+        padding: 16px;
+    }
 
-<a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    .custom-table th {
+        width: 30%;
+        background-color: #f1f1f1;
+    }
+
+    .custom-table td {
+        background-color: #fff;
+    }
+
+    .back-button {
+        margin-top: 20px;
+    }
+</style>
+
+<div class="card custom-details-card shadow">
+    <div class="custom-card-header">
+        <h4 class="mb-0">Project Details</h4>
+    </div>
+    <div class="card-body p-4">
+        <table class="table table-bordered custom-table">
+            <tr>
+                <th>Project Name</th>
+                <td>@Model.ProjectName</td>
+            </tr>
+            <tr>
+                <th>Supervisor</th>
+                <td>@Model.SupervisorName</td>
+            </tr>
+            <tr>
+                <th>Project Type</th>
+                <td>@Model.ProjectType?.TypeName</td>
+            </tr>
+            <tr>
+                <th>Language</th>
+                <td>@Model.Language?.LanguageName</td>
+            </tr>
+            <tr>
+                <th>Framework</th>
+                <td>@Model.Framework?.FrameworkName</td>
+            </tr>
+            <tr>
+                <th>Company</th>
+                <td>@Model.Company?.CompanyName</td>
+            </tr>
+            <tr>
+                <th>Submitted Date</th>
+                <td>@Model.ProjectSubmittedDate.ToShortDateString()</td>
+            </tr>
+            <tr>
+                <th>Created By</th>
+                <td>@Model.CreatedBy</td>
+            </tr>
+        </table>
+
+        <div class="back-button text-end">
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+</div>

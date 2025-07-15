@@ -2,182 +2,154 @@
 
 @{
     ViewData["Title"] = "Create Project";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Student/_Layout.cshtml";
 }
 
-<!-- Custom Styles for Theme -->
-<style>
-    :root {
-        --primary-color: #8c5dd1;
-        --light-bg: #e4eefd;
-    }
+<div class="card shadow-sm bg-white rounded w-75 mx-auto my-4">
+    <div class="card-header text-white py-2 px-3" style="background-color: #8c5dd1;">
+        <h5 class="mb-0 small">Create New Project</h5>
+    </div>
 
-    .text-primary-custom {
-        color: var(--primary-color) !important;
-    }
+    <div class="card-body small py-3 px-4">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
 
-    .bg-light-custom {
-        background-color: var(--light-bg) !important;
-    }
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="ProjectName" class="form-label"></label>
+                    <input asp-for="ProjectName" class="form-control" />
+                    <span asp-validation-for="ProjectName" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="SupervisorName" class="form-label"></label>
+                    <input asp-for="SupervisorName" class="form-control" />
+                    <span asp-validation-for="SupervisorName" class="text-danger"></span>
+                </div>
+            </div>
 
-    .btn-primary-custom {
-        background-color: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-    }
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
 
-        .btn-primary-custom:hover {
-            background-color: #774cc1;
-            border-color: #774cc1;
-        }
-
-    .border-primary-subtle {
-        border: 1.5px solid var(--primary-color) !important;
-    }
-
-    select.form-select,
-    input.form-control,
-    textarea.form-control {
-        background-color: var(--light-bg);
-    }
-</style>
-
-<div class="container my-5" style="max-width: 950px;">
-    <div class="card shadow-lg border-0 rounded-4">
-        <div class="card-body p-5">
-            <h2 class="mb-4 fw-bold text-center text-primary-custom">Create New Project</h2>
-
-            <form asp-action="Create" method="post" novalidate>
-                @Html.AntiForgeryToken()
-
-                <div class="row g-4">
-                    <div class="col-md-6">
-                        <label asp-for="ProjectName" class="form-label fw-semibold text-primary-custom"></label>
-                        <input asp-for="ProjectName" class="form-control border-primary-subtle" />
-                        <span asp-validation-for="ProjectName" class="text-danger"></span>
+            <div class="row mb-3 align-items-end">
+                <div class="col-md-6">
+                    <label asp-for="ProjectType_pkId" class="form-label">Project Type</label>
+                    <div class="input-group">
+                        <select asp-for="ProjectType_pkId" class="form-select" asp-items="ViewBag.ProjectTypes">
+                            <option value="">-- Select Type --</option>
+                        </select>
+                        <a href="@Url.Action("Index", "ProjectType")" target="_blank" class="btn btn-outline-success">+</a>
                     </div>
-                    <div class="col-md-6">
-                        <label asp-for="SupervisorName" class="form-label fw-semibold text-primary-custom"></label>
-                        <input asp-for="SupervisorName" class="form-control border-primary-subtle" />
-                        <span asp-validation-for="SupervisorName" class="text-danger"></span>
-                    </div>
+                </div>
 
-                    <div class="col-12">
-                        <label asp-for="Description" class="form-label fw-semibold text-primary-custom"></label>
-                        <textarea asp-for="Description" class="form-control border-primary-subtle" rows="3"></textarea>
-                        <span asp-validation-for="Description" class="text-danger"></span>
+                <div class="col-md-6">
+                    <label asp-for="Language_pkId" class="form-label">Language</label>
+                    <div class="input-group">
+                        <select asp-for="Language_pkId" id="LanguageDropdown" class="form-select" asp-items="ViewBag.Languages">
+                            <option value="">-- Select Language --</option>
+                        </select>
+                        <a href="@Url.Action("Index", "Language")" target="_blank" class="btn btn-outline-success">+</a>
                     </div>
+                </div>
+            </div>
 
-                    <div class="col-md-6">
-                        <label asp-for="ProjectType_pkId" class="form-label fw-semibold text-primary-custom">Project Type</label>
-                        <div class="input-group">
-                            <select asp-for="ProjectType_pkId" class="form-select border-primary-subtle" asp-items="ViewBag.ProjectTypes">
-                                <option value="">-- Select Type --</option>
-                            </select>
-                            <a href="@Url.Action("Index", "ProjectType")" target="_blank" class="btn btn-light border">
-                                <i class="bi bi-plus-circle text-primary-custom"></i>
-                            </a>
+            <div class="row mb-3 align-items-end">
+                <div class="col-md-6">
+                    <label asp-for="Framework_pkId" class="form-label">Framework</label>
+                    <div class="input-group">
+                        <select asp-for="Framework_pkId" id="FrameworkDropdown" class="form-select" asp-items="ViewBag.Frameworks">
+                            <option value="">-- Select Framework --</option>
+                        </select>
+                        <a href="@Url.Action("Index", "Framework")" target="_blank" class="btn btn-outline-success">+</a>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Company_pkId" class="form-label">Company</label>
+                    <div class="input-group">
+                        <select asp-for="Company_pkId" id="CompanyDropdown" class="form-select" asp-items="ViewBag.Companies">
+                            <option value="">-- Select Company --</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="companyInfo" style="display:none; margin-bottom:20px;">
+                <div class="card mt-3">
+                    <div class="card-body bg-light small">
+                        <h6 class="card-title">Company Information</h6>
+
+                        <div class="mb-2">
+                            <label for="CompanyAddress" class="form-label">Address</label>
+                            <input type="text" id="CompanyAddress" name="CompanyAddress" class="form-control" />
                         </div>
-                        <span asp-validation-for="ProjectType_pkId" class="text-danger"></span>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label asp-for="Language_pkId" class="form-label fw-semibold text-primary-custom">Language</label>
-                        <div class="input-group">
-                            <select asp-for="Language_pkId" id="LanguageDropdown" class="form-select border-primary-subtle" asp-items="ViewBag.Languages">
-                                <option value="">-- Select Language --</option>
-                            </select>
-                            <a href="@Url.Action("Index", "Language")" target="_blank" class="btn btn-light border">
-                                <i class="bi bi-plus-circle text-primary-custom"></i>
-                            </a>
+                        <div class="mb-2">
+                            <label for="CompanyContact" class="form-label">Contact</label>
+                            <input type="text" id="CompanyContact" name="CompanyContact" class="form-control" />
                         </div>
-                        <span asp-validation-for="Language_pkId" class="text-danger"></span>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label asp-for="Framework_pkId" class="form-label fw-semibold text-primary-custom">Framework</label>
-                        <div class="input-group">
-                            <select asp-for="Framework_pkId" id="FrameworkDropdown" class="form-select border-primary-subtle">
-                                <option value="">-- Select Framework --</option>
-                                @foreach (var item in (SelectList)ViewBag.Frameworks)
+                        <div class="mb-2">
+                            <label for="CompanyDescription" class="form-label">Description</label>
+                            <textarea id="CompanyDescription" name="CompanyDescription" class="form-control"></textarea>
+                        </div>
+                        <div class="mb-2">
+                            <label for="CompanyCity_pkId" class="form-label">State/Region</label>
+                            <select id="CompanyCity_pkId" name="CompanyCity_pkId" class="form-select">
+                                <option value="">-- Select State/Region --</option>
+                                @foreach (var item in (SelectList)ViewBag.CityList)
                                 {
                                     <option value="@item.Value">@item.Text</option>
                                 }
                             </select>
-                            <a href="@Url.Action("Index", "Framework")" target="_blank" class="btn btn-light border">
-                                <i class="bi bi-plus-circle text-primary-custom"></i>
-                            </a>
                         </div>
-                        <span asp-validation-for="Framework_pkId" class="text-danger"></span>
-                    </div>
-
-                   @*  <div class="col-md-6">
-                        <label asp-for="Company_pkId" class="form-label fw-semibold text-primary-custom">Company</label>
-                        <div class="input-group">
-                            <select asp-for="Company_pkId" class="form-select border-primary-subtle" asp-items="ViewBag.Companies">
-                                <option value="">-- Select Company --</option>
-                            </select>
-                            <a href="@Url.Action("Index", "Company")" target="_blank" class="btn btn-light border">
-                                <i class="bi bi-plus-circle text-primary-custom"></i>
-                            </a>
+                        <div class="mb-2">
+                            <label for="CompanyPhoto" class="form-label">Upload Company Photo</label>
+                            <input type="file" id="CompanyPhoto" name="CompanyPhoto" class="form-control" accept="image/*" />
                         </div>
-                        <span asp-validation-for="Company_pkId" class="text-danger"></span>
-                    </div> *@
-                    <div class="col-md-6">
-                        <label asp-for="Company_pkId" class="form-label">Company</label>
-                        <div class="input-group">
-                            <select asp-for="Company_pkId" class="form-select" asp-items="ViewBag.Companies">
-                                <option value="">-- Select Company --</option>
-                            </select>
-                
-                        </div>
-                        <span asp-validation-for="Company_pkId" class="text-danger"></span>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label asp-for="ProjectSubmittedDate" class="form-label fw-semibold text-primary-custom"></label>
-                        <input asp-for="ProjectSubmittedDate" class="form-control border-primary-subtle" type="date" />
-                        <span asp-validation-for="ProjectSubmittedDate" class="text-danger"></span>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label asp-for="Remark" class="form-label fw-semibold text-primary-custom"></label>
-                        <textarea asp-for="Remark" class="form-control border-primary-subtle" rows="2"></textarea>
-                        <span asp-validation-for="Remark" class="text-danger"></span>
-                    </div>
-
-                    <div class="col-12">
-                        <label asp-for="CreatedBy" class="form-label fw-semibold text-primary-custom"></label>
-                        <input asp-for="CreatedBy" class="form-control border-primary-subtle" />
-                        <span asp-validation-for="CreatedBy" class="text-danger"></span>
                     </div>
                 </div>
-
-                <div class="d-flex justify-content-between mt-5">
-                    <button type="submit" class="btn btn-primary-custom px-4">
-                        <i class="bi bi-save"></i> Save
-                    </button>
-                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
-                        <i class="bi bi-x-circle"></i> Cancel
-                    </a>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Upload Project Files</label>
+                <input type="file" name="projectFiles" multiple class="form-control" />
+                <small class="form-text text-muted">You can upload multiple files.</small>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="ProjectSubmittedDate" class="form-label"></label>
+                    <input asp-for="ProjectSubmittedDate" class="form-control" type="date" />
                 </div>
-            </form>
-        </div>
+                @* <div class="col-md-6">
+                    <label asp-for="Remark" class="form-label"></label>
+                    <textarea asp-for="Remark" class="form-control" rows="2"></textarea>
+                </div> *@
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="CreatedBy" class="form-label"></label>
+                <input asp-for="CreatedBy" class="form-control" />
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-success">Create</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <script>
         $(function () {
             $('#LanguageDropdown').change(function () {
                 var languageId = $(this).val();
                 var $frameworkDropdown = $('#FrameworkDropdown');
 
-                $frameworkDropdown.empty();
-                $frameworkDropdown.append($('<option>').val('').text('-- Loading Frameworks... --'));
+                $frameworkDropdown.empty().append($('<option>').val('').text('-- Loading Frameworks... --'));
 
                 if (languageId) {
                     $.getJSON('@Url.Action("GetFrameworksByLanguage", "Project")', { languageId: languageId })
@@ -190,13 +162,26 @@
                         .fail(function () {
                             $frameworkDropdown.empty().append($('<option>').val('').text('-- Error loading frameworks --'));
                         });
+                }
+            });
+
+            $('#CompanyDropdown').change(function () {
+                var companyId = $(this).val();
+                if (companyId) {
+                    $.getJSON('@Url.Action("GetCompanyInfo", "Project")', { companyId: companyId })
+                        .done(function (data) {
+                            $('#companyInfo').show();
+                            $('#CompanyAddress').val(data.address || '');
+                            $('#CompanyContact').val(data.contact || '');
+                            $('#CompanyDescription').val(data.description || '');
+                            $('#CompanyCity_pkId').val(data.city_pkId || '');
+                        });
                 } else {
-                    $frameworkDropdown.empty().append($('<option>').val('').text('-- Select Framework --'));
+                    $('#companyInfo').hide();
+                    $('#CompanyAddress, #CompanyContact, #CompanyDescription').val('');
+                    $('#CompanyCity_pkId').val('');
                 }
             });
         });
     </script>
 }
-
-<!-- Bootstrap Icons -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />

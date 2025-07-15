@@ -20,7 +20,7 @@ namespace ProjectManagementSystem.Models
 
         [Required(ErrorMessage = "Department is required")]
         [ForeignKey(nameof(StudentDepartment))]
-        public int Department_pkID { get; set; }
+        public int? Department_pkID { get; set; }
 
         public virtual StudentDepartment? StudentDepartment { get; set; }
 
@@ -38,7 +38,7 @@ namespace ProjectManagementSystem.Models
 
         [Required(ErrorMessage = "NRC Township is required")]
         [ForeignKey(nameof(NRCTownship))]
-        public int NRC_pkId { get; set; }
+        public int? NRC_pkId { get; set; }
 
         [Required(ErrorMessage = "NRC Number is required")]
         [Range(1, 999999, ErrorMessage = "NRC Number must be between 1 and 999999")]

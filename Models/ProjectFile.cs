@@ -26,8 +26,6 @@ namespace ProjectManagementSystem.Models
 
         public DateTime UploadedAt { get; set; } = DateTime.Now;
 
-        [Required(ErrorMessage = "Uploader name is required")]
-        [StringLength(100, ErrorMessage = "Uploader name cannot exceed 100 characters")]
-        public string UploadedBy { get; set; }
+        
     }
 }
