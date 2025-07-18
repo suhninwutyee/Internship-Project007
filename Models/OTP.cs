@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProjectManagementSystem.Models
 {
+    [Table("OTPs")]
     public class OTP
     {
         [Key]

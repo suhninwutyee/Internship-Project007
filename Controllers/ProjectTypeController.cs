@@ -40,13 +40,13 @@ namespace ProjectManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("TypeName")] ProjectType projectType)
         {
-            if (ModelState.IsValid)
-            {
+            //if (ModelState.IsValid)
+            //{
                 _context.Add(projectType);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
-            }
-            return View(projectType);
+            //}
+            //return View(projectType);
         }
 
         public IActionResult Edit(int id)

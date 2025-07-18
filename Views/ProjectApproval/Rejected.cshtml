@@ -1,0 +1,41 @@
+﻿@model IEnumerable<ProjectManagementSystem.Models.Project>
+
+@{
+    ViewData["Title"] = "Rejected Projects";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+}
+
+<h1>Rejected Projects</h1>
+
+<table class="table table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>Project Name</th>
+            <th>Company</th>
+            <th>Type</th>
+            <th>Rejection Reason</th>
+            <th>Submitted</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.ProjectName)</td>
+                <td>@Html.DisplayFor(modelItem => item.Company.CompanyName)</td>
+                <td>@Html.DisplayFor(modelItem => item.ProjectType.TypeName)</td>
+                <td>@Html.DisplayFor(modelItem => item.AdminComment)</td>
+                <td>
+                    @(item.ProjectSubmittedDate.HasValue
+                        ? item.ProjectSubmittedDate.Value.ToString("dd MMM yyyy")
+                        : "Not submitted")
+                </td>
+
+                <td>
+                    <a asp-controller="Projects" asp-action="Details" asp-route-id="@item.Project_pkId" class="btn btn-sm btn-info">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

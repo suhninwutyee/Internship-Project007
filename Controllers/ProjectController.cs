@@ -51,8 +51,15 @@ namespace ProjectManagementSystem.Controllers
             if (project == null)
                 return NotFound();
 
-            return View(project); // This will show full project info in the Upload view
+            if (project.Status == "Pending" || project.Status == "Approved")
+            {
+                TempData["UploadError"] = "You cannot upload again because the project is already submitted or approved.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(project);
         }
+
 
         // POST: Project/Upload
         [HttpPost]
@@ -63,6 +70,13 @@ namespace ProjectManagementSystem.Controllers
             if (existingProject == null)
                 return NotFound();
 
+            // Prevent multiple uploads when status is Pending or Approved
+            if (existingProject.Status == "Pending" || existingProject.Status == "Approved")
+            {
+                TempData["Error"] = "You cannot upload again. Wait for teacher feedback.";
+                return RedirectToAction(nameof(Index));
+            }
+
             // Mark project as submitted to teacher
             existingProject.Status = "Pending";
             existingProject.ProjectSubmittedDate = DateTime.Now;
@@ -70,9 +84,9 @@ namespace ProjectManagementSystem.Controllers
             await _context.SaveChangesAsync();
 
             TempData["UploadSuccess"] = "Project successfully uploaded and sent to teacher.";
-
             return RedirectToAction(nameof(Index));
         }
+
 
 
 
@@ -98,15 +112,16 @@ namespace ProjectManagementSystem.Controllers
             return View();
         }
 
+       
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Project project, string CompanyAddress, string CompanyContact, string CompanyDescription, int? CompanyCity_pkId, IFormFile CompanyPhoto, List<IFormFile> projectFiles)
         {
-            if (ModelState.IsValid)  // <-- fix: run only when model state is valid
+            if (!ModelState.IsValid)
             {
-                // Set status and submission date
-                project.Status = "Pending";
-                project.ProjectSubmittedDate = DateTime.Now;
+                project.Status = "Draft"; // Set initial status to Draft
+                project.ProjectSubmittedDate = null;
 
                 // Update company details if company is selected
                 if (project.Company_pkId != null && project.Company_pkId != 0)
@@ -177,10 +192,13 @@ namespace ProjectManagementSystem.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
+            else
+            {
+                LoadDropdownData(project);
+                return View(project);
+            }
 
-            // Reload dropdown data if model state invalid
-            LoadDropdownData(project);
-            return View(project);
+       
         }
 
 
@@ -193,15 +211,23 @@ namespace ProjectManagementSystem.Controllers
 
             var project = await _context.Projects
                 .Include(p => p.Company)
-                .Include(p => p.Files) // Include existing files
+                .Include(p => p.Files)
                 .FirstOrDefaultAsync(p => p.Project_pkId == id);
 
             if (project == null)
                 return NotFound();
 
+            if (project.Status == "Pending" || project.Status == "Approved")
+            {
+                TempData["Error"] = "You cannot edit a project that is pending or approved. Wait for teacher feedback.";
+                return RedirectToAction(nameof(Index));
+            }
+
             LoadDropdownData(project);
             return View(project);
         }
+
+
 
 
         [HttpPost]
@@ -219,7 +245,17 @@ namespace ProjectManagementSystem.Controllers
             if (id != project.Project_pkId)
                 return NotFound();
 
-            if (ModelState.IsValid) // FIX: Proceed only if valid
+            var existingProject = await _context.Projects.AsNoTracking().FirstOrDefaultAsync(p => p.Project_pkId == id);
+            if (existingProject == null)
+                return NotFound();
+
+            if (existingProject.Status == "Pending" || existingProject.Status == "Approved")
+            {
+                TempData["Error"] = "You cannot edit a project that is pending or approved. Wait for teacher feedback.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (!ModelState.IsValid)
             {
                 LoadDropdownData(project);
                 return View(project);
@@ -313,13 +349,21 @@ namespace ProjectManagementSystem.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var project = await _context.Projects.FindAsync(id);
-            if (project == null) return NotFound();
+            if (project == null)
+                return NotFound();
+
+            if (project.Status == "Pending" || project.Status == "Approved")
+            {
+                TempData["Error"] = "You cannot delete a project that is pending or approved. Wait for teacher feedback.";
+                return RedirectToAction(nameof(Index));
+            }
 
             _context.Projects.Remove(project);
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
+
         [HttpGet]
         public async Task<IActionResult> DeleteProjectFile(int id)
         {

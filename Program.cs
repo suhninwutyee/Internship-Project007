@@ -72,7 +72,6 @@ using (var scope = app.Services.CreateScope())
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Welcome}/{action=Index}/{id?}");
-
+    pattern: "{controller=ProjectApproval}/{action=Index}/{id?}");
 
 app.Run();

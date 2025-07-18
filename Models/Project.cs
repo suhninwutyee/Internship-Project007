@@ -33,7 +33,7 @@ namespace ProjectManagementSystem.Models
         [ForeignKey(nameof(Company))]
         public int? Company_pkId { get; set; }      
 
-        public DateTime ProjectSubmittedDate { get; set; } = DateTime.Now;
+        public DateTime? ProjectSubmittedDate { get; set; } = DateTime.Now;
 
         //[StringLength(500, ErrorMessage = "Remark cannot exceed 500 characters")]
         //public string? Remark { get; set; } = "";
@@ -55,6 +55,15 @@ namespace ProjectManagementSystem.Models
        
         public virtual ICollection<ProjectFile>? Files { get; set; }
         public virtual ICollection<ProjectMember>? ProjectMembers { get; set; }
+
         
+       
+
+        [StringLength(500)]
+        public string? AdminComment { get; set; } // Only for rejected projects
+
+        public DateTime? ApprovedDate { get; set; } // New - tracks when approved
+        public DateTime? RejectedDate { get; set; }
+
     }
 }

@@ -66,13 +66,43 @@
             </tr>
             <tr>
                 <th>Submitted Date</th>
-                <td>@Model.ProjectSubmittedDate.ToShortDateString()</td>
+                @(Model.ProjectSubmittedDate.HasValue ? Model.ProjectSubmittedDate.Value.ToShortDateString() : "Not submitted")
+
             </tr>
             <tr>
                 <th>Created By</th>
                 <td>@Model.CreatedBy</td>
             </tr>
+
+            <tr>
+                <th>Status</th>
+                <td>
+                    @switch (Model.Status)
+                    {
+                        case "Approved":
+                            <span class="badge bg-success">Approved</span>
+                            break;
+                        case "Rejected":
+                            <span class="badge bg-danger">Rejected</span>
+                            break;
+                        case "Pending":
+                            <span class="badge bg-warning text-dark">Pending</span>
+                            break;
+                        default:
+                            <span class="badge bg-secondary">@Model.Status</span>
+                            break;
+                    }
+                </td>
+            </tr>
+
+
         </table>
+        @if (Model.Status == "Rejected" && !string.IsNullOrWhiteSpace(Model.AdminComment))
+        {
+            <div class="alert alert-danger mt-4">
+                <strong>Rejection Reason:</strong> @Model.AdminComment
+            </div>
+        }
 
         <div class="back-button text-end">
             <a asp-action="Index" class="btn btn-secondary">Back to List</a>

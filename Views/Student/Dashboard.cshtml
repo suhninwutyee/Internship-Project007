@@ -227,7 +227,12 @@
                                         <td>@project.Language?.LanguageName</td>
                                         <td>@project.Framework?.FrameworkName</td>
                                         <td>@project.Company?.CompanyName</td>
-                                        <td>@project.ProjectSubmittedDate.ToShortDateString()</td>
+                                        <td>
+                                            @(project.ProjectSubmittedDate.HasValue
+                                                ? project.ProjectSubmittedDate.Value.ToShortDateString()
+                                                : "Not submitted")
+                                        </td>
+
                                         <td>@project.CreatedBy</td>
                                         <td>
                                             <div class="d-flex gap-1">

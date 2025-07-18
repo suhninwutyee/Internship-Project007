@@ -21,6 +21,8 @@ namespace ProjectManagementSystem.Models
         [Required(ErrorMessage = "Class is required")]
         public string Class { get; set; } = "Final Year"; // Auto-set default value
 
+        public string AcademicYear { get; set; }
+
         public bool IsDeleted { get; set; } = false; // Default value
 
         public DateTimeOffset CreatedDate { get; set; } = DateTimeOffset.Now; // Auto-set

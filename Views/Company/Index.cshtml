@@ -1,101 +1,80 @@
-﻿@model X.PagedList.IPagedList<ProjectManagementSystem.Models.Company>
-
+﻿@model List<ProjectManagementSystem.Models.CompanyViewModel>
 @{
-    ViewData["Title"] = "Company List";
-    int count = (Model.PageNumber - 1) * Model.PageSize + 1;//
-    var total = Model.TotalItemCount;
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Companies";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
 }
 
-<h3 class="mb-4">Company List</h3>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <a asp-action="Create" class="btn btn-primary">+ Add Company</a>
-    <span class="fw-semibold">Total Companies: @total</span>
+<div class="add-form">
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+        <input type="text" name="CompanyName" placeholder="New company name" required maxlength="100" />
+        <button type="submit" class="btn btn-primary">Add Company</button>
+    </form>
 </div>
 
-<table class="table table-striped table-hover shadow-sm">
-    <thead class="table-dark">
+<table class="company-table">
+    <thead>
         <tr>
-            <th style="width:5%;">No</th>
             <th>Company Name</th>
-            <th>Address</th>
-            <th>Contact</th>
-            <th>Description</th>
-            <th>State/Region</th>
-            <th>Photo</th>
-            <th style="width:20%;">Actions</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>@count</td>
-                <td>@item.CompanyName</td>
-                <td>@item.Address</td>
-                <td>@item.Contact</td>
-                <td>@item.Description</td>
-                <td>@item.City?.CityName</td>
+            <tr id="row-@item.Company_pkId">
                 <td>
-                    @if (!string.IsNullOrEmpty(item.ImageFileName))
-                    {
-                        <img src="@Url.Content("~/images/companies/" + item.ImageFileName)" alt="Company Photo" style="height:50px; width:auto;" class="rounded" />
-                    }
-                    else
-                    {
-                        <span class="text-muted">No Photo</span>
-                    }
-                </td>
-                <td>
-                    <div class="d-flex flex-wrap gap-1">
-                        <a asp-action="Edit" asp-route-id="@item.Company_pkId" class="btn btn-sm btn-warning">Edit</a>
-                        <form asp-action="Delete" asp-route-id="@item.Company_pkId" method="post" class="d-inline"
-                              onsubmit="return confirm('Are you sure you want to delete this company?');">
-                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    <span id="name-@item.Company_pkId">@item.CompanyName</span>
+                    <div id="edit-form-@item.Company_pkId" style="display:none;">
+                        <form asp-action="Edit" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="Company_pkId" value="@item.Company_pkId" />
+                            <input type="text" name="CompanyName" value="@item.CompanyName" required maxlength="100" class="form-control d-inline" style="width:auto;" />
+                            <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="hideEditForm(@item.Company_pkId)">Cancel</button>
                         </form>
                     </div>
                 </td>
+                <td>
+                    <button id="edit-btn-@item.Company_pkId" class="btn btn-primary btn-sm" onclick="showEditForm(@item.Company_pkId)">Edit</button>
+                    <form asp-action="Delete" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@item.Company_pkId" />
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this company?')">Delete</button>
+                    </form>
+                </td>
             </tr>
-            count++;
         }
     </tbody>
 </table>
 
-<div class="d-flex justify-content-center mt-3">
-    @Html.PagedListPager(Model, page => Url.Action("Index", new { page }))
-</div>
-
-<style>
-    ul.pagination {
-        display: flex;
-        flex-wrap: wrap;
-        list-style-type: none;
-        padding-left: 0;
-        margin: 0;
-    }
-
-        ul.pagination li {
-            margin: 3px;
+@section Scripts {
+    <script>
+        function showEditForm(id) {
+            // Hide the name display
+            document.getElementById('name-' + id).style.display = 'none';
+            // Show the edit form
+            document.getElementById('edit-form-' + id).style.display = 'block';
+            // Hide the edit button
+            document.getElementById('edit-btn-' + id).style.display = 'none';
         }
 
-            ul.pagination li a,
-            ul.pagination li span {
-                display: block;
-                padding: 0.375rem 0.75rem;
-                color: #0d6efd;
-                text-decoration: none;
-                border: 1px solid #dee2e6;
-                border-radius: 0.25rem;
-            }
-
-            ul.pagination li.active span {
-                background-color: #0d6efd;
-                color: white;
-                border-color: #0d6efd;
-            }
-
-            ul.pagination li.disabled span {
-                color: #6c757d;
-            }
-</style>
+        function hideEditForm(id) {
+            // Show the name display
+            document.getElementById('name-' + id).style.display = 'inline';
+            // Hide the edit form
+            document.getElementById('edit-form-' + id).style.display = 'none';
+            // Show the edit button
+            document.getElementById('edit-btn-' + id).style.display = 'inline';
+        }
+    </script>
+} 

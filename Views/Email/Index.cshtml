@@ -3,152 +3,257 @@
 @{
     ViewData["Title"] = "Email List";
     Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+    int rowNumber = (int)ViewBag.StartRowNumber;
 }
 
-<h1>Email List</h1>
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h3 class="card-title mb-0">Student Email Management</h3>
+    </div>
+    <div class="card-body">
+        <form method="get" asp-action="Index">
+            <select name="selectedYear" onchange="this.form.submit()" class="form-control mb-3" style="width: 200px;">
+                <option value="">-- All Academic Years --</option>
+                @foreach (var year in (List<string>)ViewBag.AcademicYears)
+                {
+                    if (ViewBag.SelectedYear == year)
+                    {
+                        <option value="@year" selected>@year</option>
+                    }
+                    else
+                    {
+                        <option value="@year">@year</option>
+                    }
+                }
+            </select>
+        </form>
 
-<form method="post" id="emailListForm">
-    @Html.AntiForgeryToken()
+        <form method="post" id="emailListForm">
+            @Html.AntiForgeryToken()
 
-    <p>
-        <a asp-action="Create" class="btn btn-primary">Create New</a>
-        <a asp-action="UploadBulk" class="btn btn-success mb-3">📤 Upload Bulk Emails</a>
+            <div class="d-flex justify-content-between mb-4">
+                <div>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus-circle"></i> Add New Email
+                    </a>
+                    <a asp-action="UploadBulk" class="btn btn-success ml-2">
+                        <i class="fas fa-file-upload"></i> Bulk Upload
+                    </a>
+                </div>
+            </div>
 
-    </p>
+            <div class="table-responsive">
+                @if (!string.IsNullOrEmpty((string)ViewBag.SelectedYear))
+                {
+                    <table class="table table-striped table-bordered">
+                        <thead class="bg-purple text-white">
+                            <tr>
+                                <th>No</th>
+                                <th>Email Address</th>
+                                <th>Roll Number</th>
+                                <th>Class</th>
+                                <th class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr id="row-@item.Email_PkId">
+                                    <td class="align-middle">@rowNumber</td>
+                                    <td class="align-middle">
+                                        <span class="view-mode" data-field="EmailAddress">@item.EmailAddress</span>
+                                        <input type="email" class="form-control edit-mode" name="EmailAddress"
+                                               value="@item.EmailAddress" style="display:none;"
+                                               data-val="true"
+                                               data-val-required="Email address is required"
+                                               data-val-email="Invalid email format" />
+                                        <span class="text-danger field-validation-error" data-valmsg-for="EmailAddress"></span>
+                                    </td>
+                                    <td class="align-middle">
+                                        <span class="view-mode" data-field="RollNumber">@item.RollNumber</span>
+                                        <input type="text" class="form-control edit-mode" name="RollNumber"
+                                               value="@item.RollNumber" style="display:none;"
+                                               data-val="true"
+                                               data-val-required="Roll number is required" />
+                                        <span class="text-danger field-validation-error" data-valmsg-for="RollNumber"></span>
+                                    </td>
+                                    <td class="align-middle">
+                                        <span class="view-mode" data-field="Class">@item.Class</span>
+                                        <input type="text" class="form-control edit-mode" name="Class"
+                                               value="@item.Class" style="display:none;"
+                                               data-val="true"
+                                               data-val-required="Class is required" />
+                                        <span class="text-danger field-validation-error" data-valmsg-for="Class"></span>
+                                    </td>
+                                    <td class="text-center align-middle" style="min-width: 120px;">
+                                        <div class="view-mode btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-outline-primary edit-btn" data-id="@item.Email_PkId">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-danger delete-btn" data-id="@item.Email_PkId">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </div>
+                                        <div class="edit-mode btn-group btn-group-sm" style="display:none">
+                                            <button type="button" class="btn btn-outline-success save-btn" data-id="@item.Email_PkId">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary cancel-btn" data-id="@item.Email_PkId">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                rowNumber++;
+                            }
+                        </tbody>
+                    </table>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Email Address</th>
-                <th>Roll Number</th>
-                <th>Class</th>
-                <th>Created Date</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr id="row-@item.Email_PkId">
-                    <td>
-                        <span class="view-mode">@item.EmailAddress</span>
-                        <input type="email" class="form-control edit-mode" name="EmailAddress"
-                               value="@item.EmailAddress" style="display:none"
-                               data-val="true" data-val-required="Email is required"
-                               data-val-email="Invalid email format" />
-                        <span class="text-danger field-validation-error" data-valmsg-for="EmailAddress"></span>
-                    </td>
-                    <td>
-                        <span class="view-mode">@item.RollNumber</span>
-                        <input type="text" class="form-control edit-mode" name="RollNumber"
-                               value="@item.RollNumber" style="display:none"
-                               data-val="true" data-val-required="Roll number is required" />
-                        <span class="text-danger field-validation-error" data-valmsg-for="RollNumber"></span>
-                    </td>
-                    <td>
-                        <span class="view-mode">@item.Class</span>
-                        <input type="text" class="form-control edit-mode" name="Class"
-                               value="@item.Class" style="display:none"
-                               data-val="true" data-val-required="Class is required" />
-                        <span class="text-danger field-validation-error" data-valmsg-for="Class"></span>
-                    </td>
-                    <td>@item.CreatedDate.ToString("g")</td>
-                    <td>
-                        <div class="view-mode">
-                            <button type="button" class="btn btn-sm btn-warning edit-btn" data-id="@item.Email_PkId">Edit</button>
-                            <button type="button" class="btn btn-sm btn-danger delete-btn" data-id="@item.Email_PkId">Delete</button>
+                    @if (Model.Any())
+                    {
+                        <div class="d-flex justify-content-center mt-4">
+                            <nav>
+                                <ul class="pagination">
+                                    @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+                                    {
+                                        <li class="page-item @(i == (int)ViewBag.CurrentPage ? "active" : "")">
+                                            <a class="page-link" asp-action="Index"
+                                               asp-route-page="@i"
+                                               asp-route-selectedYear="@ViewBag.SelectedYear">
+                                                @i
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            </nav>
                         </div>
-                        <div class="edit-mode" style="display:none">
-                            <button type="button" class="btn btn-sm btn-success save-btn" data-id="@item.Email_PkId">Save</button>
-                            <button type="button" class="btn btn-sm btn-secondary cancel-btn" data-id="@item.Email_PkId">Cancel</button>
-                        </div>
-                    </td>
-                </tr>
+                    }
+                }
+                else
+                {
+                    <div class="alert alert-info">
+                        Please select an Academic Year to view the emails.
+                    </div>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .bg-purple {
+            background-color: #8C5DD1;
+        }
+
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        .btn-outline-primary {
+            border-color: #8C5DD1;
+            color: #8C5DD1;
+        }
+
+            .btn-outline-primary:hover {
+                background-color: #8C5DD1;
+                color: white;
             }
-        </tbody>
-    </table>
-</form>
+
+        .is-invalid {
+            border-color: #dc3545;
+        }
+
+        .btn-saving {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+    </style>
+}
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
 
     <script>
         $(document).ready(function () {
+            // Initialize validation
             $.validator.unobtrusive.parse("#emailListForm");
 
-            $('.edit-btn').click(function () {
-                var row = $(this).closest('tr');
-                row.find('.view-mode').hide();
-                row.find('.edit-mode').show();
+            // Edit button click handler
+            $(document).on('click', '.edit-btn', function () {
+                const row = $(this).closest('tr');
+                toggleEditMode(row, true);
             });
 
-            $('.cancel-btn').click(function () {
-                var row = $(this).closest('tr');
-                row.find('.edit-mode').hide();
-                row.find('.view-mode').show();
-                row.find('.field-validation-error').text('');
+            // Cancel button click handler
+            $(document).on('click', '.cancel-btn', function () {
+                const row = $(this).closest('tr');
+                toggleEditMode(row, false);
+                resetValidationErrors(row);
             });
 
-            $('.save-btn').click(function () {
-                var row = $(this).closest('tr');
-                var id = $(this).data('id');
+            // Save button click handler
+            $(document).on('click', '.save-btn', function () {
+                const btn = $(this);
+                const row = btn.closest('tr');
+                const id = btn.data('id');
 
-                var isValid = true;
-                row.find('input.edit-mode').each(function () {
-                    if (!$(this).valid()) {
-                        isValid = false;
-                    }
-                });
+                // Validate all fields
+                if (!validateRow(row)) {
+                    toastr.error('Please fix validation errors');
+                    return;
+                }
 
-                if (!isValid) return;
-
-                var formData = {
+                // Prepare data
+                const formData = {
                     Email_PkId: id,
-                    EmailAddress: row.find('[name="EmailAddress"]').val(),
-                    RollNumber: row.find('[name="RollNumber"]').val(),
-                    Class: row.find('[name="Class"]').val(),
+                    EmailAddress: row.find('[name="EmailAddress"]').val().trim(),
+                    RollNumber: row.find('[name="RollNumber"]').val().trim(),
+                    Class: row.find('[name="Class"]').val().trim(),
+                    AcademicYear: '@ViewBag.SelectedYear',
                     __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
                 };
+
+                // Show loading state
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
 
                 $.ajax({
                     url: '/Email/EditInline/' + id,
                     type: 'POST',
-                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                     data: formData,
                     success: function (response) {
                         if (response && response.success) {
-                            row.find('td').each(function () {
-                                var span = $(this).find('.view-mode');
-                                var input = $(this).find('input');
-                                if (span.length && input.length) {
-                                    var name = input.attr('name');
-                                    span.text(formData[name]);
-                                }
-                            });
-                            row.find('.edit-mode').hide();
-                            row.find('.view-mode').show();
-                            alert('Changes saved successfully.');
+                            // Update view with new values
+                            updateViewMode(row, formData);
+                            toggleEditMode(row, false);
+                            toastr.success('Updated successfully');
+                        } else {
+                            toastr.error(response?.message || 'Update failed');
                         }
                     },
                     error: function (xhr) {
                         if (xhr.status === 400) {
-                            var errors = xhr.responseJSON;
-                            row.find('.field-validation-error').text('');
-                            for (var field in errors) {
-                                row.find('[data-valmsg-for="' + field + '"]').text(errors[field].join(', '));
-                            }
+                            displayValidationErrors(row, xhr.responseJSON?.errors);
+                            toastr.error('Validation errors occurred');
                         } else {
-                            alert('Error saving changes.');
+                            toastr.error('Error: ' + xhr.statusText);
                         }
+                    },
+                    complete: function () {
+                        btn.prop('disabled', false).html('<i class="fas fa-check"></i>');
                     }
                 });
             });
 
-            $('.delete-btn').click(function () {
+            // Delete button click handler
+            $(document).on('click', '.delete-btn', function () {
                 if (!confirm('Are you sure you want to delete this record?')) return;
 
-                var id = $(this).data('id');
-                var row = $('#row-' + id);
+                const btn = $(this);
+                const id = btn.data('id');
+                const row = $('#row-' + id);
+
+                btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
 
                 $.ajax({
                     url: '/Email/DeleteInline/' + id,
@@ -157,18 +262,77 @@
                         'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
                     },
                     success: function (response) {
-                        if (response.success) {
+                        if (response && response.success) {
                             row.fadeOut(300, function () {
                                 row.remove();
+                                toastr.success('Record deleted successfully');
                             });
-                            alert('Record deleted successfully.');
+                        } else {
+                            toastr.error(response?.message || 'Delete failed');
                         }
                     },
-                    error: function () {
-                        alert('Error deleting record.');
+                    error: function (xhr) {
+                        toastr.error('Error: ' + xhr.statusText);
+                    },
+                    complete: function () {
+                        btn.prop('disabled', false).html('<i class="fas fa-trash-alt"></i>');
                     }
                 });
             });
+
+            // Helper functions
+            function toggleEditMode(row, isEdit) {
+                row.find('.view-mode').toggle(!isEdit);
+                row.find('.edit-mode').toggle(isEdit);
+                row.find('.view-mode.btn-group').toggle(!isEdit);
+                row.find('.edit-mode.btn-group').toggle(isEdit);
+            }
+
+            function validateRow(row) {
+                let isValid = true;
+                row.find('input.edit-mode').each(function () {
+                    if (!$(this).valid()) {
+                        isValid = false;
+                        $(this).addClass('is-invalid');
+                    } else {
+                        $(this).removeClass('is-invalid');
+                    }
+                });
+                return isValid;
+            }
+
+            function resetValidationErrors(row) {
+                row.find('.field-validation-error').text('');
+                row.find('.is-invalid').removeClass('is-invalid');
+            }
+
+            function displayValidationErrors(row, errors) {
+                resetValidationErrors(row);
+                if (errors) {
+                    $.each(errors, function (key, messages) {
+                        const errorSpan = row.find(`[data-valmsg-for="${key}"]`);
+                        if (errorSpan.length) {
+                            errorSpan.text(messages.join(', '));
+                        }
+                    });
+                }
+            }
+
+            function updateViewMode(row, data) {
+                Object.keys(data).forEach(key => {
+                    if (key !== '__RequestVerificationToken' && key !== 'Email_PkId') {
+                        const viewElement = row.find(`.view-mode[data-field="${key}"]`);
+                        if (viewElement.length) {
+                            viewElement.text(data[key]);
+                        }
+                    }
+                });
+            }
+                    document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                console.log('Form submitted:', this.action);
+            });
+        });
         });
     </script>
 }

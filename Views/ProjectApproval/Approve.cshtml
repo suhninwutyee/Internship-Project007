@@ -1,0 +1,33 @@
+﻿@model ProjectManagementSystem.Models.Project
+
+@{
+    ViewData["Title"] = "Approve Project";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+}
+
+<h1>Approve Project</h1>
+<h3>Are you sure you want to approve this project?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">Project Name</dt>
+        <dd class="col-sm-10">@Model.ProjectName</dd>
+
+        <dt class="col-sm-2">Company</dt>
+        <dd class="col-sm-10">@Model.Company?.CompanyName</dd>
+
+        <dt class="col-sm-2">Submitted</dt>
+        <dd class="col-sm-10">
+            @(Model.ProjectSubmittedDate.HasValue
+                ? Model.ProjectSubmittedDate.Value.ToString("dd MMM yyyy")
+                : "Not submitted")
+        </dd>
+
+    </dl>
+
+    <form asp-action="ApproveConfirmed">
+        <input type="hidden" asp-for="Project_pkId" />
+        <input type="submit" value="Confirm Approval" class="btn btn-success" />
+        <a asp-action="Pending" class="btn btn-secondary">Back to List</a>
+    </form>
+</div>

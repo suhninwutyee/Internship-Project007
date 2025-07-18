@@ -39,9 +39,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<AdminActivityLog> AdminActivityLog { get; set; }
 
-    
-
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
 

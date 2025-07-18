@@ -2,159 +2,226 @@
 using Microsoft.EntityFrameworkCore;
 using ProjectManagementSystem.Data;
 using ProjectManagementSystem.Models;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-public class EmailController : Controller
+namespace ProjectManagementSystem.Controllers
 {
-    private readonly ApplicationDbContext _context;
-
-    public EmailController(ApplicationDbContext context)
+    public class EmailController : Controller
     {
-        _context = context;
-    }
+        private readonly ApplicationDbContext _context;
 
-    // GET: Email
-    public async Task<IActionResult> Index()
-    {
-        return View(await _context.Emails.Where(e => !e.IsDeleted).ToListAsync());
-    }
-
-    // GET: Email/Create (Single)
-    public IActionResult Create()
-    {
-        return View();
-    }
-
-    // POST: Email/Create (Single)
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("EmailAddress,RollNumber")] Email email)
-    {
-        if (ModelState.IsValid)
+        public EmailController(ApplicationDbContext context)
         {
-            email.Class = "Final Year";
-            email.CreatedDate = DateTimeOffset.Now;
-            _context.Add(email);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            _context = context;
         }
-        return View(email);
-    }
 
-    // GET: Email/UploadBulk
-    public IActionResult UploadBulk()
-    {
-        return View();
-    }
-
-    // POST: Email/UploadBulk
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UploadBulk(IFormFile file)
-    {
-        if (file == null || file.Length == 0)
+        public async Task<IActionResult> Index(string selectedYear, int page = 1)
         {
-            TempData["Error"] = "Please upload a CSV file.";
+            int pageSize = 15;
+
+            var query = _context.Emails
+                .Where(e => !e.IsDeleted);
+
+            if (!string.IsNullOrEmpty(selectedYear))
+            {
+                query = query.Where(e => e.AcademicYear == selectedYear);
+            }
+            else
+            {
+                // Don't load anything if no year selected
+                ViewBag.Emails = new List<Email>();
+                ViewBag.AcademicYears = GenerateAcademicYears();
+                ViewBag.SelectedYear = null;
+                ViewBag.TotalPages = 0;
+                ViewBag.CurrentPage = 1;
+                ViewBag.StartRowNumber = 1;
+                return View(new List<Email>());
+            }
+
+            var totalEmails = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalEmails / (double)pageSize);
+            var emails = await query
+                .OrderBy(e => e.Email_PkId)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            ViewBag.AcademicYears = GenerateAcademicYears();
+            ViewBag.SelectedYear = selectedYear;
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+            ViewBag.StartRowNumber = (page - 1) * pageSize + 1;
+
+            return View(emails);
+        }
+
+        private List<string> GenerateAcademicYears()
+        {
+            var years = new List<string>();
+            for (int year = DateTime.Now.Year; year >= 2000; year--)
+            {
+                years.Add($"{year - 1}-{year}");
+            }
+            return years;
+        }
+
+        // GET: Email/Create
+        public IActionResult Create()
+        {
+            ViewBag.AcademicYears = GenerateAcademicYears();
             return View();
         }
 
-        var emails = new List<Email>();
-        using (var stream = new StreamReader(file.OpenReadStream()))
+        // POST: Email/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("EmailAddress,RollNumber,AcademicYear")] Email email)
         {
-            string line;
-            int lineNumber = 0;
-            while ((line = await stream.ReadLineAsync()) != null)
+            if (ModelState.IsValid)
             {
-                lineNumber++;
-                if (lineNumber == 1) continue; // Skip header
+                email.Class = "Final Year";
+                email.CreatedDate = DateTimeOffset.Now;
+                _context.Add(email);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
 
-                var parts = line.Split(',');
-                if (parts.Length < 2) continue;
+            ViewBag.AcademicYears = GenerateAcademicYears();
+            return View(email);
+        }
 
-                var emailAddress = parts[0].Trim();
-                var rollNumber = parts[1].Trim();
+        // GET: Email/UploadBulk
+        public IActionResult UploadBulk()
+        {
+            ViewBag.AcademicYears = GenerateAcademicYears();
+            return View();
+        }
 
-                if (string.IsNullOrWhiteSpace(emailAddress) || string.IsNullOrWhiteSpace(rollNumber))
-                    continue;
+        // POST: Email/UploadBulk
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadBulk(IFormFile file, string academicYear)
+        {
+            if (file == null || file.Length == 0)
+            {
+                TempData["Error"] = "Please upload a CSV file.";
+                ViewBag.AcademicYears = GenerateAcademicYears();
+                return View();
+            }
 
-                emails.Add(new Email
+            if (string.IsNullOrEmpty(academicYear))
+            {
+                TempData["Error"] = "Please select an academic year.";
+                ViewBag.AcademicYears = GenerateAcademicYears();
+                return View();
+            }
+
+            var emails = new List<Email>();
+            using (var stream = new StreamReader(file.OpenReadStream()))
+            {
+                string line;
+                int lineNumber = 0;
+                while ((line = await stream.ReadLineAsync()) != null)
                 {
-                    EmailAddress = emailAddress,
-                    RollNumber = rollNumber,
-                    Class = "Final Year",
-                    CreatedDate = DateTimeOffset.Now
+                    lineNumber++;
+                    if (lineNumber == 1) continue; // Skip header
+
+                    var parts = line.Split(',');
+                    if (parts.Length < 2) continue;
+
+                    var emailAddress = parts[0].Trim();
+                    var rollNumber = parts[1].Trim();
+
+                    if (string.IsNullOrWhiteSpace(emailAddress) || string.IsNullOrWhiteSpace(rollNumber))
+                        continue;
+
+                    emails.Add(new Email
+                    {
+                        EmailAddress = emailAddress,
+                        RollNumber = rollNumber,
+                        Class = "Final Year",
+                        AcademicYear = academicYear,
+                        CreatedDate = DateTimeOffset.Now
+                    });
+                }
+            }
+
+            if (emails.Any())
+            {
+                await _context.Emails.AddRangeAsync(emails);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = $"{emails.Count} student emails uploaded successfully.";
+            }
+            else
+            {
+                TempData["Error"] = "No valid email entries found in the file.";
+            }
+
+            ViewBag.AcademicYears = GenerateAcademicYears();
+            return View();
+        }
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditInline(int id, [FromForm] Email model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Validation failed",
+                    errors = ModelState.ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                    )
+                });
+            }
+
+            try
+            {
+                var existingEmail = await _context.Emails.FindAsync(id);
+                if (existingEmail == null)
+                {
+                    return NotFound(new { success = false, message = "Email not found" });
+                }
+
+                existingEmail.EmailAddress = model.EmailAddress;
+                existingEmail.RollNumber = model.RollNumber;
+                existingEmail.Class = model.Class;
+                existingEmail.AcademicYear = model.AcademicYear;
+
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = ex.InnerException?.Message ?? ex.Message
                 });
             }
         }
 
-        if (emails.Any())
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteInline(int id)
         {
-            await _context.Emails.AddRangeAsync(emails);
+            var email = await _context.Emails.FindAsync(id);
+            if (email == null)
+            {
+                return NotFound(new { success = false, message = "Email not found" });
+            }
+
+            email.IsDeleted = true;
             await _context.SaveChangesAsync();
-            TempData["Success"] = $"{emails.Count} student emails uploaded successfully.";
+
+            return Json(new { success = true });
         }
-        else
-        {
-            TempData["Error"] = "No valid email entries found in the file.";
-        }
-
-        return View();
-    }
-
-
-[HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult EditInline(int id, [Bind("EmailAddress,RollNumber,Class")] Email model)
-    {
-        if (!ModelState.IsValid)
-        {
-            var errors = ModelState
-                .Where(ms => ms.Value.Errors.Any())
-                .ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
-                );
-
-            return BadRequest(errors);
-        }
-
-        var existing = _context.Emails.FirstOrDefault(e => e.Email_PkId == id);
-        if (existing == null)
-        {
-            return NotFound();
-        }
-
-        existing.EmailAddress = model.EmailAddress;
-        existing.RollNumber = model.RollNumber;
-        existing.Class = model.Class;
-        _context.SaveChanges();
-
-        return Json(new { success = true });
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public IActionResult DeleteInline(int id)
-    {
-        var email = _context.Emails.Find(id);
-        if (email == null)
-        {
-            return NotFound();
-        }
-
-        _context.Emails.Remove(email);
-        _context.SaveChanges();
-
-        return Json(new { success = true });
-    }
-
-
-    private bool EmailExists(int id)
-    {
-        return _context.Emails.Any(e => e.Email_PkId == id && !e.IsDeleted);
     }
 }

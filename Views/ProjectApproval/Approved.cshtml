@@ -1,0 +1,34 @@
+﻿@model IEnumerable<ProjectManagementSystem.Models.Project>
+
+@{
+    ViewData["Title"] = "Approved Projects";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+}
+
+<h1>Approved Projects</h1>
+
+<table class="table table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>Project Name</th>
+            <th>Company</th>
+            <th>Type</th>
+            <th>Approved On</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.ProjectName)</td>
+                <td>@Html.DisplayFor(modelItem => item.Company.CompanyName)</td>
+                <td>@Html.DisplayFor(modelItem => item.ProjectType.TypeName)</td>
+                <td>@item.ApprovedDate?.ToString("dd MMM yyyy")</td>
+                <td>
+                    <a asp-controller="Projects" asp-action="Details" asp-route-id="@item.Project_pkId" class="btn btn-sm btn-info">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
