@@ -6,6 +6,7 @@ namespace ProjectManagementSystem.Models
     public class ProjectMember
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ProjectMember_pkId { get; set; }
         
         [Required]
@@ -18,6 +19,6 @@ namespace ProjectManagementSystem.Models
         public int? Project_pkId { get; set; }
         public Project? Project { get; set; }
 
-        public bool IsDeleted { get; set; }  
+        public bool IsDeleted { get; set; } = false;  
     }
 }

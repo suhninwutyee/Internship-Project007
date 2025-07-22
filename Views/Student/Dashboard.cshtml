@@ -2,10 +2,137 @@
 @using X.PagedList
 @{
     ViewData["Title"] = "Student Dashboard";
-    int count = (Model.Projects.PageNumber - 1) * Model.Projects.PageSize + 1;
-    int i = 1;
-    var total = Model.Projects.TotalItemCount;
+    int studentCount = (Model.Students.PageNumber - 1) * Model.Students.PageSize + 1;
+    int projectCount = (Model.Projects.PageNumber - 1) * Model.Projects.PageSize + 1;
+    var totalProjects = Model.Projects.TotalItemCount;
+    var totalStudents = Model.Students.TotalItemCount;
 }
+@functions {
+    string ToMyanmarDigits(int number)
+    {
+        var myanmarDigits = new[] { '၀', '၁', '၂', '၃', '၄', '၅', '၆', '၇', '၈', '၉' };
+        return string.Concat(number.ToString("D6").Select(c => myanmarDigits[c - '0']));
+    }
+}
+<div>
+    <partial name="_ProgressBarPartial" />
+</div>
+<div class="container mt-4">
+    <div class="card shadow-lg rounded-4 border-0" style="background: linear-gradient(135deg, #f9f5ff 0%, #f0e6ff 100%); border-left: 4px solid #8c5dd1 !important;">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="mb-0 text-dark" style="font-weight: 600;">Welcome back, @Model.LoggedInStudent.StudentName!</h3>
+                <span class="badge rounded-pill" style="background-color: #8c5dd1; color: white; padding: 8px 12px;">
+                    Student Dashboard
+                </span>
+            </div>
+
+            <div class="row mb-4 g-4">
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 h-100" style="background-color: white; border-left: 3px solid #8c5dd1;">
+                        <h5 class="mb-3" style="color: #8c5dd1;"><i class="bi bi-person-circle me-2"></i>Personal Information</h5>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-hash me-2" style="color: #8c5dd1;"></i>
+                            <span><strong>Roll Number:</strong> @Model.LoggedInStudent.RollNumber</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-envelope me-2" style="color: #8c5dd1;"></i>
+                            <span><strong>Email:</strong> @Model.LoggedInStudent.Email</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-person-vcard me-2" style="color: #8c5dd1;"></i>
+                            <span><strong>NRC:</strong> @($"{Model.LoggedInStudent.NRCTownship?.RegionCode_M}/{Model.LoggedInStudent.NRCTownship?.TownshipCode_M}({Model.LoggedInStudent.NRCType?.TypeCode}){ToMyanmarDigits(Model.LoggedInStudent.NRCNumber)}")</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="p-3 rounded-3 h-100" style="background-color: white; border-left: 3px solid #8c5dd1;">
+                        <h5 class="mb-3" style="color: #8c5dd1;"><i class="bi bi-building me-2"></i>Academic Information</h5>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-building me-2" style="color: #8c5dd1;"></i>
+                            <span><strong>Department:</strong> @Model.LoggedInStudent.StudentDepartment?.DepartmentName</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-calendar me-2" style="color: #8c5dd1;"></i>
+                            <span><strong>Academic Year:</strong> @Model.LoggedInStudent.AcademicYear?.YearRange</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider my-4" style="border-top: 1px dashed #d1b8ff;"></div>
+
+            @if (Model.LoggedInStudent.ProjectMembers != null && Model.LoggedInStudent.ProjectMembers.Any(pm => !pm.IsDeleted))
+            {
+                var project = Model.LoggedInStudent.ProjectMembers.FirstOrDefault(pm => !pm.IsDeleted)?.Project;
+
+                if (project != null)
+                {
+                    <div class="mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="mb-0 text-dark" style="font-weight: 600;"><i class="bi bi-people-fill me-2" style="color: #8c5dd1;"></i>Project Group</h4>
+                            <span class="badge rounded-pill" style="background-color: #d1b8ff; color: #5a2d9c; padding: 6px 10px;">
+                                Active Project
+                            </span>
+                        </div>
+
+                        <div class="card mb-4 border-0" style="background-color: white; box-shadow: 0 2px 8px rgba(140, 93, 209, 0.1);">
+                            <div class="card-body">
+                                <h5 style="color: #8c5dd1;">@project.ProjectName</h5>
+                                <p class="text-muted mb-3">@project.Description</p>
+
+                                <div class="d-flex flex-wrap gap-3 mb-4">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-person-badge me-2" style="color: #8c5dd1;"></i>
+                                        <span><strong>Supervisor:</strong> @project.SupervisorName</span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-people me-2" style="color: #8c5dd1;"></i>
+                                        <span><strong>Members:</strong> @project.ProjectMembers.Count(pm => !pm.IsDeleted)</span>
+                                    </div>
+                                </div>
+
+                                <h6 class="mb-3" style="color: #8c5dd1;">Group Members</h6>
+                                <div class="row g-3">
+                                    @foreach (var member in project.ProjectMembers.Where(pm => !pm.IsDeleted))
+                                    {
+                                        <div class="col-md-6">
+                                            <div class="p-3 rounded-3" style="background-color: #f9f5ff; border-left: 3px solid #d1b8ff;">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <strong>@member.Student?.StudentName</strong>
+                                                        <div class="text-muted small">@member.Role</div>
+                                                    </div>
+                                                    @if (member.Student?.RollNumber == Model.LoggedInStudent.RollNumber)
+                                                    {
+                                                        <span class="badge rounded-pill" style="background-color: #8c5dd1; color: white;">You</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-warning mt-4" style="background-color: #fff3cd; border-color: #ffecb5; color: #664d03;">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> You are assigned to a group, but project details are missing.
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="alert alert-info mt-4" style="background-color: #e6e1ff; border-color: #d1c8ff; color: #4a3d7a;">
+                    <i class="bi bi-info-circle-fill me-2"></i> You are not assigned to any project group yet.
+                </div>
+            }
+        </div>
+    </div>
+</div>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,275 +142,604 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
     <style>
+        :root {
+            --primary-color: #8c5dd1;
+            --primary-hover: #c8c6c1;
+            --secondary-color: #8c5dd1;
+            --dark-color: #1e293b;
+            --light-color: #f8fafc;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --info-color: #0ea5e9;
+            --border-radius: 12px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
         body {
             background: linear-gradient(135deg, #e4eefd);
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        .dashboard-card {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
+            .glass-card:hover {
+                transform: translateY(-2px);
+                box-shadow: var(--shadow-md);
+            }
+
         .card-header {
-            background: linear-gradient(120deg, #8c5dd1, #7b2cbf);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
             color: white;
-            padding: 25px 30px;
-            font-size: 1.5rem;
-            font-weight: bold;
+            padding: 1.25rem 1.5rem;
+            font-weight: 600;
+            border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+            .btn-primary:hover {
+                background-color: var(--primary-hover);
+                border-color: var(--primary-hover);
+            }
+
+        .btn-danger {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-outline-purple {
+            color: #8c5dd1;
+            border: 1px solid #8c5dd1;
+            background-color: transparent;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+            .btn-outline-purple:hover {
+                color: #fff;
+                background-color: #8c5dd1;
+                border-color: #8c5dd1;
+                box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .table-container {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            background: white;
+            box-shadow: var(--shadow-sm);
         }
 
         .table th {
-            background-color: #e0e7ff;
+            background-color: #f8fafc;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 1rem 1.5rem;
+            border-bottom-width: 1px;
         }
 
-        .btn-sm {
-            padding: 0.4rem 0.75rem;
+        .table td {
+            padding: 1rem 1.5rem;
+            vertical-align: middle;
+            border-color: #e2e8f0;
+        }
+
+        .table tr:not(:last-child) td {
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        .badge {
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            letter-spacing: 0.05em;
+        }
+
+        .pagination .page-item .page-link {
+            border-radius: 8px;
+            margin: 0 4px;
+            border: 1px solid #e2e8f0;
+            min-width: 36px;
+            text-align: center;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #cbd5e1;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
         }
 
         .action-btns .btn {
-            margin-right: 5px;
-        }
-
-        .dashboard-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin: 20px 0;
-        }
-
-        .btn-edit, .btn-project {
-            font-weight: 600;
-            border-radius: 8px;
-            padding: 10px 20px;
-            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.2);
-        }
-
-        .btn-edit {
-            background: linear-gradient(120deg, #4cc9f0, #4361ee);
-            color: white;
-            border: none;
-        }
-
-        .btn-project {
-            background: linear-gradient(120deg, #3f37c9, #4895ef);
-            color: white;
-            border: none;
-        }
-
-            .btn-edit:hover, .btn-project:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 6px 15px rgba(67, 97, 238, 0.3);
-            }
-
-        .text-muted {
+            padding: 0.375rem 0.75rem;
             font-size: 0.875rem;
         }
 
-        .table-sm th, .table-sm td {
-            font-size: 0.875rem;
+        .search-box {
+            position: relative;
+            max-width: 300px;
         }
 
-        ul.pagination {
-            display: flex;
-            flex-wrap: wrap;
-            list-style-type: none;
-            padding-left: 0;
-        }
-
-            ul.pagination li {
-                margin: 3px;
+            .search-box input {
+                padding-left: 2.5rem;
+                border-radius: var(--border-radius);
+                border: 1px solid #e2e8f0;
             }
 
-                ul.pagination li a, ul.pagination li span {
-                    display: block;
-                    padding: 0.375rem 0.75rem;
-                    color: #8c5dd1;
-                    border: 1px solid #8c5dd1;
-                    border-radius: 0.25rem;
-                    text-decoration: none;
-                }
+            .search-box i {
+                position: absolute;
+                left: 1rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: #94a3b8;
+            }
 
-                    ul.pagination li a:hover {
-                        background-color: #8c5dd1;
-                        color: white;
-                    }
+        .empty-state {
+            padding: 3rem 1rem;
+            text-align: center;
+            color: #64748b;
+        }
 
-                ul.pagination li.active span {
-                    background-color: #8c5dd1;
-                    color: white;
-                    border-color: #8c5dd1;
-                }
+            .empty-state i {
+                font-size: 3rem;
+                color: #cbd5e1;
+                margin-bottom: 1rem;
+            }
+
+            .empty-state h5 {
+                color: #475569;
+                margin-bottom: 0.5rem;
+            }
+
+        .floating-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+            .floating-btn:hover {
+                transform: translateY(-3px);
+                background-color: var(--primary-hover);
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                color: white;
+            }
+
+        .tab-content {
+            background: white;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            padding: 1.5rem;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            color: #64748b;
+            font-weight: 500;
+            padding: 0.75rem 1.25rem;
+        }
+
+            .nav-tabs .nav-link.active {
+                color: var(--primary-color);
+                border-bottom: 2px solid var(--primary-color);
+                background: transparent;
+            }
+
+        .nav-tabs {
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .divider {
+            border-top: 1px dashed #d1b8ff;
+        }
+
+        .card {
+            transition: transform 0.2s ease-in-out;
+        }
+
+            .card:hover {
+                transform: translateY(-2px);
+            }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="dashboard-card mb-5">
-            <div class="card-header">
-                <i class="fas fa-users me-2"></i>Student Dashboard
+    <div class="container py-4">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-0 text-gray-800">Student Dashboard</h1>
+                <p class="text-muted mb-0">Manage students and projects</p>
             </div>
-
-            <div class="card-body p-4">
-                <div class="dashboard-actions">
-                    <a asp-controller="Student" asp-action="Create" class="btn btn-edit">
-                        <i class="fas fa-user-plus me-1"></i> Add Student
-                    </a>
-                    <a asp-controller="Project" asp-action="Create" class="btn btn-project">
-                        <i class="fas fa-file-upload me-1"></i> Submit Project
-                    </a>
+            <div class="d-flex gap-2">
+                @* <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="form-control" placeholder="Search...">
                 </div>
-
-                @if (Model.Students.Any())
-                {
-                    <table class="table table-bordered table-striped align-middle">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Name</th>
-                                <th>Roll No</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Department</th>
-                                <th>Academic Year</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var student in Model.Students)
-                            {
-                                <tr>
-                                    <td>@i</td>
-                                    <td>@student.StudentName</td>
-                                    <td>@student.RollNumber</td>
-                                    <td>@student.Email</td>
-                                    <td>@student.PhoneNumber</td>
-                                    <td>@student.StudentDepartment?.DepartmentName</td>
-                                    <td>@student.AcademicYear</td>
-                                    <td class="action-btns">
-                                        <a asp-action="Edit" asp-route-id="@student.Student_pkId" class="btn btn-primary btn-sm" title="Edit Student">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </a>
-                                    </td>
-                                </tr>
-                                i++;
-                            }
-                        </tbody>
-                    </table>
-                }
-                else
-                {
-                    <div class="alert alert-info">No students registered yet.</div>
-                }
+                <button class="btn btn-primary">
+                    <i class="fas fa-filter me-1"></i> Filters
+                </button> *@
+                <a asp-controller="Member" asp-action="Create" class="btn btn-outline-purple">
+                    <i class="fas fa-user-plus me-1"></i> Add Member
+                </a>
             </div>
         </div>
 
-        <!-- Project Table -->
-        <div class="dashboard-card">
-            <div class="card-header">
-                <i class="fas fa-folder-open me-2"></i>Project List
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="glass-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-uppercase text-muted mb-2">Total Students</h6>
+                                <h3 class="mb-0">@totalStudents</h3>
+                            </div>
+                            <div class="avatar">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                    <div class="d-flex flex-wrap gap-2">
-                        <a asp-controller="Project" asp-action="Create" class="btn btn-project">
-                            <i class="bi bi-plus-circle-fill me-1"></i> Create New Project
-                        </a>
-                        <a asp-controller="Member" asp-action="Create" class="btn btn-edit">
-                            <i class="bi bi-person-plus-fill me-1"></i> Add Member 
+            <div class="col-md-3">
+                <div class="glass-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-uppercase text-muted mb-2">Total Projects</h6>
+                                <h3 class="mb-0">@totalProjects</h3>
+                            </div>
+                            <div class="avatar">
+                                <i class="fas fa-project-diagram"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+         @*    <div class="col-md-3">
+                <div class="glass-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-uppercase text-muted mb-2">Active</h6>
+                                <h3 class="mb-0">24</h3>
+                            </div>
+                            <div class="avatar">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="glass-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-uppercase text-muted mb-2">Pending</h6>
+                                <h3 class="mb-0">5</h3>
+                            </div>
+                            <div class="avatar">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> *@
+        </div>
+
+        <!-- Main Content -->
+        <div class="glass-card mb-4">
+            <ul class="nav nav-tabs" id="dashboardTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="students-tab" data-bs-toggle="tab" data-bs-target="#students" type="button" role="tab">
+                        <i class="fas fa-user-graduate me-1"></i> Students
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="projects-tab" data-bs-toggle="tab" data-bs-target="#projects" type="button" role="tab">
+                        <i class="fas fa-project-diagram me-1"></i> Projects
+                    </button>
+                </li>
+            </ul>
+            <div class="tab-content" id="dashboardTabsContent">
+                <!-- Students Tab -->
+                <div class="tab-pane fade show active" id="students" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Student Records</h5>
+                        <a asp-controller="Student" asp-action="Create" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus me-1"></i> Add Student
                         </a>
                     </div>
-                    <span class="fw-semibold" style="color: #8c5dd1;">Total Projects: @total</span>
-                </div>
 
-                <div class="table-responsive shadow-sm rounded">
-                    <table class="table align-middle mb-0 bg-white">
-                        <thead style="background-color: #8c5dd1; color: white;">
-                            <tr>
-                                <th>#</th>
-                                <th>Project Name</th>
-                                <th>Supervisor</th>
-                                <th>Project Type</th>
-                                <th>Language</th>
-                                <th>Framework</th>
-                                <th>Company</th>
-                                <th>Submitted</th>
-                                <th>Created By</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model.Projects.Any())
-                            {
-                                foreach (var project in Model.Projects)
-                                {
-                                    <tr>
-                                        <td>@count</td>
-                                        <td>@project.ProjectName</td>
-                                        <td>@project.SupervisorName</td>
-                                        <td>@project.ProjectType?.TypeName</td>
-                                        <td>@project.Language?.LanguageName</td>
-                                        <td>@project.Framework?.FrameworkName</td>
-                                        <td>@project.Company?.CompanyName</td>
-                                        <td>@project.ProjectSubmittedDate.ToShortDateString()</td>
-                                        <td>@project.CreatedBy</td>
-                                        <td>
-                                            <div class="d-flex gap-1">
-                                                <a asp-controller="Project" asp-action="Edit" asp-route-id="@project.Project_pkId" class="btn btn-sm btn-outline-warning">
-                                                    <i class="bi bi-pencil-fill"></i>
-                                                </a>
-                                                <form asp-controller="Project" asp-action="Delete" asp-route-id="@project.Project_pkId" method="post"
-                                                      onsubmit="return confirm('Are you sure you want to delete this project?');">
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                        <i class="bi bi-trash-fill"></i>
-                                                    </button>
-                                                </form>
-                                                <a asp-controller="Project" asp-action="Details" asp-route-id="@project.Project_pkId" class="btn btn-sm btn-outline-info">
-                                                    <i class="bi bi-info-circle-fill"></i>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    count++;
-                                }
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td colspan="10" class="text-center text-muted py-4">No projects found.</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Pagination -->
-                <div class="d-flex justify-content-center mt-4">
-                    @Html.PagedListPager(Model.Projects, page => Url.Action("Dashboard", new { page }),
-                             new X.PagedList.Web.Common.PagedListRenderOptions
+                    @if (Model.Students.Any())
                     {
-                        UlElementClasses = new[] { "pagination", "pagination-sm" },
-                        LiElementClasses = new[] { "page-item" },
-                        PageClasses = new[] { "page-link" },
-                        ActiveLiElementClass = "active",
-                        LinkToPreviousPageFormat = "«",
-                        LinkToNextPageFormat = "»"
-                    })
+                        <div class="table-container">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Student</th>
+                                        <th>Roll No</th>
+                                        <th>Department</th>
+                                        <th>Academic Year</th>
+                                        <th>Phone Number</th>
+                                        <th>NRC</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var student in Model.Students)
+                                    {
+                                        <tr>
+                                            <td>@studentCount</td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar me-2">
+                                                        @student.StudentName.Substring(0, 1)
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-semibold">@student.StudentName</div>
+                                                        <small class="text-muted">@student.Email</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>@student.RollNumber</td>
+                                            <td>@student.StudentDepartment?.DepartmentName</td>
+                                            <td>@student.AcademicYear?.YearRange</td>
+                                            <td>@student.PhoneNumber</td>
+                                            <td>
+                                                @($"{student.NRCTownship?.RegionCode_M}/{student.NRCTownship?.TownshipCode_M}({student.NRCType?.TypeCode}){ToMyanmarDigits(student.NRCNumber)}")
+                                            </td>
+                                            <td>
+                                                <div class="d-flex gap-1">
+                                                    <a asp-action="Edit" asp-route-id="@student.Student_pkId" class="btn btn-sm btn-outline-primary" title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a asp-action="Delete" asp-route-id="@student.Student_pkId" class="btn btn-sm btn-outline-danger"
+                                                       onclick="return confirm('Are you sure you want to delete this student?');" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        studentCount++;
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="text-muted">
+                                Showing @((Model.Students.PageNumber - 1) * Model.Students.PageSize + 1)
+                                to @Math.Min(Model.Students.PageNumber * Model.Students.PageSize, Model.Students.TotalItemCount)
+                                of @Model.Students.TotalItemCount students
+                            </div>
+                            <nav>
+                                @Html.PagedListPager(Model.Students, studentPage =>
+                                         Url.Action("Dashboard", new { studentPage, projectPage = Model.Projects.PageNumber }),
+                                         new X.PagedList.Web.Common.PagedListRenderOptions
+                            {
+                                UlElementClasses = new[] { "pagination", "mb-0" },
+                                LiElementClasses = new[] { "page-item" },
+                                PageClasses = new[] { "page-link" },
+                                ActiveLiElementClass = "active",
+                                LinkToPreviousPageFormat = "<i class='fas fa-chevron-left'></i>",
+                                LinkToNextPageFormat = "<i class='fas fa-chevron-right'></i>"
+                            })
+                            </nav>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <i class="fas fa-user-graduate"></i>
+                            <h5>No Students Found</h5>
+                            <p>You haven't added any students yet.</p>
+                            <a asp-controller="Student" asp-action="Create" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i> Add Student
+                            </a>
+                        </div>
+                    }
+                </div>
+
+                <!-- Projects Tab -->
+                <div class="tab-pane fade" id="projects" role="tabpanel">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Project Submissions</h5>
+                        <div class="d-flex gap-2">
+                           @*  <a asp-controller="Member" asp-action="Create" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-user-plus me-1"></i> Add Member
+                            </a> *@
+                            <a asp-controller="Project" asp-action="Create" class="btn btn-sm btn-primary">
+                                <i class="fas fa-plus me-1"></i> New Project
+                            </a>
+                        </div>
+                    </div>
+
+                    @if (Model.Projects.Any())
+                    {
+                        <div class="table-container">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Project Name</th>
+                                        <th>Supervisor</th>
+                                        <th>Type</th>
+                                        <th>Tech</th>
+                                        <th>Submitted</th>
+                                       
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var project in Model.Projects)
+                                    {
+                                        <tr>
+                                            <td>@projectCount</td>
+                                            <td>
+                                                <div class="fw-semibold">@project.ProjectName</div>
+                                                <small class="text-muted">@project.Company?.CompanyName</small>
+                                            </td>
+                                            <td>@project.SupervisorName</td>
+                                            <td>@project.ProjectType?.TypeName</td>
+                                            <td>
+                                                <span class="badge bg-light text-dark">@project.Language?.LanguageName</span>
+                                                <span class="badge bg-light text-dark">@project.Framework?.FrameworkName</span>
+                                            </td>
+                                            <td>@project.ProjectSubmittedDate.ToString("dd MMM yyyy")</td>
+                                           
+                                            <td>
+                                                <div class="d-flex gap-1">
+                                                    <a asp-controller="Project" asp-action="Edit" asp-route-id="@project.Project_pkId" class="btn btn-sm btn-outline-primary" title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <form asp-controller="Project" asp-action="Delete" asp-route-id="@project.Project_pkId" method="post" onsubmit="return confirm('Are you sure you want to delete this project?');">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                    <a asp-controller="Project" asp-action="Details" asp-route-id="@project.Project_pkId" class="btn btn-sm btn-outline-info" title="Details">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        projectCount++;
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <div class="text-muted">
+                                Showing @((Model.Projects.PageNumber - 1) * Model.Projects.PageSize + 1)
+                                to @Math.Min(Model.Projects.PageNumber * Model.Projects.PageSize, Model.Projects.TotalItemCount)
+                                of @Model.Projects.TotalItemCount projects
+                            </div>
+                            <nav>
+                                @Html.PagedListPager(Model.Projects, projectPage =>
+                                         Url.Action("Dashboard", new { projectPage, studentPage = Model.Students.PageNumber }),
+                                         new X.PagedList.Web.Common.PagedListRenderOptions
+                            {
+                                UlElementClasses = new[] { "pagination", "mb-0" },
+                                LiElementClasses = new[] { "page-item" },
+                                PageClasses = new[] { "page-link" },
+                                ActiveLiElementClass = "active",
+                                LinkToPreviousPageFormat = "<i class='fas fa-chevron-left'></i>",
+                                LinkToNextPageFormat = "<i class='fas fa-chevron-right'></i>"
+                            })
+                            </nav>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="empty-state">
+                            <i class="fas fa-project-diagram"></i>
+                            <h5>No Projects Found</h5>
+                            <p>You haven't submitted any projects yet.</p>
+                            <a asp-controller="Project" asp-action="Create" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i> Submit Project
+                            </a>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
-
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="alert alert-success alert-dismissible fade show mt-4" role="alert">
-                <strong>✔</strong> @TempData["SuccessMessage"]
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        }
     </div>
 
+    <!-- Floating Action Button -->
+    <a asp-controller="ProjectSubmit" asp-action="Create" class="floating-btn">
+        <i class="fas fa-plus"></i>
+    </a>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Activate tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+
+        // Show success message if exists
+        document.addEventListener('DOMContentLoaded', function() {
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+                    const toast = new bootstrap.Toast(document.getElementById('liveToast'));
+                    toast.show();
+            </text>
+        }
+        });
+    </script>
 </body>
 </html>

@@ -4,7 +4,9 @@
     ViewData["Title"] = "Student Login";
     Layout = "_Layout";
 }
-
+<div>
+    <partial name="_ProgressBarPartial" />
+</div>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -102,7 +104,7 @@
         }
 
         .btn-send-otp {
-            background: linear-gradient(to right, #6a11cb, #2575fc); /* Gradient button */
+            background: linear-gradient(to right, #8c5dd1); /* Gradient button */
             color: white;
             border: none;
             border-radius: 8px;
@@ -135,23 +137,35 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
     <div class="d-flex justify-content-center align-item-center">
     <div class="login-container">
         <div class="header-section">
-            <h2>Welcome to Student Portal</h2>
+           <h2>Welcome to Internship Project Information Portal</h2>
+                <h5 class="benefits-title"><i class="fas fa-user-graduate"></i> Final Year Student</h5>
             <div class="feature-cards">
                 <div class="feature-card">
                     <i class="fas fa-book"></i>
-                    <span>Access all your courses and learning materials</span>
+                        <span>Access course materials and learn from previous internship projects</span>
                 </div>
                 <div class="feature-card">
                     <i class="fas fa-upload"></i>
-                    <span>Submit internship projects and track your progress</span>
+                        <span>Submit and manage your internship projects in one centralized platform</span>
                 </div>
                 <div class="feature-card">
                     <i class="fas fa-chart-line"></i>
-                    <span>View detailed performance analytics</span>
+                        <span>Track your progress with detailed analytics and feedback</span>
                 </div>
+                    <div class="feature-card">
+                        <i class="fas fa-network-wired"></i>
+                        <span>Connect with industry opportunities through your projects</span>
+                    </div>
             </div>
         </div>
 

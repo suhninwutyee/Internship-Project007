@@ -35,7 +35,6 @@ namespace ProjectManagementSystem.Controllers
             return View();
         }
 
-        // POST: Member/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(ProjectMember model)
@@ -47,113 +46,97 @@ namespace ProjectManagementSystem.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Repopulate dropdowns on validation failure
             LoadDropdowns();
             return View(model);
         }
 
-        private void LoadDropdowns()
+        public IActionResult Edit(int id)
         {
-            var students = _context.Students.ToList() ?? new List<Student>();
-            var projects = _context.Projects.ToList() ?? new List<Project>();
-            Console.WriteLine("s list..........................." + JsonSerializer.Serialize(students));
-            Console.WriteLine("plist..........................." + JsonSerializer.Serialize(projects));
-            ViewBag.Students = new SelectList(students, "Student_pkId", "RollNumber");
-            ViewBag.Projects = new SelectList(projects, "Project_pkId", "ProjectName");
-        }
-        // GET: Member/Edit/5
-        public IActionResult Edit(int? id)
-        {
-            if (id == null)
+            var projectMember = _context.ProjectMembers.FirstOrDefault(pm => pm.ProjectMember_pkId == id);
+            if (projectMember == null)
             {
                 return NotFound();
             }
 
+            LoadDropdowns();
+            return View(projectMember);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(ProjectMember model)
+        {
+            if (ModelState.IsValid)
+            {
+                var existing = _context.ProjectMembers
+                    .FirstOrDefault(pm => pm.ProjectMember_pkId == model.ProjectMember_pkId);
+
+                if (existing == null)
+                    return NotFound();
+
+                // Only update the fields you allow to change
+                existing.Role = model.Role;
+                existing.Student_pkId = model.Student_pkId;
+                existing.Project_pkId = model.Project_pkId;
+
+                _context.SaveChanges();
+                return RedirectToAction("Index");
+            }
+
+            LoadDropdowns(); // Repopulate ViewBag
+            return View(model);
+        }
+        private void LoadDropdowns()
+        {
+            //var students = _context.Students.ToList() ?? new List<Student>();
+            //var projects = _context.Projects.ToList() ?? new List<Project>();
+
+            // Get RollNumber of logged-in student from session
+            var rollNumber = HttpContext.Session.GetString("RollNumber");
+
+            var students = _context.Students
+                .Where(s => s.RollNumber == rollNumber && !s.IsDeleted)
+                .ToList();
+
+            var projects = _context.Projects.ToList() ?? new List<Project>();
+
+            ViewBag.Students = new SelectList(students, "Student_pkId", "StudentName");
+            ViewBag.Projects = new SelectList(projects, "Project_pkId", "ProjectName");
+        }
+
+        // GET: Member/Remove/5
+        public IActionResult Remove(int id)
+        {
             var member = _context.ProjectMembers
-                                 .Include(pm => pm.Student)
-                                 .Include(pm => pm.Project)
-                                 .FirstOrDefault(pm => pm.ProjectMember_pkId == id);
+                .Include(pm => pm.Student)
+                .Include(pm => pm.Project)
+                .FirstOrDefault(pm => pm.ProjectMember_pkId == id);
 
             if (member == null)
             {
                 return NotFound();
             }
 
-            LoadDropdowns(); // Repopulate Student and Project dropdowns
-            return View(member);
+            return View(member); // Confirm delete page
         }
 
-        // POST: Member/Edit/5
-        [HttpPost]
+        // POST: Member/RemoveConfirmed/5
+        [HttpPost, ActionName("Remove")]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, ProjectMember model)
+        public IActionResult RemoveConfirmed(int id)
         {
-            if (id != model.ProjectMember_pkId)
+            var member = _context.ProjectMembers.FirstOrDefault(pm => pm.ProjectMember_pkId == id);
+
+            if (member == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.ProjectMembers.Update(model);
-                    _context.SaveChanges();
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.ProjectMembers.Any(e => e.ProjectMember_pkId == model.ProjectMember_pkId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-            }
+            member.IsDeleted = true;
+            _context.SaveChanges();
 
-            LoadDropdowns(); // Repopulate dropdowns on validation error
-            return View(model);
+            return RedirectToAction("Index");
         }
 
-
-        // GET: Member/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-                return NotFound();
-
-            var member = await _context.ProjectMembers
-                .Include(pm => pm.Student)
-                .Include(pm => pm.Project)
-                .FirstOrDefaultAsync(m => m.ProjectMember_pkId == id);
-
-            if (member == null || member.IsDeleted)
-                return NotFound();
-
-            return View(member);
-        }
-
-        // POST: Member/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var member = await _context.ProjectMembers.FindAsync(id);
-            if (member != null)
-            {
-                member.IsDeleted = true; // soft delete
-                _context.Update(member);
-                await _context.SaveChangesAsync();
-            }
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool ProjectMemberExists(int id)
-        {
-            return _context.ProjectMembers.Any(e => e.ProjectMember_pkId == id && !e.IsDeleted);
-        }
     }
 }

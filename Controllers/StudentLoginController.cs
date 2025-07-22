@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ProjectManagementSystem.Data;
 using ProjectManagementSystem.Models;
 using ProjectManagementSystem.Services;
@@ -35,48 +36,70 @@ namespace ProjectManagementSystem.Controllers
             string rollNo = model.RollNumber?.Trim().ToLower();
             string email = model.EmailAddress?.Trim().ToLower();
 
+            // Try find student with project group
+            var student = _context.Students
+                .Include(s => s.ProjectMembers)
+                .FirstOrDefault(s => s.RollNumber.ToLower() == rollNo &&
+                                     s.Email.ToLower() == email &&
+                                     !s.IsDeleted &&
+                                     s.ProjectMembers.Any(pm => !pm.IsDeleted));
+
+            if (student != null)
+            {
+                // Process OTP for student
+                return await ProcessOtpForUser(student.RollNumber, student.Email);
+            }
+            ///////
+            
+            // Fallback: Try find email record (older logic)
             var emailRecord = _context.Emails
                 .FirstOrDefault(e => e.RollNumber.Trim().ToLower() == rollNo &&
                                      e.EmailAddress.Trim().ToLower() == email &&
                                      !e.IsDeleted);
-
+           
             if (emailRecord == null)
             {
                 ViewBag.Error = "Your Email Address Not Registered In The System, Please Contact Student Affairs or Phone-xxxxxxxx";
                 return View(model);
             }
 
-            TempData["RollNumber"] = emailRecord.RollNumber;
-            TempData["EmailAddress"] = emailRecord.EmailAddress;
+            // Process OTP for emailRecord
+            return await ProcessOtpForUser(emailRecord.RollNumber, emailRecord.EmailAddress);
+        }
+
+        // Extract OTP generation logic to a reusable method
+        private async Task<IActionResult> ProcessOtpForUser(string rollNumber, string emailAddress)
+        {
+            TempData["RollNumber"] = rollNumber;
+            TempData["EmailAddress"] = emailAddress;
 
             // Check cooldown: prevent generating OTP if recent unexpired OTP exists
             var recentOtp = _context.OTPs
-                .Where(o => o.RollNumber == emailRecord.RollNumber && !o.IsUsed)
+                .Where(o => o.RollNumber == rollNumber && !o.IsUsed)
                 .OrderByDescending(o => o.SendTime)
                 .FirstOrDefault();
 
-            if (recentOtp != null && recentOtp.SendTime.AddMinutes(5) > DateTime.Now)
+            if (recentOtp != null && recentOtp.SendTime.AddMinutes(1) > DateTime.Now)
             {
-                ViewBag.Error = $"An OTP was recently sent. Please wait {Math.Ceiling((recentOtp.SendTime.AddMinutes(5) - DateTime.Now).TotalSeconds)} seconds before requesting a new one.";
-                return View(model);
+                ViewBag.Error = $"An OTP was recently sent. Please wait {Math.Ceiling((recentOtp.SendTime.AddMinutes(1) - DateTime.Now).TotalSeconds)} seconds before requesting a new one.";
+                return View("Login");  // Return login view with error
             }
 
-            // Generate new OTP
             string otpCode = new Random().Next(100000, 999999).ToString();
 
             try
             {
-                await _emailService.SendEmailAsync(emailRecord.EmailAddress, "OTP Code", $"Your OTP is: {otpCode}");
+                await _emailService.SendEmailAsync(emailAddress, "Your OTP Code", $"Your OTP is: {otpCode}");
             }
             catch (Exception ex)
             {
                 ViewBag.Error = "Email could not be sent: " + ex.Message;
-                return View(model);
+                return View("Login");
             }
 
             var otpEntry = new OTP
             {
-                RollNumber = emailRecord.RollNumber,
+                RollNumber = rollNumber,
                 OTPCode = otpCode,
                 SendTime = DateTime.Now,
                 IsUsed = false
@@ -85,11 +108,11 @@ namespace ProjectManagementSystem.Controllers
             _context.OTPs.Add(otpEntry);
             await _context.SaveChangesAsync();
 
-            TempData["RollNumber"] = emailRecord.RollNumber;
+            TempData["RollNumber"] = rollNumber;
             return RedirectToAction("VerifyOtp");
         }
 
-        // STEP 5: Show OTP Input View
+        // STEP 5: Show OTP Input View (GET)
         public IActionResult VerifyOtp()
         {
             var rollNo = TempData["RollNumber"]?.ToString();
@@ -99,7 +122,7 @@ namespace ProjectManagementSystem.Controllers
                 return RedirectToAction("Login");
             }
 
-            // Keep RollNumber in TempData for POST back
+            // Preserve RollNumber for the POST back
             TempData.Keep("RollNumber");
 
             var viewModel = new VerifyOtpViewModel
@@ -110,7 +133,7 @@ namespace ProjectManagementSystem.Controllers
             return View(viewModel);
         }
 
-        // STEP 6: Verify OTP
+        // STEP 6: Verify OTP (POST)
         [HttpPost]
         public IActionResult VerifyOtp(VerifyOtpViewModel model)
         {
@@ -124,13 +147,34 @@ namespace ProjectManagementSystem.Controllers
 
             if (otp != null &&
                 otp.OTPCode == model.OTPCode &&
-                otp.SendTime.AddMinutes(5) > DateTime.Now)
+                otp.SendTime.AddMinutes(1) > DateTime.Now) // OTP valid for 1 minute
             {
                 otp.IsUsed = true;
                 _context.SaveChanges();
-                
-                TempData["RollNumber"] = model.RollNumber;
-                return RedirectToAction("Dashboard", "Student");
+
+                HttpContext.Session.SetString("RollNumber", model.RollNumber);
+                // 🔽 Get the actual student
+                var student = _context.Students
+                    .FirstOrDefault(s => s.RollNumber == model.RollNumber && !s.IsDeleted);
+
+                if (student != null)
+                {
+                    HttpContext.Session.SetString("StudentName", student.StudentName);
+                    HttpContext.Session.SetString("EmailAddress", student.Email);
+                }
+                else
+                {
+                    // fallback to email record (if no Student found)
+                    var emailRecord = _context.Emails
+                        .FirstOrDefault(e => e.RollNumber == model.RollNumber && !e.IsDeleted);
+
+                    if (emailRecord != null)
+                    {
+                        HttpContext.Session.SetString("StudentName", "Student");
+                        HttpContext.Session.SetString("EmailAddress", emailRecord.EmailAddress);
+                    }
+                }
+                return RedirectToAction("Create", "Student");
             }
 
             ViewBag.Error = "Invalid or expired OTP.";
@@ -182,6 +226,17 @@ namespace ProjectManagementSystem.Controllers
             {
                 return Json(new { success = false, message = $"Failed to send OTP email: {ex.Message}" });
             }
+        }
+
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear(); // Clears RollNumber and other session values
+            TempData.Clear();            // Clears all TempData values (if needed)
+            TempData["Success"] = "You have been logged out successfully.";
+            return RedirectToAction("Login", "StudentLogin");
         }
     }
 }

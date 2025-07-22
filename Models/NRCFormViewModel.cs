@@ -2,9 +2,8 @@
 {
     public class NRCFormViewModel
     {
-   
-
         public Student Student { get; set; }
+        public List<AcademicYear> AcademicYearList { get; set; }
 
         public List<NRCType> NRCTypeList { get; set; }
 

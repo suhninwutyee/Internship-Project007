@@ -4,9 +4,11 @@
     ViewData["Title"] = "Project List";
     int count = (Model.PageNumber - 1) * Model.PageSize + 1;
     var total = Model.TotalItemCount;
-    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
+<div>
+    <partial name="_ProgressBarPartial" />
+</div>
 <div class="container my-4" style="max-width: 1100px;">
     <h3 class="mb-4" style="color: #8c5dd1;">Project List</h3>
 

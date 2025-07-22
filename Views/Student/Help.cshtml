@@ -1,0 +1,188 @@
+﻿@{
+    ViewData["Title"] = "Support Center";
+}
+
+<style>
+    .support-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 30px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    .support-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+        .support-header h2 {
+            font-size: 2.2rem;
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .support-header p {
+            font-size: 1.1rem;
+            color: #4a5568;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+    .contact-methods {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .contact-card {
+        background: #f8fafc;
+        border-radius: 10px;
+        padding: 25px;
+        transition: all 0.3s ease;
+        border: 1px solid #e2e8f0;
+        text-align: center;
+    }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            border-color: #cbd5e0;
+        }
+
+    .contact-icon {
+        font-size: 2.5rem;
+        color: #8c5dd1;
+        margin-bottom: 15px;
+    }
+
+    .contact-card h3 {
+        font-size: 1.3rem;
+        color: #2d3748;
+        margin-bottom: 10px;
+    }
+
+    .contact-card p {
+        color: #4a5568;
+        margin-bottom: 15px;
+    }
+
+    .contact-link {
+        display: inline-block;
+        background: #8c5dd1;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+        .contact-link:hover {
+            background: #3182ce;
+            transform: translateY(-2px);
+        }
+
+    .faq-cta {
+        text-align: center;
+        padding: 25px;
+        background: #ebf8ff;
+        border-radius: 10px;
+        margin-top: 30px;
+    }
+
+        .faq-cta h3 {
+            font-size: 1.4rem;
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+
+        .faq-cta p {
+            color: #4a5568;
+            margin-bottom: 20px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+    .faq-link {
+        display: inline-block;
+        background: white;
+        color: #8c5dd1;
+        padding: 12px 30px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        border: 2px solid #8c5dd1;
+        transition: all 0.2s ease;
+    }
+
+        .faq-link:hover {
+            background: #8c5dd1;
+            color: white;
+        }
+
+    .office-hours {
+        background: #f0fff4;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        text-align: center;
+        border-left: 4px solid #48bb78;
+    }
+
+        .office-hours strong {
+            color: #2f855a;
+        }
+</style>
+
+<div class="support-container">
+    <div class="support-header">
+        <h2>How can we help you?</h2>
+        <p>Our support team is here to assist you with any questions or issues you may encounter. Choose the most convenient way to get in touch with us.</p>
+    </div>
+
+    <div class="contact-methods">
+        <div class="contact-card">
+            <div class="contact-icon">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <h3>Email Support</h3>
+            <p>Get help via email with our 24-hour response guarantee</p>
+            <a href="mailto:support@example.com" class="contact-link">Email Us</a>
+        </div>
+
+        <div class="contact-card">
+            <div class="contact-icon">
+                <i class="fas fa-phone-alt"></i>
+            </div>
+            <h3>Phone Support</h3>
+            <p>Speak directly with our support specialists</p>
+            <a href="tel:+1234567890" class="contact-link">Call +123 456 7890</a>
+        </div>
+
+       @*  <div class="contact-card">
+            <div class="contact-icon">
+                <i class="fas fa-comments"></i>
+            </div>
+            <h3>Live Chat</h3>
+            <p>Instant messaging with our support team</p>
+            <a href="#" class="contact-link">Start Chat</a>
+        </div> *@
+    </div>
+
+    <div class="office-hours">
+        <p><strong>Office Hours:</strong> Monday - Friday, 9:00 AM - 5:00 PM (Your Local Time)</p>
+    </div>
+
+    <div class="faq-cta">
+        <h3>Quick Answers Available</h3>
+        <p>Many common questions are already answered in our comprehensive FAQ section. Check it out before contacting support.</p>
+        <a asp-action="Help" asp-controller="Public" class="faq-link">Visit FAQ Page</a>
+    </div>
+</div> 

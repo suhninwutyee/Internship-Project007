@@ -35,7 +35,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<OTP> OTPs { get; set; }
 
-
+    public DbSet<AcademicYear> AcademicYears { get; set; }
 
     public DbSet<AdminActivityLog> AdminActivityLog { get; set; }
 
@@ -45,21 +45,36 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
         base.OnModelCreating(modelBuilder);
 
-      
+        var years = new List<AcademicYear>();
+        for (int year = DateTime.Now.Year; year >= 2000; year--)
+        {
+            years.Add(new AcademicYear
+            {
+                AcademicYear_pkId = year, // e.g., 2024 for "2023-2024"
+                YearRange = $"{year - 1}-{year}"
+            });
+        }
+
+        modelBuilder.Entity<AcademicYear>().HasData(years);
+
 
         modelBuilder.Entity<Email>()
        .HasKey(e => e.Email_PkId);
         base.OnModelCreating(modelBuilder);
 
-        
+        modelBuilder.Entity<AcademicYear>()
+        .Property(a => a.IsActive)
+        .HasDefaultValue(true);
 
-      
+
         // Configure composite key for ProjectMember
         modelBuilder.Entity<ProjectMember>()
             .HasKey(pm => new { pm.Project_pkId, pm.Student_pkId });
 
-        // Configure relationships
-      
+        modelBuilder.Entity<ProjectMember>()
+              .HasKey(pm => pm.ProjectMember_pkId); // ✅ Not (pm => new { pm.Student_pkId, pm.Project_pkId })
+                                                    // Configure relationships
+
         modelBuilder.Entity<Student>()
             .HasOne(s => s.NRCType)
             .WithMany()
@@ -89,12 +104,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
            .HasForeignKey(pm => pm.Student_pkId)
            .OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<ProjectMember>().HasKey(pm => new { pm.Project_pkId, pm.Student_pkId });
-
-       
-
-    
-
-    
 
         modelBuilder.Entity<ProjectMember>()
           .HasOne(pm => pm.Project)

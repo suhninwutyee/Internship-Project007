@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Create Project";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "_Layout";
 }
 
 <!-- Custom Styles for Theme -->
@@ -41,7 +41,9 @@
         background-color: var(--light-bg);
     }
 </style>
-
+<div>
+    <partial name="_ProgressBarPartial" />
+</div>
 <div class="container my-5" style="max-width: 950px;">
     <div class="card shadow-lg border-0 rounded-4">
         <div class="card-body p-5">

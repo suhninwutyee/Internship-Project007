@@ -51,6 +51,5 @@ namespace ProjectManagementSystem.Models
        
         public virtual ICollection<ProjectFile> Files { get; set; }
         public ICollection<ProjectMember> ProjectMembers { get; set; }
-
     }
 }

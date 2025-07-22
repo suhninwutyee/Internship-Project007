@@ -15,8 +15,7 @@ namespace ProjectManagementSystem.Models
         [Required(ErrorMessage = "Roll Number is required")]
         public string RollNumber { get; set; } = "";
 
-        [Required(ErrorMessage = "Academic Year is required")]
-        public string AcademicYear { get; set; } = "";
+        
 
         [Required(ErrorMessage = "Department is required")]
         [ForeignKey(nameof(StudentDepartment))]
@@ -55,5 +54,9 @@ namespace ProjectManagementSystem.Models
         public ICollection<Project> Projects { get; set; }
         public ICollection<ProjectMember> ProjectMembers { get; set; }
 
+        [Required(ErrorMessage = "AcademicYear is required")]
+        [ForeignKey(nameof(AcademicYear))]
+        public int AcademicYear_pkId { get; set; }
+        public AcademicYear? AcademicYear { get; set; }
     }
 }

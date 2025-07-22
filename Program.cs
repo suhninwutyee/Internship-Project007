@@ -8,6 +8,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddControllersWithViews();
+// Add Session and MemoryCache
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 // Configure DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -25,13 +34,21 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan = TimeSpan.FromDays(30); // Persistent cookie duration
     options.SlidingExpiration = true;
 });
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSession();
 
 builder.Services.AddScoped<ProjectManagementSystem.Services.Interface.IActivityLogger,
                            ProjectManagementSystem.Services.ActivityLogger>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 
 var app = builder.Build();
-
+// SEED DATA
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<ApplicationDbContext>();
+    DbInitializer.SeedAcademicYears(context);
+}
 // Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
@@ -42,6 +59,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseSession(); // ? Enable Session Middleware
 
 // Authentication MUST come before Authorization
 app.UseAuthentication();
@@ -75,4 +93,4 @@ app.MapControllerRoute(
     pattern: "{controller=StudentLogin}/{action=Login}/{id?}");
 
 
-app.Run();
+app.Run(); 
