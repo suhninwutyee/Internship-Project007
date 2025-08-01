@@ -1,33 +1,334 @@
-﻿@model Email
-
+﻿@model ProjectManagementSystem.Models.Email
 @{
     ViewData["Title"] = "Create Email";
     Layout = "~/Views/Shared/_TeacherLayout.cshtml";
 }
 
-<h1>Create Email</h1>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm animate__animated animate__fadeIn">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h3 class="h5 mb-0 text-center text-shadow">Create New Student Email</h3>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Create" method="post" class="needs-validation" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-light-danger mb-4"></div>
 
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="EmailAddress" class="control-label"></label>
-                <input asp-for="EmailAddress" class="form-control" />
-                <span asp-validation-for="EmailAddress" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="RollNumber" class="control-label"></label>
-                <input asp-for="RollNumber" class="form-control" />
-                <span asp-validation-for="RollNumber" class="text-danger"></span>
-            </div>
-            <input type="hidden" asp-for="Class" value="Final Year" />
+                        <table class="table table-borderless form-table">
+                            <tbody>
 
-            <div class="form-group mt-3">
-                <input type="submit" value="Create" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+                                <!-- Student Name -->
+                               @*  <tr>
+                                    <td colspan="2">
+                                        <div class="form-floating mb-3">
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-primary text-white">
+                                                    <i class="fas fa-envelope"></i>
+                                                </span>
+                                                <input asp-for="StudentName" class="form-control" placeholder=" " />
+                                                <label asp-for="StudentName" class="ms-2">Student Name</label>
+                                            </div>
+                                            <span asp-validation-for="StudentName" class="text-danger small mt-1 d-block"></span>
+                                        </div>
+                                    </td>
+                                </tr> *@
+
+                                <!-- Email Address -->
+                                <tr>
+                                    <td colspan="2">
+                                        <div class="form-floating mb-3">
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-primary text-white">
+                                                    <i class="fas fa-envelope"></i>
+                                                </span>
+                                                <input asp-for="EmailAddress" class="form-control" placeholder=" " />
+                                                <label asp-for="EmailAddress" class="ms-2">Email Address</label>
+                                            </div>
+                                            <span asp-validation-for="EmailAddress" class="text-danger small mt-1 d-block"></span>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Roll Number -->
+                                <tr>
+                                    <td colspan="2">
+                                        <div class="form-floating mb-3">
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-primary text-white">
+                                                    <i class="fas fa-id-card"></i>
+                                                </span>
+                                                <input asp-for="RollNumber" class="form-control" placeholder=" " />
+                                                <label asp-for="RollNumber" class="ms-2">Roll Number</label>
+                                            </div>
+                                            <span asp-validation-for="RollNumber" class="text-danger small mt-1 d-block"></span>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                <!-- Academic Year -->
+                                @* <tr>
+                                    <td colspan="2">
+                                        <div class="form-floating mb-3">
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-primary text-white">
+                                                    <i class="fas fa-calendar-alt"></i>
+                                                </span>
+                                                <select asp-for="AcademicYear" class="form-select" asp-items="new SelectList(ViewBag.AcademicYears)">
+                                                    <option value="">Select Academic Year</option>
+                                                </select>
+                                                <label asp-for="AcademicYear" class="ms-2">Academic Year</label>
+                                            </div>
+                                            <span asp-validation-for="AcademicYear" class="text-danger small mt-1 d-block"></span>
+                                        </div>
+                                    </td>
+                                </tr> *@
+
+                                <!-- Hidden Field -->
+                                <input type="hidden" asp-for="Class" value="Final Year" />
+
+                                <!-- Buttons -->
+                                <tr>
+                                    <td>
+                                        <a asp-action="Index" class="btn btn-outline-primary w-100 hover-scale">
+                                            <i class="fas fa-arrow-left me-2"></i>Cancel
+                                        </a>
+                                    </td>
+                                    <td class="text-end">
+                                        <button type="submit" class="btn btn-primary w-100 hover-scale">
+                                            <i class="fas fa-plus-circle me-2"></i>Create
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
             </div>
-        </form>
+        </div>
     </div>
 </div>
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <style>
+        /* Color Variables */
+        :root {
+            --primary: #8C5DD1;
+            --primary-light: #E4EEFD;
+            --primary-dark: #6a3093;
+            --danger: #ff4757;
+            --light: #f8f9fa;
+            --border: #e0e0e0;
+        }
+
+        /* Card Styling */
+        .card {
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+            }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        }
+
+        .text-shadow {
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Form Elements */
+        .form-table {
+            margin-bottom: 0;
+        }
+
+            .form-table tr:last-child td {
+                padding-bottom: 0;
+                padding-top: 1rem;
+            }
+
+        .form-floating {
+            position: relative;
+        }
+
+            .form-floating label {
+                position: absolute;
+                top: -10px;
+                left: 35px;
+                background: white;
+                padding: 0 5px;
+                font-size: 0.85rem;
+                color: var(--primary);
+                z-index: 1;
+            }
+
+        .form-control, .form-select {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group-text {
+            min-width: 45px;
+            justify-content: center;
+            border-radius: 8px 0 0 8px !important;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(140, 93, 209, 0.2);
+        }
+
+        /* Buttons */
+        .btn {
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            box-shadow: 0 4px 6px rgba(140, 93, 209, 0.2);
+        }
+
+        .btn-outline-primary {
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            background: white;
+        }
+
+            .btn-primary:hover, .btn-outline-primary:hover {
+                background-color: var(--primary-dark);
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 12px rgba(140, 93, 209, 0.3);
+            }
+
+        .hover-scale {
+            transition: transform 0.2s ease;
+        }
+
+            .hover-scale:hover {
+                transform: scale(1.02);
+            }
+
+        /* Validation */
+        .alert-light-danger {
+            background-color: rgba(255, 71, 87, 0.1);
+            border: 1px solid rgba(255, 71, 87, 0.2);
+            color: var(--danger);
+            border-radius: 8px;
+        }
+
+        .text-danger {
+            color: var(--danger) !important;
+        }
+
+        .field-validation-error {
+            font-size: 0.85rem;
+        }
+
+        /* Animations */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        /* Responsive Adjustments */
+        @@media (max-width: 768px) {
+            .card-body {
+                padding: 1.25rem;
+            }
+
+            .form-floating label {
+                left: 15px;
+            }
+
+            .btn {
+                padding: 0.65rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enhanced form validation
+            const forms = document.querySelectorAll('.needs-validation');
+
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', function(event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        // Add animation to invalid fields
+                        const invalidFields = form.querySelectorAll(':invalid');
+                        invalidFields.forEach(field => {
+                            field.classList.add('animate__animated', 'animate__headShake');
+                            setTimeout(() => {
+                                field.classList.remove('animate__animated', 'animate__headShake');
+                            }, 1000);
+                        });
+                    }
+
+                    form.classList.add('was-validated');
+                }, false);
+            });
+
+            // Dynamic label coloring
+            const inputs = document.querySelectorAll('.form-control, .form-select');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    const label = this.closest('.form-floating').querySelector('label');
+                    label.style.color = 'var(--primary-dark)';
+                    label.style.fontWeight = '600';
+                });
+
+                input.addEventListener('blur', function() {
+                    const label = this.closest('.form-floating').querySelector('label');
+                    label.style.color = 'var(--primary)';
+                    label.style.fontWeight = '500';
+                });
+            });
+
+            // Add floating animation to card
+            const card = document.querySelector('.card');
+            card.style.opacity = '0';
+            setTimeout(() => {
+                card.classList.add('animate-fade-in');
+            }, 100);
+        });
+    </script>
+}

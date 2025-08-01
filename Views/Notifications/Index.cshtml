@@ -1,0 +1,63 @@
+﻿@model IEnumerable<ProjectManagementSystem.Models.Notification>
+
+@{
+    ViewData["Title"] = "Notifications";
+}
+<style>
+    body {
+        background: linear-gradient(135deg, #e4eefd);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+</style>
+<div class="container">
+    <h2>Your Notifications</h2>
+
+    <div class="list-group">
+        @foreach (var notification in Model)
+        {
+            <div class="list-group-item @(notification.IsRead ? "" : "list-group-item-info")">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h5>@notification.Title</h5>
+                        <p>@notification.Message</p>
+                        <small class="text-muted">@notification.CreatedDate.ToString("g")</small>
+                    </div>
+                    @if (!notification.IsRead)
+                    {
+                        <button class="btn btn-sm btn-outline-primary mark-as-read" data-id="@notification.Notification_pkId">
+                            Mark as read
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.mark-as-read').click(function() {
+                var button = $(this);
+                var id = button.data('id');
+
+                $.post('@Url.Action("MarkAsRead", "Notifications")', { id: id })
+                    .done(function() {
+                        button.closest('.list-group-item').removeClass('list-group-item-info');
+                        button.remove();
+                        updateNotificationCount();
+                    });
+            });
+
+            function updateNotificationCount() {
+                $.get('@Url.Action("GetUnreadCount", "Notifications")', function(count) {
+                    $('.notification-badge').text(count);
+                });
+            }
+
+            // Update count every 30 seconds
+            setInterval(updateNotificationCount, 30000);
+        });
+    </script>
+}

@@ -16,5 +16,7 @@ namespace ProjectManagementSystem.Models
         public string? ImageFileName { get; set; }  // e.g., /images/cities/yangon.jpg
 
         public ICollection<Company> Companies { get; set; }
+
+
     }
 }

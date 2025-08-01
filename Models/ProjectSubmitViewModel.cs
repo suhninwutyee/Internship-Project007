@@ -13,6 +13,7 @@
             public int Student_pkId { get; set; }
             public string StudentName { get; set; }
             public string Email { get; set; }
+            public string Role { get; set; }
         }
     }
 

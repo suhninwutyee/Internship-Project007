@@ -1,174 +1,625 @@
 ﻿@model IEnumerable<ProjectManagementSystem.Models.Email>
-
 @{
-    ViewData["Title"] = "Email List";
+    ViewData["Title"] = "Email Management";
     Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+    int rowNumber = (int)ViewBag.StartRowNumber;
 }
 
-<h1>Email List</h1>
+<head>
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
 
-<form method="post" id="emailListForm">
-    @Html.AntiForgeryToken()
+<style>
+    /* Consistent with Project Approval styling */
+    .page-header {
+        background: linear-gradient(135deg, #8C5DD1 0%, #6a3093 100%);
+        color: white;
+        padding: 1rem;
+        border-radius: 10px;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
 
-    <p>
-        <a asp-action="Create" class="btn btn-primary">Create New</a>
-        <a asp-action="UploadBulk" class="btn btn-success mb-3">📤 Upload Bulk Emails</a>
+    .main-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 0;
+    }
 
-    </p>
+    .sub-title {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Email Address</th>
-                <th>Roll Number</th>
-                <th>Class</th>
-                <th>Created Date</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr id="row-@item.Email_PkId">
-                    <td>
-                        <span class="view-mode">@item.EmailAddress</span>
-                        <input type="email" class="form-control edit-mode" name="EmailAddress"
-                               value="@item.EmailAddress" style="display:none"
-                               data-val="true" data-val-required="Email is required"
-                               data-val-email="Invalid email format" />
-                        <span class="text-danger field-validation-error" data-valmsg-for="EmailAddress"></span>
-                    </td>
-                    <td>
-                        <span class="view-mode">@item.RollNumber</span>
-                        <input type="text" class="form-control edit-mode" name="RollNumber"
-                               value="@item.RollNumber" style="display:none"
-                               data-val="true" data-val-required="Roll number is required" />
-                        <span class="text-danger field-validation-error" data-valmsg-for="RollNumber"></span>
-                    </td>
-                    <td>
-                        <span class="view-mode">@item.Class</span>
-                        <input type="text" class="form-control edit-mode" name="Class"
-                               value="@item.Class" style="display:none"
-                               data-val="true" data-val-required="Class is required" />
-                        <span class="text-danger field-validation-error" data-valmsg-for="Class"></span>
-                    </td>
-                    <td>@item.CreatedDate.ToString("g")</td>
-                    <td>
-                        <div class="view-mode">
-                            <button type="button" class="btn btn-sm btn-warning edit-btn" data-id="@item.Email_PkId">Edit</button>
-                            <button type="button" class="btn btn-sm btn-danger delete-btn" data-id="@item.Email_PkId">Delete</button>
-                        </div>
-                        <div class="edit-mode" style="display:none">
-                            <button type="button" class="btn btn-sm btn-success save-btn" data-id="@item.Email_PkId">Save</button>
-                            <button type="button" class="btn btn-sm btn-secondary cancel-btn" data-id="@item.Email_PkId">Cancel</button>
-                        </div>
-                    </td>
-                </tr>
+    .search-filter-container {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .search-box {
+        flex-grow: 1;
+        min-width: 250px;
+        position: relative;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.5rem 1rem;
+        padding-right: 2.5rem;
+        border: 1px solid #C8C6C1;
+        border-radius: 20px;
+        background: #E4EEFD;
+        transition: all 0.3s;
+    }
+
+    .search-btn {
+        position: absolute;
+        right: 0.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #8C5DD1;
+        cursor: pointer;
+    }
+
+    .filter-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        background: white;
+        border: 1px solid #8C5DD1;
+        border-radius: 20px;
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
+        color: #8C5DD1;
+        cursor: pointer;
+        transition: all 0.3s;
+        white-space: nowrap;
+    }
+
+        .filter-btn:hover {
+            background: #8C5DD1;
+            color: white;
+        }
+
+        .filter-btn.active {
+            background: #8C5DD1;
+            color: white;
+            box-shadow: 0 2px 6px rgba(140, 93, 209, 0.3);
+        }
+
+    .approval-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        margin-bottom: 1.5rem;
+    }
+
+        .approval-table th {
+            background: #8C5DD1;
+            color: white;
+            font-weight: 600;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+        }
+
+        .approval-table td {
+            padding: 0.8rem 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .approval-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .approval-table tr:hover {
+            background: #f0f0f0;
+        }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.3s;
+        border: 1px solid transparent;
+    }
+
+        .btn-icon.edit {
+            color: #28a745;
+            border-color: #28a745;
+        }
+
+            .btn-icon.edit:hover {
+                background: #28a745;
+                color: white;
             }
-        </tbody>
-    </table>
-</form>
 
+        .btn-icon.delete {
+            color: #dc3545;
+            border-color: #dc3545;
+        }
+
+            .btn-icon.delete:hover {
+                background: #dc3545;
+                color: white;
+            }
+
+        .btn-icon.view {
+            color: #007bff;
+            border-color: #007bff;
+        }
+
+            .btn-icon.view:hover {
+                background: #007bff;
+                color: white;
+            }
+
+        .btn-icon.save {
+            color: #28a745;
+            border-color: #28a745;
+        }
+
+            .btn-icon.save:hover {
+                background: #28a745;
+                color: white;
+            }
+
+        .btn-icon.cancel {
+            color: #6c757d;
+            border-color: #6c757d;
+        }
+
+            .btn-icon.cancel:hover {
+                background: #6c757d;
+                color: white;
+            }
+
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 1.5rem;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 0.5rem;
+        list-style: none;
+        padding: 0;
+    }
+
+    .page-link {
+        color: #8C5DD1;
+        background: white;
+        border: 1px solid #C8C6C1;
+        padding: 0.5rem 0.9rem;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+        .page-link:hover {
+            background: #E4EEFD;
+            border-color: #8C5DD1;
+        }
+
+    .page-item.active .page-link {
+        background: #8C5DD1;
+        color: white;
+        border-color: #8C5DD1;
+    }
+
+    .action-buttons-container {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .btn-primary {
+        background-color: #8C5DD1;
+        border-color: #8C5DD1;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+        .btn-primary:hover,
+        .btn-success:hover {
+            opacity: 0.9;
+        }
+
+    /* Action Buttons Styling */
+    .action-buttons-container {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.6rem 1.2rem;
+        border-radius: 30px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border: none;
+        cursor: pointer;
+    }
+
+        .action-btn i {
+            margin-right: 8px;
+            font-size: 1rem;
+        }
+
+    .create-btn {
+        background: linear-gradient(135deg, #8C5DD1 0%, #6a3093 100%);
+        color: white;
+    }
+
+        .create-btn:hover {
+            background: linear-gradient(135deg, #7d4bc0 0%, #5a2780 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(140, 93, 209, 0.3);
+        }
+
+    .upload-btn {
+        background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+        color: white;
+    }
+
+        .upload-btn:hover {
+            background: linear-gradient(135deg, #218838 0%, #155724 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+    /* Responsive adjustments */
+    @@media (max-width: 576px) {
+        .action-buttons-container {
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 0.7rem;
+        }
+    }
+
+    .field-validation-error {
+        font-size: 0.8rem;
+        color: #dc3545;
+        display: block;
+        margin-top: 0.25rem;
+    }
+
+    .edit-mode .form-control.is-invalid {
+        border-color: #dc3545;
+    }
+</style>
+
+<div class="container mt-3">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2 class="main-title">Student Email Management</h2>
+        <p class="sub-title">Manage student email addresses</p>
+    </div>
+
+    <!-- Year Selection -->
+    <form method="get" asp-action="Index" class="mb-3">
+        <div class="search-box">
+            <select name="selectedYear" onchange="this.form.submit()" class="search-input">
+                <option value="">-- All Academic Years --</option>
+                @foreach (var year in (List<string>)ViewBag.AcademicYears)
+                {
+                    if (ViewBag.SelectedYear == year)
+                    {
+                        <option value="@year" selected>@year</option>
+                    }
+                    else
+                    {
+                        <option value="@year">@year</option>
+                    }
+                }
+            </select>
+        </div>
+    </form>
+
+    @if (!string.IsNullOrEmpty((string)ViewBag.SelectedYear))
+    {
+        <div class="action-buttons-container" style="margin-bottom: 1.5rem;">
+            <a asp-action="Create" class="action-btn create-btn">
+                <i class="fas fa-plus-circle"></i> Add New Email
+            </a>
+            <a asp-action="UploadBulk" class="action-btn upload-btn">
+                <i class="fas fa-file-upload"></i> Bulk Upload
+            </a>
+        </div>
+
+        <!-- Email Table -->
+        <div class="table-responsive">
+            <table class="approval-table">
+                <thead>
+                    <tr>
+                        <th>No</th>                        
+                        <th>Email Address</th>
+                        <th>Roll Number</th>
+                        <th>Class</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr id="row-@item.Email_PkId">
+                            <td>@rowNumber</td>
+
+                           @*  <td>
+                                <span class="view-mode" data-field="StudentName">@item.StudentName</span>
+                                <input type="text" class="form-control edit-mode" name="StudentName"
+                                       value="@item.StudentName" style="display:none;"
+                                       data-val="true"
+                                       data-val-required="Student name is required" />
+                                <span class="text-danger field-validation-error" data-valmsg-for="StudentName"></span>
+                            </td> *@
+                            <td>
+                                <span class="view-mode" data-field="EmailAddress">@item.EmailAddress</span>
+                                <input type="email" class="form-control edit-mode" name="EmailAddress"
+                                       value="@item.EmailAddress" style="display:none;"
+                                       data-val="true"
+                                       data-val-required="Email address is required"
+                                       data-val-email="Invalid email format" />
+                                <span class="text-danger field-validation-error" data-valmsg-for="EmailAddress"></span>
+                            </td>
+                            <td>
+                                <span class="view-mode" data-field="RollNumber">@item.RollNumber</span>
+                                <input type="text" class="form-control edit-mode" name="RollNumber"
+                                       value="@item.RollNumber" style="display:none;"
+                                       data-val="true"
+                                       data-val-required="Roll number is required" />
+                                <span class="text-danger field-validation-error" data-valmsg-for="RollNumber"></span>
+                            </td>
+                            <td>
+                                <span class="view-mode" data-field="Class">@item.Class</span>
+                                <input type="text" class="form-control edit-mode" name="Class"
+                                       value="@item.Class" style="display:none;"
+                                       data-val="true"
+                                       data-val-required="Class is required" />
+                                <span class="text-danger field-validation-error" data-valmsg-for="Class"></span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <div class="view-mode">
+                                        <button type="button" class="btn-icon edit edit-btn" data-id="@item.Email_PkId">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn-icon delete delete-btn" data-id="@item.Email_PkId">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                    <div class="edit-mode" style="display:none">
+                                        <button type="button" class="btn-icon save save-btn" data-id="@item.Email_PkId">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button type="button" class="btn-icon cancel cancel-btn" data-id="@item.Email_PkId">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        rowNumber++;
+                    }
+                </tbody>
+            </table>
+
+            @if (Model.Any())
+            {
+                <div class="pagination-container">
+                    <ul class="pagination">
+                        @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == (int)ViewBag.CurrentPage ? "active" : "")">
+                                <a class="page-link" asp-action="Index"
+                                   asp-route-page="@i"
+                                   asp-route-selectedYear="@ViewBag.SelectedYear">
+                                    @i
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            Please select an Academic Year to view the emails.
+        </div>
+    }
+</div>
+@Html.AntiForgeryToken()
 @section Scripts {
-    @await Html.PartialAsync("_ValidationScriptsPartial")
-
     <script>
         $(document).ready(function () {
-            $.validator.unobtrusive.parse("#emailListForm");
 
-            $('.edit-btn').click(function () {
-                var row = $(this).closest('tr');
+            // EDIT BUTTON
+            $(document).on('click', '.edit-btn', function () {
+                const row = $(this).closest('tr');
                 row.find('.view-mode').hide();
                 row.find('.edit-mode').show();
+                row.find('.view-mode.btn-group').hide();
+                row.find('.edit-mode.btn-group').show();
             });
 
-            $('.cancel-btn').click(function () {
-                var row = $(this).closest('tr');
-                row.find('.edit-mode').hide();
+            // CANCEL BUTTON
+            $(document).on('click', '.cancel-btn', function () {
+                const row = $(this).closest('tr');
                 row.find('.view-mode').show();
+                row.find('.edit-mode').hide();
+                row.find('.view-mode.btn-group').show();
+                row.find('.edit-mode.btn-group').hide();
+                row.find('.is-invalid').removeClass('is-invalid');
                 row.find('.field-validation-error').text('');
             });
 
-            $('.save-btn').click(function () {
-                var row = $(this).closest('tr');
-                var id = $(this).data('id');
+                // SAVE BUTTON - UPDATED VERSION
+        $(document).on('click', '.save-btn', function () {
+            const btn = $(this);
+            const row = btn.closest('tr');
+            const id = btn.data('id');
 
-                var isValid = true;
-                row.find('input.edit-mode').each(function () {
-                    if (!$(this).valid()) {
-                        isValid = false;
+            // Get form values
+            const formData = {
+                Email_PkId: id,
+                StudentName: row.find('[name="StudentName"]').val().trim(),
+                EmailAddress: row.find('[name="EmailAddress"]').val().trim(),
+                RollNumber: row.find('[name="RollNumber"]').val().trim(),
+                Class: row.find('[name="Class"]').val().trim(),
+                AcademicYear: '@ViewBag.SelectedYear'
+            };
+
+            // Basic validation
+            if (!formData.StudentName || !formData.EmailAddress || !formData.RollNumber || !formData.Class) {
+                Swal.fire('Error!', 'All fields are required', 'error');
+                return;
+            }
+
+            // Show loading icon
+            btn.html('<i class="fas fa-spinner fa-spin"></i>');
+
+            // AJAX Save
+            $.ajax({
+                url: '/Email/EditInline/' + id,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // Update UI
+                        row.find('[data-field="StudentName"]').text(formData.StudentName);
+                        row.find('[data-field="EmailAddress"]').text(formData.EmailAddress);
+                        row.find('[data-field="RollNumber"]').text(formData.RollNumber);
+                        row.find('[data-field="Class"]').text(formData.Class);
+
+                        // Switch modes
+                        row.find('.view-mode').show();
+                        row.find('.edit-mode').hide();
+
+                        Swal.fire('Success!', 'Updated successfully', 'success');
+                    } else {
+                        Swal.fire('Error!', response.message || 'Update failed', 'error');
                     }
-                });
+                },
+                error: function (xhr) {
+                    let errorMsg = 'Request failed';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+                    Swal.fire('Error!', errorMsg, 'error');
+                },
+                complete: function () {
+                    btn.html('<i class="fas fa-check"></i>');
+                }
+            });
+        });
 
-                if (!isValid) return;
+                    // DELETE BUTTON - UPDATED VERSION
+        $(document).on('click', '.delete-btn', function () {
+            const btn = $(this);
+            const id = btn.data('id');
 
-                var formData = {
-                    Email_PkId: id,
-                    EmailAddress: row.find('[name="EmailAddress"]').val(),
-                    RollNumber: row.find('[name="RollNumber"]').val(),
-                    Class: row.find('[name="Class"]').val(),
-                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                };
+            Swal.fire({
+                title: 'Confirm Delete',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#8C5DD1',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Delete'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Show loading icon
+                    btn.html('<i class="fas fa-spinner fa-spin"></i>');
 
-                $.ajax({
-                    url: '/Email/EditInline/' + id,
-                    type: 'POST',
-                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-                    data: formData,
-                    success: function (response) {
-                        if (response && response.success) {
-                            row.find('td').each(function () {
-                                var span = $(this).find('.view-mode');
-                                var input = $(this).find('input');
-                                if (span.length && input.length) {
-                                    var name = input.attr('name');
-                                    span.text(formData[name]);
-                                }
-                            });
-                            row.find('.edit-mode').hide();
-                            row.find('.view-mode').show();
-                            alert('Changes saved successfully.');
-                        }
-                    },
-                    error: function (xhr) {
-                        if (xhr.status === 400) {
-                            var errors = xhr.responseJSON;
-                            row.find('.field-validation-error').text('');
-                            for (var field in errors) {
-                                row.find('[data-valmsg-for="' + field + '"]').text(errors[field].join(', '));
+                    // Get anti-forgery token
+                    const token = $('input[name="__RequestVerificationToken"]').val();
+
+                    $.ajax({
+                        url: '/Email/DeleteInline/' + id,
+                        type: 'POST',
+                        headers: {
+                            'RequestVerificationToken': token
+                        },
+                        data: JSON.stringify({ id: id }),
+                        contentType: 'application/json',
+                        success: function (response) {
+                            if (response.success) {
+                                $('#row-' + id).fadeOut(300, function () {
+                                    $(this).remove();
+                                    // Update row numbers after deletion
+                                    updateRowNumbers();
+                                });
+                                Swal.fire('Deleted!', 'Record removed', 'success');
+                            } else {
+                                Swal.fire('Error!', response.message || 'Delete failed', 'error');
                             }
-                        } else {
-                            alert('Error saving changes.');
+                        },
+                        error: function (xhr) {
+                            let errorMsg = 'Request failed';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMsg = xhr.responseJSON.message;
+                            }
+                            Swal.fire('Error!', errorMsg, 'error');
+                        },
+                        complete: function () {
+                            btn.html('<i class="fas fa-trash-alt"></i>');
                         }
-                    }
-                });
+                    });
+                }
             });
+        });
 
-            $('.delete-btn').click(function () {
-                if (!confirm('Are you sure you want to delete this record?')) return;
-
-                var id = $(this).data('id');
-                var row = $('#row-' + id);
-
-                $.ajax({
-                    url: '/Email/DeleteInline/' + id,
-                    type: 'POST',
-                    headers: {
-                        'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function (response) {
-                        if (response.success) {
-                            row.fadeOut(300, function () {
-                                row.remove();
-                            });
-                            alert('Record deleted successfully.');
-                        }
-                    },
-                    error: function () {
-                        alert('Error deleting record.');
-                    }
-                });
+        // Helper function to update row numbers after deletion
+        function updateRowNumbers() {
+            $('tbody tr').each(function(index) {
+                $(this).find('td:first').text(index + 1);
             });
+        }
+
         });
     </script>
 }

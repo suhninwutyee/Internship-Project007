@@ -18,15 +18,14 @@ namespace ProjectManagementSystem.Controllers
             _context = context;
         }
 
-        // GET: Student/Create
         public IActionResult Create()
         {
             var nrcTypes = _context.NRCTypes.ToList();
             var townships = _context.NRCTownships.ToList();
             var regionCodes = townships.Select(t => t.RegionCode_M).Distinct().ToList();
             var departments = _context.StudentDepartments.OrderBy(d => d.DepartmentName).ToList();
-            var years = _context.AcademicYears.OrderByDescending(y => y.YearRange).ToList(); 
-            
+            var years = _context.AcademicYears.OrderByDescending(y => y.YearRange).ToList();
+
             var viewModel = new NRCFormViewModel
             {
                 Student = new Student(),
@@ -34,57 +33,81 @@ namespace ProjectManagementSystem.Controllers
                 RegionCodeMList = regionCodes,
                 TownshipList = townships,
                 DepartmentList = departments,
-                AcademicYearList= years,
-                // ✅ Add this line to pass Project Members
-                ProjectMembers = _context.ProjectMembers
-                .Where(pm => !pm.IsDeleted)
-                .ToList()
+                AcademicYearList = years,
             };
 
-            // ✅ Pre-fill Student info from TempData (from AddProjectMember)
-            var rollNo = TempData["RollNumber"]?.ToString();
-            var name = TempData["StudentName"]?.ToString();
-            var email = TempData["EmailAddress"]?.ToString();
-            var role = TempData["Role"]?.ToString();
-            var projectId = TempData["Project_pkId"]?.ToString();
+            // Read session values for Leader role
+            var roll = HttpContext.Session.GetString("RollNumber");
+            var email = HttpContext.Session.GetString("EmailAddress");
+            var role = HttpContext.Session.GetString("UserRole");
 
-            if (!string.IsNullOrEmpty(rollNo)) viewModel.Student.RollNumber = rollNo;
-            if (!string.IsNullOrEmpty(name)) viewModel.Student.StudentName = name;
-            if (!string.IsNullOrEmpty(email)) viewModel.Student.Email = email;
+            if (!string.IsNullOrEmpty(role) && role == "Leader")
+            {
+                // Initialize Email object if null to avoid NullReferenceException
+                if (viewModel.Student.Email == null)
+                {
+                    viewModel.Student.Email = new Email();
+                }
 
-            // ✅ Keep these values in TempData again (for POST method)
-            TempData["Role"] = role;
-            TempData["Project_pkId"] = projectId;
+                viewModel.Student.Email.RollNumber = roll;
+                viewModel.Student.Email.EmailAddress = email;
+                ViewBag.NextAction = "CreateProject"; // redirect target for Leader
+            }
 
-            // ✅ Pass project assignment status to view
-            ViewBag.IsInProject = !string.IsNullOrEmpty(projectId);
             return View(viewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(NRCFormViewModel model)
+        public async Task<IActionResult> Create(NRCFormViewModel model, string? nextAction)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                model.Student.CreatedDate = DateTime.Now;
-                model.Student.IsDeleted = false;
-
-                _context.Students.Add(model.Student);
-                await _context.SaveChangesAsync();
-                
-                HttpContext.Session.SetString("SuccessMessage", "Student created successfully!");
-                return RedirectToAction("Dashboard", new { id = model.Student.Student_pkId });
+                // Reload dropdowns if validation fails
+                model.NRCTypeList = _context.NRCTypes.ToList();
+                model.RegionCodeMList = _context.NRCTownships.Select(t => t.RegionCode_M).Distinct().ToList();
+                model.TownshipList = _context.NRCTownships.ToList();
+                model.DepartmentList = _context.StudentDepartments.OrderBy(d => d.DepartmentName).ToList();
+                model.AcademicYearList = _context.AcademicYears.OrderByDescending(y => y.YearRange).ToList();
+                return View(model);
             }
 
-            model.NRCTypeList = _context.NRCTypes.ToList();
-            model.RegionCodeMList = _context.NRCTownships.Select(t => t.RegionCode_M).Distinct().ToList();
-            model.TownshipList = _context.NRCTownships.ToList();
-            model.DepartmentList = _context.StudentDepartments.OrderBy(d => d.DepartmentName).ToList();
-            model.AcademicYearList = _context.AcademicYears.OrderByDescending(a => a.YearRange).ToList();
-           
-            return View(model);
+            // Set additional fields
+            model.Student.CreatedDate = DateTime.Now;
+            model.Student.IsDeleted = false;
+
+            // Get RollNumber and Email from session
+            var roll = HttpContext.Session.GetString("RollNumber");
+            var email = HttpContext.Session.GetString("EmailAddress");
+
+            var emailEntry = _context.Emails.FirstOrDefault(e =>
+                e.RollNumber == roll && e.EmailAddress == email && !e.IsDeleted);
+
+            if (emailEntry == null)
+            {
+                TempData["Error"] = "Email record not found. Please log in again.";
+                return RedirectToAction("Login", "StudentLogin");
+            }
+
+            model.Student.Email_PkId = emailEntry.Email_PkId;
+            model.Student.CreatedBy = roll;
+
+            _context.Students.Add(model.Student);
+            await _context.SaveChangesAsync();
+
+            // Save student pkId in session if needed later
+            HttpContext.Session.SetInt32("Student_pkId", model.Student.Student_pkId);
+
+            // Redirect Leader to Project Creation page after Student creation
+            if (!string.IsNullOrEmpty(nextAction) && nextAction == "CreateProject")
+            {
+                return RedirectToAction("Create", "Project");
+            }
+
+            // For other roles, redirect to Student Dashboard or appropriate page
+            return RedirectToAction("Dashboard", "Student");
         }
+
 
         // JSON: Get townships by RegionCode
         [HttpGet]
@@ -115,7 +138,7 @@ namespace ProjectManagementSystem.Controllers
                 .Include(s => s.NRCTownship)
                 .Include(s => s.NRCType)
                 .Include(s => s.StudentDepartment)
-                .Include(s => s.AcademicYear)
+                
                 .FirstOrDefaultAsync(s => s.Student_pkId == id);
 
             if (student == null)
@@ -165,12 +188,12 @@ namespace ProjectManagementSystem.Controllers
                 }
 
                 // Update fields
-                studentInDb.StudentName = model.Student.StudentName;
-                studentInDb.RollNumber = model.Student.RollNumber;
+                //studentInDb.StudentName = model.Student.StudentName;
+                //studentInDb.RollNumber = model.Student.RollNumber;
                 studentInDb.Email = model.Student.Email;
                 studentInDb.PhoneNumber = model.Student.PhoneNumber;
                 studentInDb.Department_pkID = model.Student.Department_pkID;
-                studentInDb.AcademicYear_pkId = model.Student.AcademicYear_pkId;
+                //studentInDb.AcademicYear_pkId = model.Student.AcademicYear_pkId;
                 studentInDb.NRCType_pkId = model.Student.NRCType_pkId;
                 studentInDb.NRC_pkId = model.Student.NRC_pkId;
                 studentInDb.NRCNumber = model.Student.NRCNumber;
@@ -186,25 +209,24 @@ namespace ProjectManagementSystem.Controllers
                 return BadRequest("Unable to update student.");
             }
         }
-        public async Task<IActionResult> Dashboard(int studentPage = 1, int projectPage = 1)
+        public async Task<IActionResult> Dashboard()
         {
-            var rollNumber = HttpContext.Session.GetString("RollNumber");
-
-            if (string.IsNullOrEmpty(rollNumber))
+            // 1. Authentication and Session Check
+            var studentId = HttpContext.Session.GetInt32("Student_pkId");
+            if (studentId == null)
             {
-                TempData["Error"] = "Session expired. Please login again.";
+                TempData["Error"] = "Session expired. Please log in again.";
                 return RedirectToAction("Login", "StudentLogin");
             }
 
-            // Load the logged-in student
+            // 2. Load Student with Related Data
             var student = await _context.Students
+                .Include(s => s.Email)
                 .Include(s => s.StudentDepartment)
-                .Include(s => s.ProjectMembers)
-                    .ThenInclude(pm => pm.Project)
-                .Include(s => s.AcademicYear)
                 .Include(s => s.NRCTownship)
                 .Include(s => s.NRCType)
-                .FirstOrDefaultAsync(s => s.RollNumber == rollNumber && !s.IsDeleted);
+                .Include(s => s.AcademicYear)
+                .FirstOrDefaultAsync(s => s.Student_pkId == studentId);
 
             if (student == null)
             {
@@ -212,126 +234,80 @@ namespace ProjectManagementSystem.Controllers
                 return RedirectToAction("Login", "StudentLogin");
             }
 
-            // Replace your current 'students' query with this:
-            //var students = new List<Student> { student }.ToPagedList(studentPage, 3);
-
-            // Filter student list (for Student section in Dashboard) — can be filtered more later if needed
-            var students = await _context.Students
-                .Include(s => s.StudentDepartment)
-                .Include(s => s.ProjectMembers)
-                .Include(s => s.AcademicYear)
-                .Include(s => s.NRCTownship)
-                .Include(s => s.NRCType)
-                .Where(s => !s.IsDeleted)
-                .OrderByDescending(s => s.CreatedDate)
-                .ToPagedListAsync(studentPage, 3);
-
+            // 3. Load Projects (both as leader and member)
             var projects = await _context.Projects
-                 .Include(p => p.ProjectType)
-                 .Include(p => p.Language)
-                 .Include(p => p.Framework)
-                 .Include(p => p.Company)
-                 .Include(p => p.ProjectMembers)
-                     .ThenInclude(pm => pm.Student)
-                 .Where(p => !p.IsDeleted)
-                 .OrderByDescending(p => p.ProjectSubmittedDate)
-                 .ToPagedListAsync(projectPage, 3);
+                .Where(p => p.SubmittedByStudent_pkId == studentId ||
+                           p.ProjectMembers.Any(pm => pm.Student_pkId == studentId && !pm.IsDeleted))
+                .Include(p => p.ProjectType)
+                .Include(p => p.Language)
+                .Include(p => p.Framework)
+                .Include(p => p.Company)
+                    .ThenInclude(c => c.City)
+                .Include(p => p.Files)
+                .Include(p => p.ProjectMembers)
+                    .ThenInclude(pm => pm.Student)
+                        .ThenInclude(s => s.Email)
+                .Include(p => p.ProjectMembers)
+                    .ThenInclude(pm => pm.Student)
+                        .ThenInclude(s => s.StudentDepartment)
+                .OrderByDescending(p => p.ProjectSubmittedDate)
+                .AsNoTracking()
+                .ToListAsync();
 
+            // 4. Load All Team Members for Leader Projects
+            var leaderProjectIds = projects
+                .Where(p => p.SubmittedByStudent_pkId == studentId)
+                .Select(p => p.Project_pkId)
+                .ToList();
 
-            // Build combined ViewModel
-            var viewModel = new StudentDashboardViewModel
+            var allTeamMembers = await _context.ProjectMembers
+                .Where(pm => leaderProjectIds.Contains((int)pm.Project_pkId) && !pm.IsDeleted)
+                .Include(pm => pm.Student)
+                    .ThenInclude(s => s.Email)
+                .Include(pm => pm.Student)
+                    .ThenInclude(s => s.StudentDepartment)
+                .AsNoTracking()
+                .ToListAsync();
+
+            // 5. Mark Leader Role in Teams
+            foreach (var project in projects.Where(p => p.SubmittedByStudent_pkId == studentId))
             {
-                Students = students,
-                Projects = projects,
-                LoggedInStudent = student
+                var leaderMember = allTeamMembers.FirstOrDefault(m =>
+                    m.Project_pkId == project.Project_pkId &&
+                    m.Student_pkId == studentId);
+
+                if (leaderMember != null)
+                {
+                    leaderMember.Role = "Leader";
+                }
+            }
+
+            // 6. Calculate Submission Status
+            var submissionStatus = new ProjectSubmissionStatus
+            {
+                TotalProjects = projects.Count,
+                DraftProjects = projects.Count(p => p.Status == "Draft"),
+                PendingProjects = projects.Count(p => p.Status == "Pending"),
+                ApprovedProjects = projects.Count(p => p.Status == "Approved"),
+                RejectedProjects = projects.Count(p => p.Status == "Rejected"),
+                RevisionRequired = projects.Count(p => p.Status == "Revision Required")
             };
 
-            return View(viewModel);
+            // 7. Prepare View Model
+            var dashboardViewModel = new StudentDashboardViewModel
+            {
+                Student = student,
+                Projects = projects,
+                TeamMembers = allTeamMembers,
+                SubmissionStatus = submissionStatus,
+                LeaderProjects = projects.Where(p => p.SubmittedByStudent_pkId == studentId).ToList()
+            };
+
+            return View(dashboardViewModel);
         }
-        //public async Task<IActionResult> Dashboard(int studentPage = 1, int projectPage = 1)
-        //{
-        //    var rollNumber = HttpContext.Session.GetString("RollNumber");
 
-        //    if (string.IsNullOrEmpty(rollNumber))
-        //    {
-        //        TempData["Error"] = "Session expired. Please login again.";
-        //        return RedirectToAction("Login", "StudentLogin");
-        //    }
+     
 
-        //    // Get the logged-in student with all details
-        //    var student = await _context.Students
-        //        .Include(s => s.StudentDepartment)
-        //        .Include(s => s.ProjectMembers).ThenInclude(pm => pm.Project)
-        //        .Include(s => s.AcademicYear)
-        //        .Include(s => s.NRCTownship)
-        //        .Include(s => s.NRCType)
-        //        .FirstOrDefaultAsync(s => s.RollNumber == rollNumber && !s.IsDeleted);
-
-        //    if (student == null)
-        //    {
-        //        TempData["Error"] = "Student not found.";
-        //        return RedirectToAction("Login", "StudentLogin");
-        //    }
-
-        //    // ❗️Only return logged-in student as a PagedList
-        //    var students = new List<Student> { student }.ToPagedList(studentPage, 1);
-
-        //    // Get project IDs the student is part of
-        //    var studentProjectIds = student.ProjectMembers
-        //        .Where(pm => !pm.IsDeleted)
-        //        .Select(pm => pm.Project_pkId)
-        //        .Distinct()
-        //        .ToList();
-
-        //    // Load their project(s)
-        //    var projects = await _context.Projects
-        //        .Include(p => p.ProjectType)
-        //        .Include(p => p.Language)
-        //        .Include(p => p.Framework)
-        //        .Include(p => p.Company)
-        //        .Where(p => studentProjectIds.Contains(p.Project_pkId))
-        //        .OrderByDescending(p => p.ProjectSubmittedDate)
-        //        .ToPagedListAsync(projectPage, 3);
-
-        //    var viewModel = new StudentDashboardViewModel
-        //    {
-        //        Students = students,
-        //        Projects = projects,
-        //        LoggedInStudent = student
-        //    };
-
-        //    return View(viewModel);
-        //}
-
-
-        //public async Task<IActionResult> Dashboard(int studentPage = 1, int projectPage = 1)
-        //{
-        //    var students = await _context.Students
-        //        .Include(s => s.StudentDepartment)
-        //        .Include(s => s.ProjectMembers)
-        //        .Include(s => s.AcademicYear)
-        //        .Include(s => s.NRCTownship)
-        //        .Include(s => s.NRCType)
-        //        .Where(s => !s.IsDeleted)
-        //        .OrderByDescending(s => s.CreatedDate)
-        //        .ToPagedListAsync(studentPage, 3);
-
-        //    var projects = await _context.Projects
-        //        .Include(p => p.ProjectType)
-        //        .Include(p => p.Language)
-        //        .Include(p => p.Framework)
-        //        .Include(p => p.Company)
-        //        .OrderByDescending(p => p.ProjectSubmittedDate)
-        //        .ToPagedListAsync(projectPage, 3);
-
-        //    var viewModel = new StudentDashboardViewModel
-        //    {
-        //        Students = students,
-        //        Projects = projects
-        //    };
-
-        //    return View(viewModel);
-        //}
 
         // GET: Student/Delete/5
         public async Task<IActionResult> Delete(int id)
@@ -339,7 +315,6 @@ namespace ProjectManagementSystem.Controllers
             var student = await _context.Students
                 .Include(s => s.StudentDepartment)
                 .Include(s => s.ProjectMembers)
-                .Include(s => s.AcademicYear)
                 .Include(s => s.NRCTownship)
                 .Include(s => s.NRCType)
                 .Where(s => !s.IsDeleted)

@@ -1,0 +1,176 @@
+﻿@model ProjectManagementSystem.Models.Project
+@{
+    ViewData["Title"] = "Upload Project";
+    Layout = "_Layout";
+}
+
+<div class="container my-5" style="max-width: 700px;">
+    <h4 class="text-primary mb-3">Upload Project to Teacher</h4>
+
+    <form asp-action="Upload" method="post" onsubmit="return confirm('Are you sure you want to upload the project?');">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Project_pkId" />
+
+        <div class="mb-3">
+            <label class="form-label">Project Name</label>
+            <input class="form-control" value="@Model.ProjectName" readonly />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Supervisor</label>
+            <input class="form-control" value="@Model.SupervisorName" readonly />
+        </div>
+
+        <!-- Team Members Section with Card Style -->
+        <div class="mb-3">
+            <label class="form-label">Team Members</label>
+            @if (Model.ProjectMembers != null && Model.ProjectMembers.Any())
+            {
+                <div class="row" id="teamMembersContainer">
+                    @foreach (var member in Model.ProjectMembers)
+                    {
+                        <div class="col-md-6 mb-3">
+                            <div class="team-member-card">
+                                <div class="member-avatar">
+                                    @member.Student?.StudentName?[0]
+                                </div>
+                                <div class="member-info">
+                                    <h6>@member.Student?.StudentName</h6>
+                                    <p class="text-muted small mb-1">@member.Student.Email?.RollNumber</p> <!-- ✅ FIXED LINE -->
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge @(member.Role == "Leader" ? "bg-purple" : "bg-secondary") me-2">
+                                            @member.Role
+                                        </span>
+                                        <span class="text-muted small">
+                                            @member.Student?.StudentDepartment?.DepartmentName
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="member-actions">
+                                    <a href="mailto:@member.Student?.Email" class="btn btn-sm btn-outline-purple me-1" title="Email">
+                                        <i class="fas fa-envelope"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-4">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h4 class="mt-4">No Team Members</h4>
+                    <p class="text-muted mb-4">No members assigned to this project</p>
+                </div>
+            }
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Project Type</label>
+            <input class="form-control" value="@Model.ProjectType?.TypeName" readonly />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Language</label>
+            <input class="form-control" value="@Model.Language?.LanguageName" readonly />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Framework</label>
+            <input class="form-control" value="@Model.Framework?.FrameworkName" readonly />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Company</label>
+            <input class="form-control" value="@Model.Company?.CompanyName" readonly />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" rows="4" readonly>@Model.Description</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Existing Files</label>
+            @if (Model.Files != null && Model.Files.Any())
+            {
+                <ul class="list-group">
+                    @foreach (var file in Model.Files)
+                    {
+                        <li class="list-group-item">
+                            <a href="@file.FilePath" target="_blank">@System.IO.Path.GetFileName(file.FilePath)</a>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted">No files uploaded yet.</p>
+            }
+        </div>
+
+        <button type="submit" class="btn btn-success">Submit to Teacher</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #e4eefd);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .team-member-card {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        height: 100%;
+    }
+
+    .member-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #6c757d;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-weight: bold;
+    }
+
+    .member-info {
+        flex: 1;
+    }
+
+        .member-info h6 {
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+
+    .bg-purple {
+        background-color: #6f42c1 !important;
+    }
+
+    .btn-outline-purple {
+        color: #6f42c1;
+        border-color: #6f42c1;
+    }
+
+        .btn-outline-purple:hover {
+            color: white;
+            background-color: #6f42c1;
+        }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        color: #dee2e6;
+    }
+</style>

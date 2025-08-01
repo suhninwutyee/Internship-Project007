@@ -90,7 +90,7 @@ using (var scope = app.Services.CreateScope())
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=StudentLogin}/{action=Login}/{id?}");
+    pattern: "{controller=Student}/{action=Dashboard}/{id?}");
 
 
 app.Run(); 

@@ -2,64 +2,220 @@
 
 @{
     ViewData["Title"] = "Edit Project";
+    Layout = "_Layout";
 }
-<div>
-    <partial name="_ProgressBarPartial" />
+
+<div class="card shadow-sm bg-white rounded w-75 mx-auto my-4">
+    <div class="card-header text-white py-2 px-3" style="background-color: #8c5dd1;">
+        <h5 class="mb-0 small">Edit Project</h5>
+    </div>
+
+    <div class="card-body small py-3 px-4">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Project_pkId" />
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="ProjectName" class="form-label"></label>
+                    <input asp-for="ProjectName" class="form-control" />
+                    <span asp-validation-for="ProjectName" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="SupervisorName" class="form-label"></label>
+                    <input asp-for="SupervisorName" class="form-control" />
+                    <span asp-validation-for="SupervisorName" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="row mb-3 align-items-end">
+                <div class="col-md-6">
+                    <label asp-for="ProjectType_pkId" class="form-label">Project Type</label>
+                    <div class="input-group">
+                        <select asp-for="ProjectType_pkId" class="form-select" asp-items="ViewBag.ProjectTypes">
+                            <option value="">-- Select Type --</option>
+                        </select>
+                        <a href="@Url.Action("Index", "ProjectType")" target="_blank" class="btn btn-outline-success btn-sm">+</a>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Language_pkId" class="form-label">Language</label>
+                    <div class="input-group">
+                        <select asp-for="Language_pkId" id="LanguageDropdown" class="form-select" asp-items="ViewBag.Languages">
+                            <option value="">-- Select Language --</option>
+                        </select>
+                        <a href="@Url.Action("Index", "Language")" target="_blank" class="btn btn-outline-success btn-sm">+</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-3 align-items-end">
+                <div class="col-md-6">
+                    <label asp-for="Framework_pkId" class="form-label">Framework</label>
+                    <div class="input-group">
+                        <select asp-for="Framework_pkId" id="FrameworkDropdown" class="form-select" asp-items="ViewBag.Frameworks">
+                            <option value="">-- Select Framework --</option>
+                        </select>
+                        <a href="@Url.Action("Index", "Framework")" target="_blank" class="btn btn-outline-success btn-sm">+</a>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Company_pkId" class="form-label">Company</label>
+                    <div class="input-group">
+                        <select asp-for="Company_pkId" id="CompanyDropdown" class="form-select" asp-items="ViewBag.Companies">
+                            <option value="">-- Select Company --</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Company Info Section -->
+            <div id="companyInfo" style="display:none; margin-bottom:20px;">
+                <h6>Company Information</h6>
+                <div class="mb-3">
+                    <label for="CompanyAddress" class="form-label">Address</label>
+                    <input type="text" id="CompanyAddress" name="CompanyAddress" class="form-control form-control-sm" />
+                </div>
+                <div class="mb-3">
+                    <label for="CompanyContact" class="form-label">Contact</label>
+                    <input type="text" id="CompanyContact" name="CompanyContact" class="form-control form-control-sm" />
+                </div>
+                <div class="mb-3">
+                    <label for="CompanyDescription" class="form-label">Description</label>
+                    <textarea id="CompanyDescription" name="CompanyDescription" class="form-control form-control-sm"></textarea>
+                </div>
+
+                @if (Model.Company != null && !string.IsNullOrEmpty(Model.Company.ImageFileName))
+                {
+                    <div class="mb-3">
+                        <label class="form-label">Current Company Photo:</label><br />
+                        <img src="~/images/companies/@Model.Company.ImageFileName" alt="Company Photo" style="max-width: 180px; max-height: 120px; border: 1px solid #ccc;" />
+                    </div>
+                }
+
+                <div class="mb-3">
+                    <label for="CompanyCity_pkId" class="form-label">State/Region</label>
+                    <select id="CompanyCity_pkId" name="CompanyCity_pkId" class="form-select form-select-sm">
+                        <option value="">-- Select State/Region --</option>
+                        @foreach (var item in (SelectList)ViewBag.CityList)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Upload Project Files</label>
+                    <input type="file" name="projectFiles" multiple class="form-control form-control-sm" />
+                    <small class="form-text text-muted">You can upload multiple files.</small>
+                </div>
+
+                @if (Model.Files != null && Model.Files.Any())
+                {
+                    <div class="mb-3">
+                        <label class="form-label">Previously Uploaded Files</label>
+                        <ul class="list-group">
+                            @foreach (var file in Model.Files)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="@file.FilePath" target="_blank">@System.IO.Path.GetFileName(file.FilePath)</a>
+                                    <a href="@Url.Action("DeleteProjectFile", "Project", new { id = file.ProjectFile_pkId })"
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('Are you sure you want to delete this file?');">Delete</a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info small">No files have been uploaded for this project yet.</div>
+                }
+
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Upload Project Files</label>
+                <input type="file" name="projectFiles" multiple class="form-control form-control-sm" />
+                <small class="form-text text-muted">You can upload multiple files.</small>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="ProjectSubmittedDate" class="form-label"></label>
+                    <input asp-for="ProjectSubmittedDate" class="form-control form-control-sm" type="date" />
+                </div>
+               @*  <div class="col-md-6">
+                    <label asp-for="Remark" class="form-label"></label>
+                    <textarea asp-for="Remark" class="form-control form-control-sm" rows="2"></textarea>
+                </div> *@
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="CreatedBy" class="form-label"></label>
+                <input asp-for="CreatedBy" class="form-control form-control-sm" />
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                <a asp-action="Index" class="btn btn-secondary btn-sm">Cancel</a>
+            </div>
+        </form>
+    </div>
 </div>
-<h3>Edit Project</h3>
-
-<form asp-action="Edit" method="post">
-    @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="Project_pkId" />
-
-    <div class="mb-3">
-        <label asp-for="ProjectName" class="form-label"></label>
-        <input asp-for="ProjectName" class="form-control" />
-        <span asp-validation-for="ProjectName" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="SupervisorName" class="form-label"></label>
-        <input asp-for="SupervisorName" class="form-control" />
-        <span asp-validation-for="SupervisorName" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="ProjectType_pkId" class="form-label">Project Type</label>
-        <select asp-for="ProjectType_pkId" class="form-select" asp-items="ViewBag.ProjectTypeId"></select>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Language_pkId" class="form-label">Language</label>
-        <select asp-for="Language_pkId" class="form-select" asp-items="ViewBag.LanguageId"></select>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Framework_pkId" class="form-label">Framework</label>
-        <select asp-for="Framework_pkId" class="form-select" asp-items="ViewBag.FrameworkId"></select>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="Company_pkId" class="form-label">Company</label>
-        <select asp-for="Company_pkId" class="form-select" asp-items="ViewBag.CompanyId"></select>
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="ProjectSubmittedDate" class="form-label"></label>
-        <input asp-for="ProjectSubmittedDate" type="date" class="form-control" />
-    </div>
-
-    <div class="mb-3">
-        <label asp-for="CreatedBy" class="form-label"></label>
-        <input asp-for="CreatedBy" class="form-control" />
-    </div>
-
-    <button type="submit" class="btn btn-success">Save Changes</button>
-    <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
-</form>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(function () {
+            $('#LanguageDropdown').change(function () {
+                var languageId = $(this).val();
+                var $frameworkDropdown = $('#FrameworkDropdown');
+
+                $frameworkDropdown.empty().append($('<option>').val('').text('-- Loading Frameworks... --'));
+
+                if (languageId) {
+                    $.getJSON('@Url.Action("GetFrameworksByLanguage", "Project")', { languageId: languageId })
+                        .done(function (data) {
+                            $frameworkDropdown.empty().append($('<option>').val('').text('-- Select Framework --'));
+                            $.each(data, function (i, framework) {
+                                $frameworkDropdown.append($('<option>').val(framework.framework_pkId).text(framework.frameworkName));
+                            });
+                        })
+                        .fail(function () {
+                            $frameworkDropdown.empty().append($('<option>').val('').text('-- Error loading frameworks --'));
+                        });
+                }
+            });
+
+            $('#CompanyDropdown').change(function () {
+                var companyId = $(this).val();
+                if (companyId) {
+                    $.getJSON('@Url.Action("GetCompanyInfo", "Project")', { companyId: companyId })
+                        .done(function (data) {
+                            $('#companyInfo').show();
+                            $('#CompanyAddress').val(data.address || '');
+                            $('#CompanyContact').val(data.contact || '');
+                            $('#CompanyDescription').val(data.description || '');
+                            $('#CompanyCity_pkId').val(data.city_pkId || '');
+                        });
+                } else {
+                    $('#companyInfo').hide();
+                    $('#CompanyAddress, #CompanyContact, #CompanyDescription').val('');
+                    $('#CompanyCity_pkId').val('');
+                }
+            });
+
+            if ($('#CompanyDropdown').val()) {
+                $('#CompanyDropdown').trigger('change');
+            }
+        });
+    </script>
 }

@@ -1,0 +1,701 @@
+﻿@model IEnumerable<ProjectManagementSystem.Models.Project>
+@{
+    ViewData["Title"] = ViewBag.PageTitle;
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+}
+
+<head>
+    <!-- SweetAlert2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+
+<style>
+
+    
+
+    
+
+    .search-container {
+        background: #E4EEFD;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    /* Approval-page filter buttons */
+    .filter-buttons {
+        margin: 16px 0;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        background: #fff;
+        border: 1px solid var(--accent);
+        border-radius: 4px;
+        padding: 6px 12px;
+        font-size: 14px;
+        color: var(--accent);
+        cursor: pointer;
+        transition: background 0.2s, color 0.2s;
+    }
+
+        .filter-btn:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+    /* Section wrapper */
+    .approval-section {
+        margin-top: 20px;
+    }
+
+        .approval-section h2 {
+            margin-bottom: 12px;
+            font-size: 20px;
+            color: #333;
+        }
+
+    /* Responsive container */
+    .table-container {
+        overflow-x: auto;
+    }
+
+    /* Table base styles */
+    .approval-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+        .approval-table th,
+        .approval-table td {
+            padding: 12px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        .approval-table thead th {
+            background: var(--accent);
+            color: #fff;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .approval-table tbody tr:nth-child(even) td {
+            background: #f9f9f9;
+        }
+
+        .approval-table tbody tr:hover td {
+            background: #f1f1f1;
+        }
+
+        /* Status styling */
+        .approval-table td.status {
+            font-weight: 600;
+        }
+
+    .status-approved {
+        color: #28a745;
+    }
+
+    .status-rejected {
+        color: #dc3545;
+    }
+
+    /* Action buttons */
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-icon {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 4px;
+        transition: background 0.2s;
+        position: relative;
+    }
+
+        .btn-icon:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-icon.approve {
+            color: #28a745;
+        }
+
+        .btn-icon.reject {
+            color: #dc3545;
+        }
+
+        .btn-icon.view {
+            color: #007bff;
+        }
+
+        .btn-icon[disabled] {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-icon .tooltip {
+            visibility: hidden;
+            width: 80px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .btn-icon:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+    /* Project name wrapping */
+    .project-name {
+        max-width: 200px;
+        word-wrap: break-word;
+    }
+
+    /* SweetAlert customization */
+    .swal2-popup {
+        border-radius: 8px !important;
+    }
+
+    .swal2-title {
+        font-size: 1.2rem !important;
+    }
+
+    .swal2-content {
+        font-size: 1rem !important;
+    }
+
+    .swal2-textarea {
+        min-height: 100px;
+        margin-top: 10px;
+        border-radius: 4px;
+        padding: 10px;
+    }
+
+    .custom-swal-popup {
+        border-radius: 12px !important;
+        border: 1px solid #C8C6C1;
+        width: 500px; /* Medium size */
+        max-width: 80%;
+    }
+
+    .custom-swal-title {
+        color: #8C5DD1;
+        font-size: 1.4rem !important;
+        font-weight: 600;
+    }
+
+    .custom-swal-content {
+        color: #333;
+        font-size: 1rem !important;
+    }
+
+    .custom-swal-confirm-btn {
+        background-color: #8C5DD1 !important;
+        border-radius: 6px !important;
+        padding: 8px 20px !important;
+        font-weight: 500;
+    }
+
+    .custom-swal-cancel-btn {
+        background-color: #C8C6C1 !important;
+        border-radius: 6px !important;
+        padding: 8px 20px !important;
+        font-weight: 500;
+        color: #333 !important;
+    }
+
+    .swal2-textarea {
+        border-radius: 6px !important;
+        border: 1px solid #C8C6C1 !important;
+        background: white !important;
+        color: #333 !important;
+    }
+
+    .swal2-icon {
+        color: #8C5DD1 !important;
+        border-color: #8C5DD1 !important;
+    }
+
+    /* Header styling */
+    .page-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .main-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #8C5DD1;
+        margin-bottom: 0.5rem;
+    }
+
+    .sub-title {
+        font-size: 1rem;
+        color: #6c757d;
+        margin-bottom: 1rem;
+    }
+
+    /* Search and filter container */
+    .search-filter-container {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Search box styling */
+    .search-box {
+        flex-grow: 1;
+        min-width: 250px;
+        position: relative;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.5rem 1rem;
+        padding-right: 2.5rem;
+        border: 1px solid #C8C6C1;
+        border-radius: 20px;
+        background: #E4EEFD;
+        transition: all 0.3s;
+    }
+
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(140, 93, 209, 0.2);
+        }
+
+    .search-btn {
+        position: absolute;
+        right: 0.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: #8C5DD1;
+        cursor: pointer;
+    }
+
+    /* Filter buttons */
+    .filter-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        background: white;
+        border: 1px solid #8C5DD1;
+        border-radius: 20px;
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
+        color: #8C5DD1;
+        cursor: pointer;
+        transition: all 0.3s;
+        white-space: nowrap;
+    }
+
+        .filter-btn:hover {
+            background: #8C5DD1;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: #8C5DD1;
+            color: white;
+            box-shadow: 0 2px 6px rgba(140, 93, 209, 0.3);
+        }
+
+    /* Table styling (keep your existing table styles) */
+    .approval-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        margin-bottom: 1.5rem;
+    }
+
+    /* ... (keep all your existing table styles) ... */
+
+    /* Status badges */
+    .status-badge {
+        padding: 0.3rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        display: inline-block;
+    }
+
+    /* Action buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    /* Pagination */
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 1.5rem;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 0.5rem;
+        list-style: none;
+        padding: 0;
+    }
+
+    .page-link {
+        color: #8C5DD1;
+        background: white;
+        border: 1px solid #C8C6C1;
+        padding: 0.5rem 0.9rem;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+        .page-link:hover {
+            background: #E4EEFD;
+            border-color: #8C5DD1;
+        }
+
+    .page-item.active .page-link {
+        background: #8C5DD1;
+        color: white;
+        border-color: #8C5DD1;
+    }
+
+    .page-item.disabled .page-link {
+        color: #C8C6C1;
+        pointer-events: none;
+    }
+
+    /* Project name wrapping */
+    .project-name {
+        max-width: 200px;
+        word-wrap: break-word;
+    }
+
+    /* SweetAlert customization */
+    .swal2-popup {
+        border-radius: 8px !important;
+    }
+</style>
+
+<div class="container mt-3">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2 class="main-title">Submitted Projects</h2>
+        <p class="sub-title">@ViewBag.PageTitle</p>
+    </div>
+
+    <!-- Search and Filter Container -->
+    <div class="search-filter-container">
+        
+
+        <!-- Filter Buttons -->
+        <div class="filter-buttons">
+            <button class="filter-btn @(ViewBag.CurrentFilter == "all" ? "active" : "")"
+                    onclick="window.location.href='@Url.Action("Index", new { statusFilter = "all", searchString = ViewBag.SearchString })'">
+                All (@ViewBag.TotalCount)
+            </button>
+            <button class="filter-btn @(ViewBag.CurrentFilter == "Pending" ? "active" : "")"
+                    onclick="window.location.href='@Url.Action("Index", new { statusFilter = "Pending", searchString = ViewBag.SearchString })'">
+                Pending (@ViewBag.PendingCount)
+            </button>
+            <button class="filter-btn @(ViewBag.CurrentFilter == "Approved" ? "active" : "")"
+                    onclick="window.location.href='@Url.Action("Index", new { statusFilter = "Approved", searchString = ViewBag.SearchString })'">
+                Approved (@ViewBag.ApprovedCount)
+            </button>
+            <button class="filter-btn @(ViewBag.CurrentFilter == "Rejected" ? "active" : "")"
+                    onclick="window.location.href='@Url.Action("Index", new { statusFilter = "Rejected", searchString = ViewBag.SearchString })'">
+                Rejected (@ViewBag.RejectedCount)
+            </button>
+        </div>
+
+        <!-- Search Box -->
+        <div class="search-box">
+            <form asp-action="Index" method="get">
+                <input type="text" class="search-input" name="searchString" value="@ViewBag.SearchString"
+                       placeholder="Search projects...">
+                <input type="hidden" name="statusFilter" value="@ViewBag.CurrentFilter" />
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Projects Table -->
+    <div class="table-responsive">
+        <table class="approval-table">
+            <!-- Table content remains the same -->
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>Project Name</th>
+                    <th>Student Name</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int counter = (ViewBag.PageNumber - 1)  + 1;
+                }
+                @foreach (var project in Model)
+                {
+                    <tr>
+                        <td>@(counter++)</td>
+                        <td class="project-name">@project.ProjectName</td>
+                        @{
+                            var leader = project.ProjectMembers.FirstOrDefault(m => m.Role == "Leader");
+                        }
+                        <td>@(leader != null ? leader.Student.StudentName : "No Leader")</td>
+
+
+                        <td>
+                            @(project.ProjectSubmittedDate.HasValue ? project.ProjectSubmittedDate.Value.ToString("yyyy-MM-dd") : "Not submitted")
+                        </td>
+                        <td>
+                            <span class="status-badge status-@project.Status.ToLower()">@project.Status</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                @if (project.Status != "Approved")
+                                {
+                                    <button class="btn-icon approve"
+                                            onclick="confirmApprove(@project.Project_pkId, '@Html.Raw(project.ProjectName.Replace("'", "\\'"))', '@Html.Raw(project.CreatedBy?.Replace("'", "\\'") ?? "")')">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                }
+                                @if (project.Status != "Rejected")
+                                {
+                                    <button class="btn-icon reject"
+                                            onclick="confirmReject(@project.Project_pkId, '@Html.Raw(project.ProjectName.Replace("'", "\\'"))', '@Html.Raw(project.CreatedBy?.Replace("'", "\\'") ?? "")')">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                }
+                                <a href="@Url.Action("Details", "ProjectApproval", new { id = project.Project_pkId })" class="btn-icon view">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    @if (ViewBag.TotalPages > 1)
+    {
+        <div class="pagination-container">
+            <ul class="pagination">
+                @if (ViewBag.PageNumber > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { statusFilter = ViewBag.CurrentFilter, searchString = ViewBag.SearchString, pageNumber = ViewBag.PageNumber - 1 })">
+                            &laquo;
+                        </a>
+                    </li>
+                }
+
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.PageNumber ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { statusFilter = ViewBag.CurrentFilter, searchString = ViewBag.SearchString, pageNumber = i })">
+                            @i
+                        </a>
+                    </li>
+                }
+
+                @if (ViewBag.PageNumber < ViewBag.TotalPages)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("Index", new { statusFilter = ViewBag.CurrentFilter, searchString = ViewBag.SearchString, pageNumber = ViewBag.PageNumber + 1 })">
+                            &raquo;
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        // Function to handle project approval
+        function confirmApprove(projectId, projectName, createdBy) {
+            Swal.fire({
+                title: 'Approve Project',
+                html: `<p>Project: <strong>${projectName}</strong></p>
+                       <p>Submitted by: <strong>${createdBy}</strong></p>
+                       <p>Are you sure you want to approve this project?</p>`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#8C5DD1',
+                cancelButtonColor: '#C8C6C1',
+                background: '#E4EEFD',
+                confirmButtonText: 'Yes, approve it!',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    popup: 'custom-swal-popup',
+                    title: 'custom-swal-title',
+                    content: 'custom-swal-content',
+                    confirmButton: 'custom-swal-confirm-btn',
+                    cancelButton: 'custom-swal-cancel-btn'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    submitApprove(projectId);
+                }
+            });
+        }
+
+        // Function to handle project rejection
+        function confirmReject(projectId, projectName, createdBy) {
+            Swal.fire({
+                title: 'Reject Project',
+                html: `<p>Project: <strong>${projectName}</strong></p>
+                       <p>Submitted by: <strong>${createdBy}</strong></p>
+                       <textarea id="swal-reject-reason" class="swal2-textarea" placeholder="Please provide a reason for rejection..." required></textarea>`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#8C5DD1',
+                cancelButtonColor: '#C8C6C1',
+                background: '#E4EEFD',
+                confirmButtonText: 'Yes, reject it',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    popup: 'custom-swal-popup',
+                    title: 'custom-swal-title',
+                    content: 'custom-swal-content',
+                    confirmButton: 'custom-swal-confirm-btn',
+                    cancelButton: 'custom-swal-cancel-btn'
+                },
+                preConfirm: () => {
+                    const reason = document.getElementById('swal-reject-reason').value;
+                    if (!reason.trim()) {
+                        Swal.showValidationMessage('Please enter a rejection reason.');
+                        return false;
+                    }
+                    return reason;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    submitReject(projectId, result.value);
+                }
+            });
+        }
+
+        // Function to submit approval
+        function submitApprove(projectId) {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            fetch('@Url.Action("Approve", "ProjectApproval")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify(projectId)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network error');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    Swal.fire("Success!", "Project approved.", "success")
+                        .then(() => location.reload());
+                } else {
+                    Swal.fire("Error", data.message || "Failed to approve.", "error");
+                }
+            })
+            .catch(error => {
+                Swal.fire("Error", "Request failed: " + error.message, "error");
+            });
+        }
+
+        // Reject function
+        function submitReject(projectId, reason) {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            fetch('@Url.Action("Reject", "ProjectApproval")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify({ Id: projectId, Reason: reason })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Network error');
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    Swal.fire("Success!", "Project rejected.", "success")
+                        .then(() => location.reload());
+                } else {
+                    Swal.fire("Error", data.message || "Failed to reject.", "error");
+                }
+            })
+            .catch(error => {
+                Swal.fire("Error", "Request failed: " + error.message, "error");
+            });
+        }
+
+        // Set active filter button on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentFilter = '@ViewBag.CurrentFilter';
+            const filterButtons = document.querySelectorAll('.filter-btn');
+
+            filterButtons.forEach(button => {
+                if (button.getAttribute('data-filter') === currentFilter) {
+                    button.classList.add('active');
+                }
+            });
+        });
+    </script>
+}

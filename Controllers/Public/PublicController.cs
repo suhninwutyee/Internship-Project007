@@ -32,7 +32,7 @@ namespace ProjectManagementSystem.Controllers.Public
 
             if (projectTypeId.HasValue)
             {
-                query = query.Where(p => p.ProjectType_pkId == projectTypeId.Value);
+                query = query.Where(p => p.ProjectType_pkId == projectTypeId.Value && p.Language_pkId == 1 && p.ProjectName == "");
             }
 
             var totalProjects = query.Count();
@@ -63,7 +63,7 @@ namespace ProjectManagementSystem.Controllers.Public
             {
                 ProjectCount = _context.Projects.Count(),
                 CompanyCount = _context.Companies.Count(),
-                CityCount = _context.Cities.Count(),
+                LanguageCount = _context.Languages.Count(),
 
                 RecentCompanies = _context.Companies
                     .OrderByDescending(c => c.CreatedDate)
@@ -71,7 +71,7 @@ namespace ProjectManagementSystem.Controllers.Public
                     .Select(c => new RecentCompanyViewModel
                     {
                         CompanyName = c.CompanyName,
-                        CreatedAt = c.CreatedDate
+                        CreatedDate = c.CreatedDate.Value
                     })
                     .ToList()
             };
@@ -197,6 +197,35 @@ namespace ProjectManagementSystem.Controllers.Public
             ViewBag.TotalCompanies = city.Companies.Count;
 
             return View(pagedCompanies);
+        }       
+
+        public async Task<IActionResult> Dashboard()
+        {
+            var projectCount = await _context.Projects.CountAsync();
+            var companyCount = await _context.Companies.CountAsync();
+            var languageCount = await _context.Cities.CountAsync();
+
+            var recentCompanies = await _context.Companies
+                .OrderByDescending(c => c.CreatedDate)
+                .Take(5)
+                .Select(c => new RecentCompanyViewModel
+                {
+                    CompanyName = c.CompanyName,
+                    Address = c.Address,
+                    Contact = c.Contact,
+                    CreatedDate = c.CreatedDate.Value     // ✅ This is the key!
+                })
+                .ToListAsync();
+
+            var viewModel = new DashboardViewModel
+            {
+                ProjectCount = projectCount,
+                CompanyCount = companyCount,
+                LanguageCount = languageCount,
+                RecentCompanies = recentCompanies
+            };
+
+            return View(viewModel);
         }
 
 

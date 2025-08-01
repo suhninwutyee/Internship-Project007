@@ -7,7 +7,9 @@ namespace ProjectManagementSystem.ViewModels
     {
         public int ProjectCount { get; set; }
         public int CompanyCount { get; set; }
-        public int CityCount { get; set; }
+        
+        public int LanguageCount { get; set; }
+
         public List<RecentCompanyViewModel> RecentCompanies { get; set; }
     }
 }

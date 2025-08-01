@@ -23,6 +23,7 @@
                     <li><a href="#info">Info</a></li>
                     <li><a href="#contact">Contact us</a></li>
                     <li><a href="@Url.Action("Login", "Admin")" class="login-btn">Login</a></li>
+
                 </ul>
             </nav>
         </div>
@@ -41,10 +42,11 @@
             <div class="hero-content">
                 <h1>Internship Project Information System</h1>
                 <p>
-                    Get ready to connect with industry projects and take 
+                    Get ready to connect with industry projects and take
                     your internship journey to the next level.
                 </p>
-                <button class="hero-btn">Get Started</button>
+                <a href="@Url.Action("Index", "Public")" class="hero-btn">Get Started</a>
+
             </div>
             <div class="hero-image">
                 <img src="~/images/hero.png" alt="Planning illustration" />
@@ -71,19 +73,65 @@
                     Our mission is to make internship tracking simple and transparent, fostering real-world skills and collaboration for future professionals.
                 </p>
                 <div class="about-cards">
-                    <div class="about-card">
-                        <div class="icon">🔍</div>
-                        <h3>Curated Company Matches</h3>
+                    <div class="about-card text-center">
+                        <div class="icon">📝</div>
+                        <h3>Total Projects</h3>
+                        <div class="display-5 fw-bold counter" data-target="@Model.ProjectCount">0</div>
+                        <a href="@Url.Action("ProjectIdeas", "Public")" class="btn btn-primary btn-sm mt-3">View Projects</a>
                     </div>
-                    <div class="about-card">
-                        <div class="icon">📈</div>
-                        <h3>Progress Dashboard</h3>
+
+                    <div class="about-card text-center">
+                        <div class="icon">🏢</div>
+                        <h3>Total Companies</h3>
+                        <div class="display-5 fw-bold counter" data-target="@Model.CompanyCount">0</div>
+                        <a href="@Url.Action("InternshipCompanies", "Public")" class="btn btn-success btn-sm mt-3">View Companies</a>
                     </div>
-                    <div class="about-card">
-                        <div class="icon">💬</div>
-                        <h3>Mentor Chat Support</h3>
+
+                    <div class="about-card text-center">
+                        <div class="icon">🎓</div>
+                        <h3>Total Final Students</h3>
+                        <div class="display-5 fw-bold counter" data-target="@Model.StudentCount">0</div>
+                        <a href="@Url.Action("Index", "Student")" class="btn btn-info btn-sm mt-3">View Students</a>
                     </div>
                 </div>
+
+
+
+                <script>
+                    document.addEventListener("DOMContentLoaded", function () {
+                        const counters = document.querySelectorAll('.counter');
+
+                        counters.forEach(counter => {
+                            const target = parseInt(counter.getAttribute('data-target'), 10);
+                            let current = 0;
+
+                            // Slow delay for small totals like 5
+                            const delay = 800; // 800ms per step = slow and visible
+
+                            const updateCount = () => {
+                                if (current < target) {
+                                    current++;
+                                    counter.innerText = current.toLocaleString();
+                                    setTimeout(updateCount, delay);
+                                } else {
+                                    counter.innerText = target.toLocaleString(); // ensure exact final number
+                                }
+                            };
+
+                            updateCount();
+                        });
+                    });
+                </script>
+
+
+
+
+
+
+
+               
+
+
             </div>
         </div>
     </section>

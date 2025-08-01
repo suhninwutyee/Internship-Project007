@@ -2,12 +2,18 @@
 
 @{
     ViewData["Title"] = "Verify OTP";
-    Layout = "_Layout"; // Ensure this uses your shared layout
+    //Layout = "_Layout";
+    Layout = null;
 }
 <div>
     <partial name="_ProgressBarPartial" />
 </div>
 <style>
+    body {
+        background: linear-gradient(135deg, #e4eefd);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
     /* Specific styles for the OTP verification card */
     .otp-container {
         background-color: #ffffff;

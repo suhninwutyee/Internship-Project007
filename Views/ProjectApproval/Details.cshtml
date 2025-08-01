@@ -1,0 +1,536 @@
+﻿@model Project
+@{
+    ViewData["Title"] = "Project Details";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+    bool isPending = ViewBag.IsPending ?? false;
+    string statusMessage = ViewBag.StatusMessage;
+    bool? isSuccess = ViewBag.IsSuccess;
+}
+
+<head></head>
+
+<style>
+    /* Main container */
+    .project-details-container {
+        max-width: 1000px;
+        margin: 20px auto;
+        padding: 25px;
+        background: #E4EEFD;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Status banner */
+    .status-banner {
+        padding: 15px;
+        margin-bottom: 25px;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: 600;
+        color: white;
+    }
+
+    .status-approved {
+        background-color: #28a745;
+    }
+
+    .status-rejected {
+        background-color: #dc3545;
+    }
+
+    .status-pending {
+        background-color: #ffc107;
+        color: #333;
+    }
+
+    /* Status message */
+    .status-message {
+        background-color: #8C5DD1;
+        color: white;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Project header */
+    .project-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #C8C6C1;
+    }
+
+    .project-title {
+        color: #8C5DD1;
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .project-meta {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    /* Details sections */
+    .details-section {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .section-title {
+        color: #8C5DD1;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #E4EEFD;
+    }
+
+    /* Detail rows */
+    .detail-row {
+        display: flex;
+        margin-bottom: 12px;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: #495057;
+        min-width: 150px;
+    }
+
+    .detail-value {
+        color: #212529;
+        flex: 1;
+    }
+
+    /* Files list */
+    .files-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .file-item {
+        display: flex;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px solid #f1f1f1;
+    }
+
+    .file-icon {
+        color: #8C5DD1;
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+
+    /* Members list */
+    .members-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .member-card {
+        background: #f8f9fa;
+        padding: 12px;
+        border-radius: 6px;
+        border-left: 3px solid #8C5DD1;
+    }
+
+    /* Action buttons */
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 25px;
+        justify-content: center;
+    }
+
+    .btn-approve {
+        background-color: #8C5DD1;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .btn-approve:hover {
+        background-color: #7a4bbf;
+        transform: translateY(-2px);
+    }
+
+    .btn-reject {
+        background-color: #C8C6C1;
+        color: #333;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .btn-reject:hover {
+        background-color: #b5b3ae;
+        transform: translateY(-2px);
+    }
+
+    /* Rejection reason */
+    .rejection-reason {
+        background: #f8d7da;
+        padding: 15px;
+        border-radius: 6px;
+        border-left: 4px solid #dc3545;
+        margin-top: 20px;
+    }
+
+    .reason-label {
+        font-weight: 600;
+        color: #721c24;
+        margin-bottom: 8px;
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .project-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .detail-row {
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .detail-label {
+            min-width: auto;
+        }
+    }
+
+    .back-to-list {
+        margin-top: 30px;
+        text-align: center;
+    }
+
+    .btn-back {
+        background-color: #8C5DD1;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+    }
+
+        .btn-back:hover {
+            background-color: #7a4bbf;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            color: white;
+            text-decoration: none;
+        }
+</style>
+
+<div class="project-details-container">
+    <!-- Status Banner -->
+    <div class="status-banner status-@Model.Status.ToLower()">
+        @if (Model.Status == "Approved")
+        {
+            <span>Project Approved on @Model.ApprovedDate?.ToString("MMMM dd, yyyy")</span>
+        }
+        else if (Model.Status == "Rejected")
+        {
+            <span>Project Rejected on @Model.RejectedDate?.ToString("MMMM dd, yyyy")</span>
+        }
+        else
+        {
+            <span>Project Pending Approval</span>
+        }
+    </div>
+
+    <!-- Status Message (if any) -->
+    @if (!string.IsNullOrEmpty(statusMessage))
+    {
+        <div class="status-message">
+            <i class="fas @(isSuccess == true ? "fa-check-circle" : "fa-exclamation-circle")"></i>
+            <span>@statusMessage</span>
+        </div>
+    }
+
+    <!-- Project Header -->
+    <div class="project-header">
+        <div>
+            <h1 class="project-title">@Model.ProjectName</h1>
+            <div class="project-meta">
+                Created by @Model.CreatedBy on @Model.CreatedDate.??ToString("MMMM dd, yyyy") |
+                Submitted on @Model.ProjectSubmittedDate?.ToString("MMMM dd, yyyy")
+            </div>
+        </div>
+    </div>
+
+    <!-- Basic Information Section -->
+    <div class="details-section">
+        <h3 class="section-title">Basic Information</h3>
+
+        <div class="detail-row">
+            <div class="detail-label">Project Type:</div>
+            <div class="detail-value">@Model.ProjectType?.TypeName</div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Company:</div>
+            <div class="detail-value">@Model.Company?.CompanyName</div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Language:</div>
+            <div class="detail-value">@Model.Language?.LanguageName</div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Framework:</div>
+            <div class="detail-value">@Model.Framework?.FrameworkName</div>
+        </div>
+
+        <div class="detail-row">
+            <div class="detail-label">Supervisor:</div>
+            <div class="detail-value">@Model.SupervisorName</div>
+        </div>
+
+        <!-- Leader Detail -->
+        <div class="detail-row">
+            <div class="detail-label">Leader:</div>
+            <div class="detail-value">
+                @{
+                    var leader = Model.ProjectMembers?.FirstOrDefault(pm => pm.Role == "Leader");
+                }
+
+                @if (leader != null && leader.Student != null)
+                {
+                    @leader.Student.StudentName
+                }
+                else
+                {
+                    <span>No Leader assigned</span>
+                }
+            </div>
+        </div>
+
+        <!-- Members Detail -->
+        <div class="detail-row">
+            <div class="detail-label">Members:</div>
+            <div class="detail-value">
+                @if (Model.ProjectMembers != null)
+                {
+                    var members = Model.ProjectMembers
+                    .Where(pm => pm.Role == "Member" && pm.Student != null)
+                    .ToList();
+
+                    if (members.Any())
+                    {
+                        <ul class="mb-0" style="padding-left: 18px;">
+                            @foreach (var member in members)
+                            {
+                                <li>@member.Student.StudentName</li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <span>No members assigned</span>
+                    }
+                }
+                else
+                {
+                    <span>No members assigned</span>
+                }
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- Description Section -->
+    <div class="details-section">
+        <h3 class="section-title">Description</h3>
+        <div class="detail-value">@Model.Description</div>
+    </div>
+
+    <!-- Files Section -->
+    @if (Model.Files != null && Model.Files.Any())
+    {
+        <div class="details-section">
+            <h3 class="section-title">Attached Files</h3>
+            <ul class="files-list">
+                @foreach (var file in Model.Files)
+                {
+                    <li class="file-item">
+                        <i class="fas fa-file-alt file-icon"></i>
+                        <a href="@Url.Action("Download", "Files", new { id = file.ProjectFile_pkId })" target="_blank">
+                            @file.FilePath
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+    }
+
+    <!-- Members Section -->
+    @if (Model.ProjectMembers != null && Model.ProjectMembers.Any())
+    {
+        <div class="details-section">
+            <h3 class="section-title">Team Members</h3>
+            <div class="members-grid">
+                @foreach (var member in Model.ProjectMembers)
+                {
+                    <div class="member-card">
+                       <div><strong>@member.Student?.StudentName</strong></div>  <!-- Access through Student navigation property -->
+                        <div>@member.Role</div>
+                        <div>@member.Student?.Email</div> <!-- If you need email -->
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Rejection Reason (if rejected) -->
+    @if (Model.Status == "Rejected" && !string.IsNullOrEmpty(Model.AdminComment))
+    {
+        <div class="rejection-reason">
+            <div class="reason-label">Rejection Reason:</div>
+            <div>@Model.AdminComment</div>
+        </div>
+    }
+
+    <!-- Approval Buttons (if pending) -->
+    @if (isPending)
+    {
+        <div class="action-buttons">
+            <button type="button" class="btn-approve" onclick="confirmApprove(@Model.Project_pkId, '@Html.Raw(Model.ProjectName.Replace("'", "\\'"))')">
+                <i class="fas fa-check"></i> Approve Project
+            </button>
+            <button type="button" class="btn-reject" onclick="confirmReject(@Model.Project_pkId, '@Html.Raw(Model.ProjectName.Replace("'", "\\'"))')">
+                <i class="fas fa-times"></i> Reject Project
+            </button>
+        </div>
+    }
+    <!-- Back to List Button -->
+    <div class="back-to-list">
+        <a href="@Url.Action("Index", "ProjectApproval")" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+</div>
+
+@section Scripts {
+    @* <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> *@
+    <script>
+        function confirmApprove(projectId, projectName) {
+            Swal.fire({
+                title: 'Approve Project',
+                html: `Are you sure you want to approve <strong>${projectName}</strong>?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#8C5DD1',
+                cancelButtonColor: '#C8C6C1',
+                background: '#E4EEFD',
+                confirmButtonText: 'Yes, Approve',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    popup: 'custom-swal-popup',
+                    title: 'custom-swal-title',
+                    content: 'custom-swal-content',
+                    confirmButton: 'custom-swal-confirm-btn',
+                    cancelButton: 'custom-swal-cancel-btn'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("Approve", "ProjectApproval")',
+                        type: 'POST',
+                        data: JSON.stringify(projectId),
+                        contentType: 'application/json',
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                location.reload();
+                            } else {
+                                Swal.fire('Error', response.message || 'Failed to approve', 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Error', 'An error occurred', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        function confirmReject(projectId, projectName) {
+            Swal.fire({
+                title: 'Reject Project',
+                html: `
+                    <p>Please provide a reason for rejecting <strong>${projectName}</strong></p>
+                    <textarea id="swal-reject-reason" class="swal2-textarea" placeholder="Enter rejection reason..." required></textarea>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#8C5DD1',
+                cancelButtonColor: '#C8C6C1',
+                background: '#E4EEFD',
+                confirmButtonText: 'Confirm Rejection',
+                cancelButtonText: 'Cancel',
+                customClass: {
+                    popup: 'custom-swal-popup',
+                    title: 'custom-swal-title',
+                    content: 'custom-swal-content',
+                    confirmButton: 'custom-swal-confirm-btn',
+                    cancelButton: 'custom-swal-cancel-btn'
+                },
+                preConfirm: () => {
+                    const reason = document.getElementById('swal-reject-reason').value;
+                    if (!reason.trim()) {
+                        Swal.showValidationMessage('Please enter a rejection reason');
+                        return false;
+                    }
+                    return { id: projectId, reason: reason };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '@Url.Action("Reject", "ProjectApproval")',
+                        type: 'POST',
+                        data: JSON.stringify(result.value),
+                        contentType: 'application/json',
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                location.reload();
+                            } else {
+                                Swal.fire('Error', response.message || 'Failed to reject', 'error');
+                            }
+                        },
+                        error: function () {
+                            Swal.fire('Error', 'An error occurred', 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}

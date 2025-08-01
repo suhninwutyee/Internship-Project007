@@ -2,185 +2,144 @@
 using Microsoft.EntityFrameworkCore;
 using ProjectManagementSystem.Data;
 using ProjectManagementSystem.Models;
-using System.Threading.Tasks;
+using System;
 using System.Linq;
-using X.PagedList;
-using System.IO;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Threading.Tasks;
 
 namespace ProjectManagementSystem.Controllers
 {
     public class CompanyController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private readonly string _imagePath;
 
         public CompanyController(ApplicationDbContext context)
         {
             _context = context;
-            _imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/companies");
         }
 
-        // GET: Company        
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index()
         {
-            int pageSize = 3;
             var companies = await _context.Companies
-                .Include(c => c.City)   // Include City navigation property
                 .OrderBy(c => c.CompanyName)
-                .ToPagedListAsync(page, pageSize);
+                .Select(c => new CompanyViewModel
+                {
+                    Company_pkId = c.Company_pkId,
+                    CompanyName = c.CompanyName
+                })
+                .ToListAsync();
 
             return View(companies);
         }
 
-        // GET: Company/Create
-        public IActionResult Create()
-        {
-            var cities = _context.Cities.OrderBy(c => c.CityName).ToList();
-
-            // Cast City_pkId to string here to avoid cast issues
-            ViewBag.CityList = new SelectList(
-                cities.Select(c => new { Id = c.City_pkId.ToString(), c.CityName }),
-                "Id",
-                "CityName"
-            );
-
-            return View();
-        }
-
-
-        // POST: Company/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Company company, IFormFile imageFile)
+        public async Task<IActionResult> Create(CompanyNameModel model)
         {
-            
-            if (!ModelState.IsValid)  // Fix here: must check IsValid, not !IsValid
+            if (ModelState.IsValid)
             {
-                if (imageFile != null && imageFile.Length > 0)
+                if (await _context.Companies.AnyAsync(c => c.CompanyName.ToLower() == model.CompanyName.Trim().ToLower()))
                 {
-                    if (!Directory.Exists(_imagePath))
-                        Directory.CreateDirectory(_imagePath);
-
-                    var fileName = Path.GetFileName(imageFile.FileName);
-                    var filePath = Path.Combine(_imagePath, fileName);
-
-                    using var stream = new FileStream(filePath, FileMode.Create);
-                    await imageFile.CopyToAsync(stream);
-
-                    company.ImageFileName = fileName;
+                    TempData["ErrorMessage"] = $"Company '{model.CompanyName}' already exists";
+                    return RedirectToAction(nameof(Index));
                 }
 
-                _context.Add(company);
-                await _context.SaveChangesAsync();
+                var company = new Company
+                {
+                    CompanyName = model.CompanyName.Trim(),
+                    Address = "To be added",
+                    Contact = "To be added",
+                    Description = "",
+                    ImageFileName = "default.png",
+                    CreatedDate = DateTime.Now
+                };
+
+                try
+                {
+                    _context.Companies.Add(company);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Company created successfully";
+                }
+                catch (DbUpdateException ex)
+                {
+                    TempData["ErrorMessage"] = $"Error saving to database: {ex.InnerException?.Message ?? ex.Message}";
+                }
+            }
+            else
+            {
+                TempData["ErrorMessage"] = string.Join(", ",
+                    ModelState.Values.SelectMany(v => v.Errors)
+                                    .Select(e => e.ErrorMessage));
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(CompanyNameModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var company = await _context.Companies.FindAsync(model.Company_pkId);
+                if (company == null)
+                {
+                    TempData["ErrorMessage"] = "Company not found";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                if (await _context.Companies.AnyAsync(c =>
+                    c.CompanyName.ToLower() == model.CompanyName.Trim().ToLower()
+                    && c.Company_pkId != model.Company_pkId))
+                {
+                    TempData["ErrorMessage"] = $"Company '{model.CompanyName}' already exists";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                company.CompanyName = model.CompanyName.Trim();
+
+                try
+                {
+                    _context.Update(company);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Company updated successfully";
+                }
+                catch (DbUpdateException ex)
+                {
+                    TempData["ErrorMessage"] = $"Error saving to database: {ex.InnerException?.Message ?? ex.Message}";
+                }
+            }
+            else
+            {
+                TempData["ErrorMessage"] = string.Join(", ",
+                    ModelState.Values.SelectMany(v => v.Errors)
+                                    .Select(e => e.ErrorMessage));
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var company = await _context.Companies.FindAsync(id);
+            if (company == null)
+            {
+                TempData["ErrorMessage"] = "Company not found";
                 return RedirectToAction(nameof(Index));
             }
 
-            // Reload city list if validation failed
-            ViewBag.CityList = new SelectList(_context.Cities.OrderBy(c => c.CityName), "City_pkId", "CityName", company.City_pkId);
-            return View(company);
-        }
-
-        // GET: Company/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var company = await _context.Companies.FindAsync(id);
-            if (company == null) return NotFound();
-
-            var cities = _context.Cities.OrderBy(c => c.CityName).ToList();
-
-            ViewBag.CityList = new SelectList(
-                cities.Select(c => new { Id = c.City_pkId.ToString(), c.CityName }),
-                "Id",
-                "CityName",
-                company.City_pkId  // selected value as string
-            );
-
-            return View(company);
-        }
-
-
-        // POST: Company/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Company company, IFormFile imageFile)
-        {
-            company.City_pkId = int.Parse(company.City_pkId.ToString());
-            Console.WriteLine("city pkid.........................." + company.City_pkId);
-            Console.WriteLine("here edit post......................." + company.Company_pkId);
-            if (company.Company_pkId != company.Company_pkId)
-                return NotFound();
-
-            if (!ModelState.IsValid)  // Fix here too
-            {
-                Console.WriteLine("here state valid.........................");
-                try
-                {
-                    if (imageFile != null && imageFile.Length > 0)
-                    {
-                        if (!Directory.Exists(_imagePath))
-                            Directory.CreateDirectory(_imagePath);
-
-                        var fileName = Path.GetFileName(imageFile.FileName);
-                        var filePath = Path.Combine(_imagePath, fileName);
-
-                        using var stream = new FileStream(filePath, FileMode.Create);
-                        await imageFile.CopyToAsync(stream);
-
-                        company.ImageFileName = fileName;
-                    }
-                    else
-                    {
-                        // Preserve existing image file name if no new upload
-                        var existingCompany = await _context.Companies.AsNoTracking().FirstOrDefaultAsync(c => c.Company_pkId == company.Company_pkId);
-                        if (existingCompany != null)
-                        {
-                            company.ImageFileName = existingCompany.ImageFileName;
-                        }
-                    }
-
-                    _context.Update(company);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.Companies.Any(e => e.Company_pkId == company.Company_pkId))
-                        return NotFound();
-                    else
-                        throw;
-                }
-            }
-
-            ViewBag.CityList = new SelectList(_context.Cities.OrderBy(c => c.CityName), "City_pkId", "CityName", company.City_pkId);
-            return View(company);
-        }
-
-        // GET: Company/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null) return NotFound();
-
-            var company = await _context.Companies.Include(c => c.City).FirstOrDefaultAsync(m => m.Company_pkId == id);
-            if (company == null) return NotFound();
-
-            return View(company);
-        }
-
-        // POST: Company/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var company = await _context.Companies.FindAsync(id);
-            if (company != null)
+            try
             {
                 _context.Companies.Remove(company);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Company deleted successfully";
             }
+            catch (DbUpdateException ex)
+            {
+                TempData["ErrorMessage"] = $"Error deleting company: {ex.InnerException?.Message ?? ex.Message}";
+            }
+
             return RedirectToAction(nameof(Index));
         }
     }

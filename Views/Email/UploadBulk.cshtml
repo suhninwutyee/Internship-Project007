@@ -1,30 +1,103 @@
-﻿@{
+﻿@model ProjectManagementSystem.Models.Email
+@{
     ViewData["Title"] = "Upload Student Emails";
     Layout = "~/Views/Shared/_TeacherLayout.cshtml";
 }
 
-<h3 class="mb-4">Bulk Upload Student Emails</h3>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <h3 class="h5 mb-0 text-center">Bulk Upload Student Emails</h3>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Status Messages -->
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success mb-4">
+                            <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                        </div>
+                    }
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger mb-4">
+                            <i class="fas fa-exclamation-circle me-2"></i> @TempData["Error"]
+                        </div>
+                    }
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
-}
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger">@TempData["Error"]</div>
-}
-
-<form asp-action="UploadBulk" method="post" enctype="multipart/form-data">
-    <div class="form-group mb-3">
-        <label for="file">Upload CSV File (EmailAddress, RollNumber):</label>
-        <input type="file" name="file" class="form-control" required />
+                    <!-- Upload Form -->
+                    <form asp-action="UploadBulk" method="post" enctype="multipart/form-data">
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr>
+                                    <td colspan="2">
+                                        <label class="form-label fw-bold">CSV File</label>
+                                        <input type="file" name="file" class="form-control" required />
+                                        <small class="text-muted d-block mt-1">Example format: Student Name,student@example.com,KPTM-12345</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    @* <td colspan="2">
+                                        <label asp-for="AcademicYear" class="form-label fw-bold">Academic Year</label>
+                                        <select asp-for="AcademicYear" class="form-select" asp-items="new SelectList(ViewBag.AcademicYears)" required>
+                                            <option value="">-- Select Year --</option>
+                                        </select>
+                                    </td> *@
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <a asp-action="Index" class="btn btn-outline-secondary w-100">
+                                            <i class="fas fa-arrow-left me-2"></i> Back
+                                        </a>
+                                    </td>
+                                    <td class="text-end">
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fas fa-upload me-2"></i> Upload
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-    <button type="submit" class="btn btn-primary">Upload</button>
-    <button type="submit" class="btn btn-primary" asp-action="Index" asp-controller="Email">Back to List</button>
-</form>
+</div>
 
-<p class="mt-4 text-muted">📌 Expected CSV format:</p>
-<pre>EmailAddress,RollNumber
-student1@example.com,1001
-student2@example.com,1002
-</pre>
+<style>
+    .card {
+        border-radius: 8px;
+        border: 1px solid #e0e0e0;
+    }
+
+    .card-header {
+        border-radius: 8px 8px 0 0 !important;
+    }
+
+    .form-control, .form-select {
+        padding: 0.6rem 0.75rem;
+        border-radius: 6px;
+        border: 1px solid #ced4da;
+    }
+
+    .btn {
+        padding: 0.6rem 1.25rem;
+        border-radius: 6px;
+        font-weight: 500;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+        .table tr:last-child td {
+            padding-bottom: 0;
+            padding-top: 1.5rem;
+        }
+
+    .alert {
+        border-radius: 6px;
+    }
+</style>

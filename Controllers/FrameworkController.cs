@@ -17,6 +17,12 @@ public class FrameworkController : Controller
     }
     public async Task<IActionResult> Index(int? page)
     {
+        var rollNumber = HttpContext.Session.GetString("RollNumber");
+        if (string.IsNullOrEmpty(rollNumber))
+        {
+            return RedirectToAction("Login", "StudentLogin");
+        }
+
         int pageSize = 3;
         int pageNumber = page ?? 1;
 

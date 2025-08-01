@@ -1,254 +1,113 @@
-﻿@model List<ProjectType>
-
-<div class="university-dashboard">
-    <!-- Header with animated title -->
+﻿
+<div class="project-dashboard">
+    <!-- Header -->
     <div class="dashboard-header">
-        <div class="header-content">
-            <h2 class="dashboard-title">
-                <span class="title-words">
-                    <span>P</span><span>r</span><span>o</span><span>j</span><span>e</span><span>c</span><span>t</span>
-                    <span>T</span><span>y</span><span>p</span><span>e</span><span>s</span>
-                </span>
-                <span class="title-icon">📚</span>
-            </h2>
-            <p class="dashboard-subtitle">Academic Research Categories</p>
-        </div>
-        <a asp-action="Create" class="add-button">
-            <span class="button-icon">+</span>
-            <span class="button-text">Add New Type</span>
-        </a>
+        <h1 class="dashboard-title">📚 Project Types</h1>
+        <p class="dashboard-subtitle">Academic Research Categories</p>
+        <a asp-action="Create" class="add-button">+ Add New</a>
     </div>
 
-    @* <!-- Interactive filter/search section -->
-    <div class="dashboard-controls">
-        <div class="search-box">
-            <input type="text" placeholder="Search project types..." class="search-input">
-            <button class="search-button">🔍</button>
-        </div>
-        <div class="sort-options">
-            <select class="sort-select">
-                <option>Sort by Name (A-Z)</option>
-                <option>Sort by Name (Z-A)</option>
-                <option>Sort by Recent</option>
-            </select>
-        </div>
-    </div> *@
-
-    <!-- Main content area with animated cards -->
+    <!-- Project Cards -->
     <div class="project-types-container">
         @foreach (var item in Model)
         {
-            <div class="project-type-card" data-id="@item.ProjectType_pkId">
-                <div class="card-header">
-                    <h3 class="type-name">@item.TypeName</h3>
-                    <div class="card-actions">
-                        <a asp-action="Edit" asp-route-id="@item.ProjectType_pkId" class="action-button edit">
-                            <span class="action-icon">✏️</span>
-                            <span class="action-tooltip">Edit</span>
-                        </a>
-                        <a asp-action="Details" asp-route-id="@item.ProjectType_pkId" class="action-button details">
-                            <span class="action-icon">🔍</span>
-                            <span class="action-tooltip">Details</span>
-                        </a>
-                    </div>
+            <div class="project-type-card">
+                <h3>@item.TypeName</h3>
+                <div class="card-actions">
+                    <a asp-action="Edit" asp-route-id="@item.ProjectType_pkId" class="action-button">✏️</a>
+                    <a asp-action="Details" asp-route-id="@item.ProjectType_pkId" class="action-button">🔍</a>
                 </div>
-                
-                <div class="card-decoration"></div>
             </div>
         }
-    </div>
-
-    <!-- Floating action button for mobile -->
-    <div class="floating-action">
-        <a asp-action="Create" class="fab-button">+</a>
     </div>
 </div>
 
 <style>
-    /* Base styles with academic color palette */
     :root {
-        --oxford-blue: #002147;
-        --university-gold: #FFD700;
-        --ivory: #FFFFF0;
-        --slate-gray: #708090;
-        --burgundy: #800020;
-        --sage-green: #9DC183;
-        --parchment: #F5E6CA;
+        --primary: #8C5DD1;
+        --light: #E4EEFD;
+        --neutral: #EFEFEF;
+        --gray: #C8C6C1;
+        --white: #FFFFFF;
     }
 
     body {
-        font-family: 'Segoe UI', 'Roboto', sans-serif;
-        background-color: var(--parchment);
-        color: var(--oxford-blue);
+        font-family: 'Segoe UI', sans-serif;
+        background-color: var(--neutral);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
         margin: 0;
         padding: 20px;
     }
 
-    .university-dashboard {
-        max-width: 1200px;
-        margin: 0 auto;
-        background-color: white;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 33, 71, 0.1);
-        overflow: hidden;
-        padding: 20px;
+    .project-dashboard {
+        max-width: 800px;
+        width: 100%;
+        background: var(--white);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(140, 93, 209, 0.1);
+        text-align: center;
     }
 
     .dashboard-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px;
-        background: linear-gradient(135deg, var(--oxford-blue), #003366);
-        border-radius: 10px;
-        color: white;
         margin-bottom: 30px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .dashboard-header::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 100px;
-        height: 100px;
-        background: radial-gradient(circle, rgba(255,215,0,0.2) 0%, transparent 70%);
     }
 
     .dashboard-title {
-        font-size: 2.5rem;
-        margin: 0;
+        color: var(--primary);
+        font-size: 2.2rem;
+        margin: 0 0 10px 0;
         display: flex;
         align-items: center;
-        font-weight: 700;
-    }
-
-    .title-words span {
-        display: inline-block;
-        transition: transform 0.3s ease;
-    }
-
-    .title-words:hover span {
-        transform: translateY(-5px);
-    }
-
-    .title-words span:nth-child(odd) {
-        color: var(--university-gold);
-    }
-
-    .title-icon {
-        margin-left: 15px;
-        font-size: 2rem;
-        animation: float 3s ease-in-out infinite;
+        justify-content: center;
+        gap: 10px;
     }
 
     .dashboard-subtitle {
-        margin: 5px 0 0;
-        font-style: italic;
-        opacity: 0.9;
+        color: var(--gray);
+        margin: 0 0 20px 0;
         font-size: 1rem;
     }
 
     .add-button {
-        display: flex;
-        align-items: center;
-        padding: 12px 20px;
-        background-color: var(--university-gold);
-        color: var(--oxford-blue);
+        background: var(--primary);
+        color: white;
         border: none;
+        padding: 10px 20px;
         border-radius: 50px;
         font-weight: bold;
         text-decoration: none;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        display: inline-block;
     }
 
     .add-button:hover {
         transform: translateY(-3px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        background-color: #ffea80;
-    }
-
-    .button-icon {
-        margin-right: 8px;
-        font-size: 1.2rem;
-    }
-
-    .dashboard-controls {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 25px;
-        flex-wrap: wrap;
-        gap: 15px;
-    }
-
-    .search-box {
-        display: flex;
-        flex: 1;
-        min-width: 250px;
-    }
-
-    .search-input {
-        flex: 1;
-        padding: 12px 20px;
-        border: 2px solid var(--slate-gray);
-        border-radius: 50px 0 0 50px;
-        font-size: 1rem;
-        outline: none;
-        transition: border-color 0.3s;
-    }
-
-    .search-input:focus {
-        border-color: var(--oxford-blue);
-    }
-
-    .search-button {
-        padding: 0 20px;
-        background-color: var(--oxford-blue);
-        color: white;
-        border: none;
-        border-radius: 0 50px 50px 0;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-
-    .search-button:hover {
-        background-color: #003366;
-    }
-
-    .sort-select {
-        padding: 12px 20px;
-        border: 2px solid var(--slate-gray);
-        border-radius: 50px;
-        font-size: 1rem;
-        background-color: white;
-        cursor: pointer;
-        min-width: 200px;
+        box-shadow: 0 5px 15px rgba(140, 93, 209, 0.3);
     }
 
     .project-types-container {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
         gap: 20px;
-        padding: 10px;
     }
 
     .project-type-card {
-        background: white;
-        border-radius: 10px;
-        box-shadow: 0 5px 15px rgba(0, 33, 71, 0.1);
+        background: var(--light);
+        border-radius: 15px;
         padding: 20px;
         transition: all 0.3s ease;
         position: relative;
         overflow: hidden;
-        border: 1px solid rgba(112, 128, 144, 0.2);
+        text-align: left;
     }
 
     .project-type-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0, 33, 71, 0.15);
+        box-shadow: 0 8px 20px rgba(140, 93, 209, 0.2);
     }
 
     .project-type-card::before {
@@ -258,21 +117,13 @@
         left: 0;
         width: 5px;
         height: 100%;
-        background: linear-gradient(to bottom, var(--university-gold), var(--burgundy));
+        background: linear-gradient(to bottom, var(--primary), #A37FE2);
     }
 
-    .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 15px;
-    }
-
-    .type-name {
-        margin: 0;
-        font-size: 1.3rem;
-        color: var(--oxford-blue);
-        flex: 1;
+    .project-type-card h3 {
+        margin: 0 0 15px 0;
+        color: var(--primary);
+        font-size: 1.2rem;
     }
 
     .card-actions {
@@ -281,168 +132,71 @@
     }
 
     .action-button {
-        width: 36px;
-        height: 36px;
+        width: 35px;
+        height: 35px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
+        background: rgba(255, 255, 255, 0.8);
+        color: var(--primary);
         text-decoration: none;
         transition: all 0.3s ease;
-        position: relative;
-    }
-
-    .action-button.edit {
-        background-color: rgba(0, 33, 71, 0.1);
-        color: var(--oxford-blue);
-    }
-
-    .action-button.details {
-        background-color: rgba(255, 215, 0, 0.2);
-        color: var(--burgundy);
     }
 
     .action-button:hover {
         transform: scale(1.1);
+        background: var(--white);
     }
 
-    .action-tooltip {
-        position: absolute;
-        top: -30px;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: var(--oxford-blue);
-        color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.8rem;
-        opacity: 0;
-        transition: opacity 0.3s;
-        white-space: nowrap;
-    }
-
-    .action-button:hover .action-tooltip {
-        opacity: 1;
-    }
-
-    .card-footer {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.9rem;
-        color: var(--slate-gray);
-        padding-top: 10px;
-        border-top: 1px dashed rgba(112, 128, 144, 0.3);
-    }
-
-    .card-decoration {
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
-        width: 60px;
-        height: 60px;
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path fill="%23708090" opacity="0.1" d="M20,20 L80,20 L80,80 L20,80 Z"/></svg>');
-        opacity: 0.3;
-    }
-
-    .floating-action {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        display: none;
-    }
-
-    .fab-button {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background-color: var(--burgundy);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.8rem;
-        text-decoration: none;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        transition: all 0.3s ease;
-    }
-
-    .fab-button:hover {
-        transform: scale(1.1) rotate(90deg);
-        background-color: var(--university-gold);
-        color: var(--oxford-blue);
-    }
-
-    /* Animations */
-    @@keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-    }
-
-    /* Responsive design */
-    @@media (max-width: 768px) {
-        .dashboard-header {
-            flex-direction: column;
-            text-align: center;
-            gap: 15px;
+    /* Animation for cards */
+    @@foreach (var item in Model)
+    {
+        <text>
+        .project-type-card[data-id="@@item.ProjectType_pkId"] {
+            animation: fadeIn 0.5s ease @@(Model.IndexOf(item) * 0.1s forwards;
+            opacity: 0;
+            transform: translateY(10px);
         }
+        </text>
+    }
 
+    @@keyframes fadeIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive */
+    @@media (max-width: 600px) {
+        .project-types-container {
+            grid-template-columns: 1fr;
+        }
+        
         .dashboard-title {
-            font-size: 2rem;
+            font-size: 1.8rem;
         }
-
-        .floating-action {
-            display: block;
-        }
-
-        .add-button .button-text {
-            display: none;
-        }
-
-        .add-button .button-icon {
-            margin-right: 0;
-            font-size: 1.5rem;
+        
+        .add-button {
+            padding: 8px 16px;
+            font-size: 0.9rem;
         }
     }
 </style>
 
 <script>
-    // Add interactive animations
     document.addEventListener('DOMContentLoaded', function() {
-        // Animate cards on load
+        // Add hover effect to cards
         const cards = document.querySelectorAll('.project-type-card');
-        cards.forEach((card, index) => {
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
-            card.style.transition = `all 0.5s ease ${index * 0.1}s`;
-
-            setTimeout(() => {
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
-            }, 100);
-        });
-
-        // Add hover effect to title letters
-        const titleLetters = document.querySelectorAll('.title-words span');
-        titleLetters.forEach((letter, index) => {
-            letter.addEventListener('mouseover', () => {
-                letter.style.transform = 'translateY(-8px) rotate(5deg)';
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-5px)';
+                card.style.boxShadow = '0 8px 20px rgba(140, 93, 209, 0.2)';
             });
-            letter.addEventListener('mouseout', () => {
-                letter.style.transform = 'translateY(0) rotate(0)';
-            });
-        });
-
-        // Simulate search functionality
-        const searchInput = document.querySelector('.search-input');
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            cards.forEach(card => {
-                const typeName = card.querySelector('.type-name').textContent.toLowerCase();
-                if (typeName.includes(searchTerm)) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+                card.style.boxShadow = '';
             });
         });
     });

@@ -1,85 +1,87 @@
 ﻿@{
     ViewData["Title"] = "FAQ / Help";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_PublicLayout.cshtml";
 }
 
 <style>
-    .faq-section {
-        background-color: #f8f9fc;
-        padding: 50px 20px;
-        border-radius: 15px;
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
-        max-width: 900px;
-        margin: auto;
-    }
-
-    .faq-header {
+    h2 {
         color: #8c5dd1;
-        font-weight: bold;
-        margin-bottom: 30px;
-        text-align: center;
+        font-weight: 700;
     }
 
     .accordion-button {
         background-color: #e4eefd;
-        color: #333;
-        font-weight: 500;
-        border-radius: 10px;
-        transition: background-color 0.3s ease;
+        color: #4b0082;
+        font-weight: 600;
+        border-bottom: 1px solid #c8c6c1;
     }
 
         .accordion-button:not(.collapsed) {
-            background-color: #8c5dd1;
             color: #fff;
+            background-color: #8c5dd1;
+            box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.125);
+        }
+
+        .accordion-button::after {
+            filter: hue-rotate(200deg) brightness(0.6);
         }
 
     .accordion-body {
-        background-color: #ffffff;
-        border-radius: 10px;
-        padding: 15px 20px;
-        color: #444;
+        background-color: #f9f9fc;
+        border-top: 1px solid #c8c6c1;
+        color: #333;
     }
 
     .accordion-item {
-        border: none;
-        margin-bottom: 15px;
+        border: 1px solid #c8c6c1;
+        border-radius: 0.25rem;
+        margin-bottom: 1rem;
+        overflow: hidden;
     }
 </style>
 
-<div class="faq-section">
-    <h2 class="faq-header">@ViewData["Title"]</h2>
-    <p class="text-center text-muted mb-4">Welcome to the public help page. You do not need to register or log in to view this page.</p>
+<h2>@ViewData["Title"]</h2>
 
-    <div class="accordion" id="faqAccordion">
-        @* FAQ items *@
+<p>Welcome to the public help page. You do not need to register or log in to view this page.</p>
 
-        @{
-            var faqs = new[]
-            {
-        new { Id = "1", Question = "How do I contact my teacher?", Answer = "Contact details are available after logging in to your student portal. Please reach out to your department if you need assistance." },
-        new { Id = "2", Question = "How do I submit my final project?", Answer = "You must be logged in to submit your final project. Submission guidelines are provided in your student dashboard." },
-        new { Id = "3", Question = "Who do I contact for technical support?", Answer = "For technical issues, please email support@youruniversity.edu or call (123) 456-7890 during business hours." },
-        new { Id = "4", Question = "Can I access the system from my mobile device?", Answer = "Yes, the system is mobile-friendly and can be accessed via smartphones and tablets using any modern browser." },
-        new { Id = "5", Question = "What should I do if I forget my password?", Answer = "Use the “Forgot Password” link on the login page to reset your password. You will receive an email with instructions." },
-        new { Id = "6", Question = "How do I change my profile information?", Answer = "After logging in, navigate to your profile page where you can update your personal information and save the changes." },
-        new { Id = "7", Question = "Who can I talk to if I have issues with my project?", Answer = "You should contact your assigned teacher or project supervisor. Their contact details are available in the system after you log in." }
-        };
-        }
-
-        @foreach (var faq in faqs)
+<div class="accordion" id="faqAccordion">
+    @for (int i = 1; i <= 7; i++)
+    {
+        var id = $"collapse{i}";
+        var headingId = $"heading{i}";
+        string question = i switch
         {
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="heading@faq.Id">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse@faq.Id" aria-expanded="false" aria-controls="collapse@faq.Id">
-                        @faq.Question
-                    </button>
-                </h2>
-                <div id="collapse@faq.Id" class="accordion-collapse collapse" aria-labelledby="heading@faq.Id" data-bs-parent="#faqAccordion">
-                    <div class="accordion-body">
-                        @faq.Answer
-                    </div>
+            1 => "How do I contact my teacher?",
+            2 => "How do I submit my final project?",
+            3 => "Who do I contact for technical support?",
+            4 => "Can I access the system from my mobile device?",
+            5 => "What should I do if I forget my password?",
+            6 => "How do I change my profile information?",
+            7 => "Who can I talk to if I have issues with my project?",
+            _ => ""
+        };
+        string answer = i switch
+        {
+            1 => "Contact details are available after logging in to your student portal. Please reach out to your department if you need assistance.",
+            2 => "You must be logged in to submit your final project. Submission guidelines are provided in your student dashboard.",
+            3 => "For technical issues, please email support@youruniversity.edu or call (123) 456-7890 during business hours.",
+            4 => "Yes, the system is mobile-friendly and can be accessed via smartphones and tablets using any modern browser.",
+            5 => "Use the “Forgot Password” link on the login page to reset your password. You will receive an email with instructions.",
+            6 => "After logging in, navigate to your profile page where you can update your personal information and save the changes.",
+            7 => "You should contact your assigned teacher or project supervisor. Their contact details are available in the system after you log in.",
+            _ => ""
+        };
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="@headingId">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#@id" aria-expanded="false" aria-controls="@id">
+                    @question
+                </button>
+            </h2>
+            <div id="@id" class="accordion-collapse collapse" aria-labelledby="@headingId" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    @answer
                 </div>
             </div>
-        }
-    </div>
+        </div>
+    }
 </div>

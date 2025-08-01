@@ -19,6 +19,12 @@ namespace ProjectManagementSystem.Controllers
         // GET: Language
         public async Task<IActionResult> Index(int? page)
         {
+            var rollNumber = HttpContext.Session.GetString("RollNumber");
+            if (string.IsNullOrEmpty(rollNumber))
+            {
+                return RedirectToAction("Login", "StudentLogin");
+            }
+
             int pageSize = 3;               // Number of items per page
             int pageNumber = page ?? 1;     // Current page number (default 1)
 

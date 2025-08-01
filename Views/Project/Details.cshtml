@@ -2,45 +2,157 @@
 
 @{
     ViewData["Title"] = "Project Details";
+    Layout = "_Layout";
 }
-<div>
-    <partial name="_ProgressBarPartial" />
+
+<style>
+    body {
+        background: linear-gradient(135deg, #e4eefd);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .custom-details-card {
+        max-width: 900px;
+        margin: 0 auto;
+        border-radius: 16px;
+    }
+
+    .custom-card-header {
+        background-color: #8c5dd1; /* Change this to your project color */
+        color: white;
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
+        padding: 16px;
+    }
+
+    .custom-table th {
+        width: 30%;
+        background-color: #f1f1f1;
+    }
+
+    .custom-table td {
+        background-color: #fff;
+    }
+
+    .back-button {
+        margin-top: 20px;
+    }
+</style>
+
+<div class="card custom-details-card shadow">
+    <div class="custom-card-header">
+        <h4 class="mb-0">Project Details</h4>
+    </div>
+    <div class="card-body p-4">
+        <table class="table table-bordered custom-table">
+            <tr>
+                <th>Project Name</th>
+                <td>@Model.ProjectName</td>
+            </tr>
+            <tr>
+                <th>Supervisor</th>
+                <td>@Model.SupervisorName</td>
+            </tr>
+            <tr>
+                <th>Project Type</th>
+                <td>@Model.ProjectType?.TypeName</td>
+            </tr>
+            <tr>
+                <th>Language</th>
+                <td>@Model.Language?.LanguageName</td>
+            </tr>
+            <tr>
+                <th>Framework</th>
+                <td>@Model.Framework?.FrameworkName</td>
+            </tr>
+            <tr>
+                <th>Company</th>
+                <td>@Model.Company?.CompanyName</td>
+            </tr>
+
+            <tr>
+                <th>Leader</th>
+                <td>
+                    @{
+                        var leader = Model.ProjectMembers?
+                        .FirstOrDefault(pm => pm.Role == "Leader" && !pm.IsDeleted && pm.Student != null);
+                        if (leader != null)
+                        {
+                            <span>@leader.Student.StudentName </span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No leader assigned</span>
+                        }
+                    }
+                </td>
+            </tr>
+
+            <tr>
+                <th>Members</th>
+                <td>
+                    @{
+                        var members = Model.ProjectMembers?
+                        .Where(pm => pm.Role == "Member" && !pm.IsDeleted && pm.Student != null)
+                        .ToList();
+                        if (members != null && members.Any())
+                        {
+                            foreach (var member in members)
+                            {
+                                <div>@member.Student.StudentName</div>
+                            }
+                        }
+                        else
+                        {
+                            <span class="text-muted">No members assigned</span>
+                        }
+                    }
+                </td>
+            </tr>
+
+
+            <tr>
+                <th>Submitted Date</th>
+                <td> @(Model.ProjectSubmittedDate.HasValue ? Model.ProjectSubmittedDate.Value.ToShortDateString() : "Not submitted")
+                </td>
+            </tr>
+            <tr>
+                <th>Created By</th>
+                <td>@Model.CreatedBy</td>
+            </tr>
+
+            <tr>
+                <th>Status</th>
+                <td>
+                    @switch (Model.Status)
+                    {
+                        case "Approved":
+                            <span class="badge bg-success">Approved</span>
+                            break;
+                        case "Rejected":
+                            <span class="badge bg-danger">Rejected</span>
+                            break;
+                        case "Pending":
+                            <span class="badge bg-warning text-dark">Pending</span>
+                            break;
+                        default:
+                            <span class="badge bg-secondary">@Model.Status</span>
+                            break;
+                    }
+                </td>
+            </tr>
+
+
+        </table>
+        @if (Model.Status == "Rejected" && !string.IsNullOrWhiteSpace(Model.AdminComment))
+        {
+            <div class="alert alert-danger mt-4">
+                <strong>Rejection Reason:</strong> @Model.AdminComment
+            </div>
+        }
+
+        <div class="back-button text-end">
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
 </div>
-<h3>Project Details</h3>
-
-<table class="table table-bordered">
-    <tr>
-        <th>Project Name</th>
-        <td>@Model.ProjectName</td>
-    </tr>
-    <tr>
-        <th>Supervisor</th>
-        <td>@Model.SupervisorName</td>
-    </tr>
-    <tr>
-        <th>Project Type</th>
-        <td>@Model.ProjectType?.TypeName</td>
-    </tr>
-    <tr>
-        <th>Language</th>
-        <td>@Model.Language?.LanguageName</td>
-    </tr>
-    <tr>
-        <th>Framework</th>
-        <td>@Model.Framework?.FrameworkName</td>
-    </tr>
-    <tr>
-        <th>Company</th>
-        <td>@Model.Company?.CompanyName</td>
-    </tr>
-    <tr>
-        <th>Submitted Date</th>
-        <td>@Model.ProjectSubmittedDate.ToShortDateString()</td>
-    </tr>
-    <tr>
-        <th>Created By</th>
-        <td>@Model.CreatedBy</td>
-    </tr>
-</table>
-
-<a asp-action="Index" class="btn btn-secondary">Back to List</a>

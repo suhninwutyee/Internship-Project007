@@ -1,4 +1,9 @@
-﻿@{
+﻿@using System.Security.Claims
+@using Microsoft.EntityFrameworkCore
+@using ProjectManagementSystem.Data
+@inject ApplicationDbContext _context
+
+@{
     var email = Context.Session.GetString("EmailAddress");
     var studentName = Context.Session.GetString("StudentName");
     var initials = !string.IsNullOrEmpty(studentName) ? studentName.Substring(0, 2).ToUpper() : "ST";
@@ -10,7 +15,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>@ViewData["Title"] - Internship Project System</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+  @*   <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" /> *@
     <link rel="stylesheet" href="~/ProjectManagementSystem.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -27,6 +32,7 @@
             --text-dark: #2d3436;
             --text-light: #636e72;
             --success-color: #00b894;
+            --warning-color: #f39c12;
         }
 
         * {
@@ -53,6 +59,80 @@
             touch-action: manipulation;
         }
 
+        /* Announcement Banner */
+        .announcement-banner {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            color: #fff;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            border-left: 5px solid var(--warning-color);
+        }
+
+            .announcement-banner.warning {
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                border-left-color: var(--accent-color);
+            }
+
+            .announcement-banner.success {
+                background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+                border-left-color: var(--success-color);
+            }
+
+        .announcement-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .announcement-icon {
+            font-size: 1.8rem;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .announcement-text {
+            flex-grow: 1;
+        }
+
+        .announcement-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+
+        .announcement-message {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .announcement-dates {
+            font-size: 0.8rem;
+            margin-top: 8px;
+            opacity: 0.8;
+            font-style: italic;
+        }
+
+        .announcement-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-left: 15px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            flex-shrink: 0;
+        }
+
+            .announcement-close:hover {
+                opacity: 1;
+            }
+
+        /* Rest of your existing styles... */
         /* Mobile Menu Toggle */
         .mobile-menu-toggle {
             display: none;
@@ -367,6 +447,15 @@
                 }
         }
 
+        .notification-badge {
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
         /* Mobile */
         @@media (max-width: 767.98px) {
             .sidebar {
@@ -417,6 +506,26 @@
                 margin-top: 10px;
                 text-align: right;
             }
+
+            .announcement-banner {
+                padding: 12px 15px;
+            }
+
+            .announcement-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .announcement-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            .announcement-close {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+            }
         }
 
         /* Small Mobile */
@@ -450,21 +559,21 @@
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <i class="fas fa-project-diagram"></i> <span>Student Portal</span>
+            <i class="fas fa-project-diagram"></i> <span>Final Year Student Portal</span>
         </div>
         <ul class="sidebar-nav">
             <li>
-                <a asp-area="" asp-controller="Student" asp-action="Dashboard" class="active">
+                <a asp-area="" asp-controller="Student" asp-action="Dashboard">
                     <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
                 </a>
             </li>
 
             <!-- Project Submission Menu -->
-            <li>
-                <a asp-area="" asp-controller="ProjectSubmit" asp-action="Index">
+           @*  <li>
+                <a asp-area="" asp-controller="Project" asp-action="Upload">
                     <i class="fas fa-cloud-upload-alt"></i> <span>Project Submission</span>
                 </a>
-            </li>
+            </li> *@
 
             <!-- Manage Dropdown Menu -->
             <li>
@@ -472,26 +581,28 @@
                     <i class="fas fa-cog"></i> <span>Manage</span>
                 </a>
                 <div class="sidebar-dropdown collapse" id="manageDropdown">
-                    <a asp-area="" asp-controller="Language" asp-action="Index">
-                        <i class="fas fa-code"></i> <span>Languages</span>
-                    </a>
-                    <a asp-area="" asp-controller="Framework" asp-action="Index">
-                        <i class="fas fa-cubes"></i> <span>Frameworks</span>
-                    </a>
                     <a asp-area="" asp-controller="Project" asp-action="Index">
                         <i class="fas fa-project-diagram"></i> <span>Projects</span>
                     </a>
-                    <a asp-area="" asp-controller="ProjectFile" asp-action="Index">
-                        <i class="fas fa-file-archive"></i> <span>Project Files</span>
+                    <a asp-area="" asp-controller="Language" asp-action="Index">
+                        <i class="fas fa-code"></i> <span>Languages</span>
                     </a>
+
+                    <a asp-area="" asp-controller="Framework" asp-action="Index">
+                        <i class="fas fa-cubes"></i> <span>Frameworks</span>
+                    </a>
+                    <a asp-area="" asp-controller="ProjectType" asp-action="Index">
+                        <i class="fas fa-cubes"></i> <span>ProjectTypes</span>
+                    </a>
+                  
                 </div>
             </li>
 
             <!-- Notifications Menu -->
             <li>
-                <a asp-area="" asp-controller="Student" asp-action="Notifications">
+                <a asp-area="" asp-controller="Notifications" asp-action="Index">
                     <i class="fas fa-bell"></i> <span>Notifications</span>
-                    <span class="notification-badge">3</span>
+                    <span class="notification-badge">0</span>
                 </a>
             </li>
 
@@ -509,9 +620,23 @@
         <div class="top-bar">
             <div class="notification-icon position-relative">
                 <i class="fas fa-bell fa-lg text-secondary"></i>
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                    3
-                </span>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    var rollNumber = Context.Session.GetString("RollNumber");
+                    var student = await _context.Students
+                    .Include(s => s.Email)
+                    .FirstOrDefaultAsync(s => s.Email.RollNumber == rollNumber);
+
+                    if (student != null)
+                    {
+                        var notificationCount = await _context.Notifications
+                        .CountAsync(n => n.UserId == student.Student_pkId && !n.IsRead);
+
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge">
+                            @notificationCount
+                        </span>
+                    }
+                }
             </div>
 
             @if (!string.IsNullOrEmpty(email))
@@ -532,6 +657,28 @@
             }
         </div>
 
+        <!-- Announcement Banner -->
+        @* <div class="announcement-banner" id="announcementBanner">
+            <div class="announcement-content">
+                <div class="announcement-icon">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <div class="announcement-text">
+                    <div class="announcement-title">Project Submission Period</div>
+                    <div class="announcement-message">
+                        You can submit your project for evaluation during the Internship period from April to October.
+                        Please ensure all submissions are made before the deadline.
+                    </div>
+                    <div class="announcement-dates">
+                        Active from: April 1, 2023 to October 31, 2023
+                    </div>
+                </div>
+                <button class="announcement-close" id="announcementClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div> *@
+
         <main role="main">
             @RenderBody()
         </main>
@@ -541,6 +688,20 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
+            $(document).ready(function() {
+            // Load initial notification count
+            $.get('@Url.Action("GetUnreadCount", "Notifications")', function(count) {
+                $('.notification-badge').text(count);
+            });
+
+            // Update every 30 seconds
+            setInterval(function() {
+                $.get('@Url.Action("GetUnreadCount", "Notifications")', function(count) {
+                    $('.notification-badge').text(count);
+                });
+            }, 30000);
+        });
+
         $(document).ready(function() {
             // Mobile menu toggle
             $('#mobileMenuToggle').on('click', function(e) {
@@ -564,6 +725,20 @@
             $('.sidebar-dropdown').on('click', function(e) {
                 e.stopPropagation();
             });
+
+            // Announcement close functionality
+            $('#announcementClose').on('click', function() {
+                $('#announcementBanner').fadeOut(300, function() {
+                    $(this).remove();
+                });
+                // Store in localStorage that the user dismissed the announcement
+                localStorage.setItem('announcementDismissed', 'true');
+            });
+
+            // Check if announcement was previously dismissed
+            if (localStorage.getItem('announcementDismissed') === 'true') {
+                $('#announcementBanner').remove();
+            }
 
             // Existing functionality
             $('.dropdown-toggle').on('click', function() {
