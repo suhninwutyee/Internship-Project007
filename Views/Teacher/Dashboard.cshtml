@@ -1,0 +1,491 @@
+﻿@model ProjectManagementSystem.ViewModels.TeacherDashboardViewModel
+@using ProjectManagementSystem.Extensions                           
+
+@{
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+    ViewData["Title"] = "Teacher Dashboard";
+
+    // Time-based greeting
+    var currentHour = DateTime.Now.Hour;
+    var greeting = currentHour < 12 ? "Good Morning" :
+                  currentHour < 17 ? "Good Afternoon" : "Good Evening";
+
+}
+<!DOCTYPE html>
+
+<head>
+  
+    <title>Teacher Dashboard</title>
+ 
+    
+    <style>
+        :root {
+            --primary-color: #8C5DD1;
+            --secondary-color: #C8C6C1;
+            --light-bg: #E8EEFD;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light-bg);
+            color: #333;
+            
+        }
+
+        .dashboard-header {
+            margin-bottom: 30px;
+        }
+
+            .dashboard-header h1 {
+                font-weight: 700;
+                color: var(--primary-color);
+            }
+
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            border: none;
+            height: 100%;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            color: white;
+            background: var(--primary-color);
+        }
+
+        .stat-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .activity-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            height: 100%;
+        }
+
+        .card-header {
+            background: white;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .badge-custom {
+            background-color: rgba(140, 93, 209, 0.1);
+            color: var(--primary-color);
+        }
+
+        .stat-card {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+                background-color: rgba(140, 93, 209, 0.05);
+            }
+
+        .bg-light-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            border-left: 3px solid #dc3545;
+        }
+
+        .bg-light-info {
+            background-color: rgba(23, 162, 184, 0.1);
+            border-left: 3px solid #17a2b8;
+        }
+
+        .announcement-preview {
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header d-flex justify-content-between align-items-center">
+            <div>
+                <h1>Dashboard Overview</h1>
+                <p class="text-muted mb-0">@greeting! ></p>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row mb-4 g-4">
+            <div class="col-md-4">
+                <a asp-action="AllProjects" asp-controller="Teacher" class="text-decoration-none">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-folder"></i>
+                        </div>
+                        <h3 class="stat-title">Total Projects</h3>
+                        <div class="stat-value">@Model.TotalProjects</div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a asp-action="PendingProjects" asp-controller="Teacher" class="text-decoration-none">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-list-task"></i>
+                        </div>
+                        <h3 class="stat-title">Pending Tasks</h3>
+                        <div class="stat-value">@Model.PendingProjectsCount</div>
+                    </div>
+                </a>
+            </div>
+            <!-- In your Dashboard.cshtml -->
+            <div class="col-md-4">
+                <div class="stat-card @(Model.Announcements.Any(a => a.IsActive && a.BlockSubmissions) ? "border-danger" : "")">
+                    <div class="stat-icon">
+                        <i class="bi bi-megaphone @(Model.Announcements.Any(a => a.IsActive && a.BlockSubmissions) ? "text-danger" : "text-primary")"></i>
+                    </div>
+                    <h3 class="stat-title">Announcements</h3>
+
+                    <!-- Current Status Badge -->
+                    @if (Model.Announcements.Any(a => a.IsActive))
+                    {
+                        <div class="mb-2">
+                            <span class="badge @(Model.Announcements.Any(a => a.IsActive && a.BlockSubmissions) ? "bg-danger" : "bg-success")">
+                                @(Model.Announcements.Any(a => a.IsActive && a.BlockSubmissions) ? "Submissions Blocked" : "Submissions Open")
+                            </span>
+                        </div>
+                    }
+
+                    <div class="stat-value">@Model.Announcements.Count(a => a.IsActive)</div>
+                    <div class="stat-subtext">Active Announcements</div>
+
+                    <!-- Quick Actions for Teachers -->
+                    @if (User.IsInRole("Teacher") || User.IsInRole("Admin"))
+                    {
+                        <div class="mt-2">
+                            <a asp-action="Edit" asp-controller="Announcement" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i> Manage Announcement
+                            </a>
+                        </div>
+                    }
+
+                    <!-- Active Announcement Preview -->
+                    @if (Model.Announcements.FirstOrDefault(a => a.IsActive) is Announcement activeAnnouncement)
+                    {
+                        <div class="announcement-preview mt-3">
+                            <h6 class="fw-bold">@activeAnnouncement.Title</h6>
+                            <p class="small text-muted mb-1">@activeAnnouncement.Message.Truncate(50)</p>
+                            <p class="small">
+                                <i class="bi bi-calendar"></i>
+                                @activeAnnouncement.StartDate.ToString("MMM dd")
+                                @if (activeAnnouncement.EndDate.HasValue)
+                                {
+                                    <text>- @activeAnnouncement.EndDate.Value.ToString("MMM dd")</text>
+                                }
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="chart-container">
+                    <h5>Project Submissions (Last 7 Days)</h5>
+                    <div style="height: 300px;">
+                        <canvas id="submissionsChart"
+                                data-dates='@Json.Serialize(Model.SubmissionStats.Select(s => s.Date))'
+                                data-counts='@Json.Serialize(Model.SubmissionStats.Select(s => s.Count))'></canvas>
+                    </div>
+                </div>
+            </div>
+            <!-- Below your charts row -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5>Current Announcements</h5>
+                            <a asp-action="Edit" asp-controller="Announcement" class="btn btn-sm btn-primary">
+                                <i class="bi bi-plus"></i> Edit Announcement
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.Announcements.Any(a => a.IsActive))
+                            {
+                                foreach (var announcement in Model.Announcements.Where(a => a.IsActive).OrderByDescending(a => a.StartDate))
+                                {
+                                    <div class="mb-4 p-3 @(announcement.BlockSubmissions ? "bg-light-danger" : "bg-light-info") rounded">
+                                        <div class="d-flex justify-content-between">
+                                            <h5>@announcement.Title</h5>
+                                            @if (announcement.BlockSubmissions)
+                                            {
+                                                <span class="badge bg-danger">Submissions Blocked</span>
+                                            }
+                                        </div>
+                                        <p>@announcement.Message</p>
+                                        <small class="text-muted">
+                                            Active from @announcement.StartDate.ToString("MMM dd, yyyy")
+                                            @if (announcement.EndDate.HasValue)
+                                            {
+                                                <text>until @announcement.EndDate.Value.ToString("MMM dd, yyyy")</text>
+                                            }
+                                        </small>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="alert alert-info">
+                                    No active announcements currently.
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        <!-- Recent Submissions -->
+        <div class="row">
+            <div class="col-12">
+                <div class="activity-card">
+                    <div class="card-header">Recent Submissions</div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Project</th>
+                                        <th>Student</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.RecentSubmitters.Any())
+                                    {
+                                        @foreach (var submission in Model.RecentSubmitters)
+                                        {
+                                            <tr>
+                                                <td>@submission.ProjectName</td>
+                                                <td>@submission.StudentName</td>
+                                                <td>@submission.SubmissionDate.ToString("yyyy-MM-dd")</td>
+                                                <td><span class="badge badge-custom">Submitted</span></td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="4" class="text-center">No recent submissions</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+             // Dashboard JavaScript - teacher-dashboard.js
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. Set up time-based greeting and current date
+            setGreetingAndDate();
+
+            // 2. Initialize the submissions chart with clickable points
+            initSubmissionsChart();
+
+            // 3. Add hover effects to clickable cards
+            setupClickableCards();
+        });
+
+        function setGreetingAndDate() {
+            const now = new Date();
+            const hour = now.getHours();
+            let greeting;
+
+            // Set time-based greeting
+            if (hour < 12) {
+                greeting = "Good Morning";
+            } else if (hour < 17) {
+                greeting = "Good Afternoon";
+            } else {
+                greeting = "Good Evening";
+            }
+
+            // Format current date
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            };
+            const dateString = now.toLocaleDateString('en-US', options);
+
+            // Update the DOM
+            document.querySelector('.dashboard-header p').innerHTML =
+                `${greeting}! Today is <span id="currentDate">${dateString}</span>`;
+        }
+
+        function initSubmissionsChart() {
+            const ctx = document.getElementById('submissionsChart').getContext('2d');
+            const chartData = {
+                labels: JSON.parse(document.getElementById('submissionsChart').dataset.dates),
+                datasets: [{
+                    label: 'Submissions',
+                    data: JSON.parse(document.getElementById('submissionsChart').dataset.counts),
+                    borderColor: '#8C5DD1',
+                    backgroundColor: 'rgba(140, 93, 209, 0.1)',
+                    tension: 0.3,
+                    fill: true,
+                    pointBackgroundColor: '#8C5DD1',
+                    pointBorderColor: '#fff',
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            };
+
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.parsed.y} submission${context.parsed.y !== 1 ? 's' : ''}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            display: true,
+                            drawBorder: false,
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            stepSize: 1,
+                            precision: 0
+                        }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                },
+                onClick: handleChartClick
+            };
+
+            new Chart(ctx, {
+                type: 'line',
+                data: chartData,
+                options: chartOptions
+            });
+
+            function handleChartClick(event, elements) {
+                if (elements.length > 0) {
+                    const index = elements[0].index;
+                    const dateStr = chartData.labels[index];
+
+                    // Convert the displayed date (like "Jul 28") to a format the server can parse
+                    const dateObj = new Date(dateStr + ' ' + new Date().getFullYear());
+                    if (!isNaN(dateObj.getTime())) {
+                        const formattedDate = dateObj.toISOString().split('T')[0];
+                        window.location.href = `/ProjectApproval/ProjectsByDate?date=${formattedDate}`;
+                    }
+                }
+            }
+        }
+
+        function setupClickableCards() {
+            // Add hover effects and confirm they're clickable
+            const cards = document.querySelectorAll('.stat-card');
+
+            cards.forEach(card => {
+                // Add hover effects
+                card.style.cursor = 'pointer';
+                card.style.transition = 'all 0.2s ease';
+
+                card.addEventListener('mouseenter', () => {
+                    card.style.transform = 'translateY(-3px)';
+                    card.style.boxShadow = '0 6px 12px rgba(0,0,0,0.1)';
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = '';
+                    card.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)';
+                });
+
+                // Make the entire card clickable (not just the link)
+                card.addEventListener('click', (e) => {
+                    // Don't trigger if clicking on a link inside the card
+                    if (e.target.tagName !== 'A') {
+                        const link = card.querySelector('a');
+                        if (link) {
+                            window.location.href = link.href;
+                        }
+                    }
+                });
+            });
+
+            // Add click handler for the announcements "Create New" button
+            const createNewBtn = document.querySelector('.announcements-section .btn-primary');
+            if (createNewBtn) {
+                createNewBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.href = this.href;
+                });
+            }
+        }
+
+        // Utility function to format dates consistently
+        function formatDateForDisplay(dateString) {
+            const options = { month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('en-US', options);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+﻿@{
+    ViewData["Title"] = "Choose Your Role";
+    Layout = null;
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header text-white py-2 px-3" style="background-color: #8c5dd1;">
+                    <h3 class="text-center mb-0">Select Your Project Role</h3>
+                </div>
+                <div class="card-body p-4">
+                    @*  <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> Please choose whether you'll be leading a new project or joining as a team member.
+                    </div> *@
+
+                    <form asp-action="ChooseRole" method="post" class="mt-4">
+                        <div class="row">
+                            <!-- Leader Option -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100 role-card leader-card">
+                                    <div class="card-body text-center">
+                                        <div class="role-icon mb-3">
+                                            <i class="fas fa-crown fa-3x" style="color: #8c5dd1;"></i>
+                                        </div>
+                                        <h4 class="card-title">Project Leader</h4>
+                                        <p class="card-text text-muted small">
+                                            Create a new project and manage your team members. You'll be responsible for submitting the final project.
+                                        </p>
+                                        <button type="submit" name="role" value="Leader" class="btn mt-3" style="background-color: #8c5dd1; color: white;">
+                                            Select Leader
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Member Option -->
+                            <div class="col-md-6 mb-4">
+                                <div class="card h-100 role-card member-card">
+                                    <div class="card-body text-center">
+                                        <div class="role-icon mb-3">
+                                            <i class="fas fa-users fa-3x" style="color: #8c5dd1;"></i>
+                                        </div>
+                                        <h4 class="card-title">Team Member</h4>
+                                        <p class="card-text text-muted small">
+                                            Join an existing project. You'll need to be added by the project leader first.
+                                        </p>
+                                        <button type="submit" name="role" value="Member" class="btn mt-3" style="background-color: #8c5dd1; color: white;">
+                                            Select Member
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    @* <div class="text-center mt-3">
+                        <a asp-action="Logout" asp-controller="StudentLogin" class="text-muted small">
+                            <i class="fas fa-sign-out-alt"></i> Not you? Logout
+                        </a>
+                    </div> *@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        body {
+            background: linear-gradient(135deg, #e4eefd);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .role-card {
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+            .role-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 5px 15px rgba(140, 93, 209, 0.2);
+                border-color: #8c5dd1;
+            }
+
+        .role-icon {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-header {
+            padding: 1.25rem;
+            border-radius: 0.25rem 0.25rem 0 0 !important;
+        }
+
+        .btn {
+            transition: all 0.3s ease;
+        }
+
+            .btn:hover {
+                background-color: #7a4bc4 !important;
+                transform: translateY(-2px);
+            }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        // Add click effect to role cards
+        $(document).ready(function() {
+            $('.role-card').click(function() {
+                $(this).find('button').trigger('click');
+            });
+        });
+    </script>
+}
