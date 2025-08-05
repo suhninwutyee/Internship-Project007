@@ -1,0 +1,791 @@
+﻿@using System.Security.Claims
+@using Microsoft.EntityFrameworkCore
+@using ProjectManagementSystem.Data
+@inject ApplicationDbContext _context
+
+@{
+    var email = Context.Session.GetString("EmailAddress");
+    var studentName = Context.Session.GetString("StudentName");
+    var initials = !string.IsNullOrEmpty(studentName) ? studentName.Substring(0, 2).ToUpper() : "ST";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>@ViewData["Title"] - Internship Project System</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+  @*   <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" /> *@
+    <link rel="stylesheet" href="~/ProjectManagementSystem.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    @RenderSection("Styles", required: false)
+    <style>
+        :root {
+            --sidebar-bg: #8c5dd1;
+            --sidebar-text: #ffffff;
+            --main-bg: #f5f7fa;
+            --content-bg: #ffffff;
+            --primary-color: #8c5dd1;
+            --secondary-color: #2575fc;
+            --accent-color: #ff6b6b;
+            --text-dark: #2d3436;
+            --text-light: #636e72;
+            --success-color: #00b894;
+            --warning-color: #f39c12;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            background-color: var(--main-bg);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+        }
+
+        a, button {
+            touch-action: manipulation;
+        }
+
+        /* Announcement Banner */
+        .announcement-banner {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            color: #fff;
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            border-left: 5px solid var(--warning-color);
+        }
+
+            .announcement-banner.warning {
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                border-left-color: var(--accent-color);
+            }
+
+            .announcement-banner.success {
+                background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+                border-left-color: var(--success-color);
+            }
+
+        .announcement-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .announcement-icon {
+            font-size: 1.8rem;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .announcement-text {
+            flex-grow: 1;
+        }
+
+        .announcement-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+
+        .announcement-message {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+
+        .announcement-dates {
+            font-size: 0.8rem;
+            margin-top: 8px;
+            opacity: 0.8;
+            font-style: italic;
+        }
+
+        .announcement-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-left: 15px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            flex-shrink: 0;
+        }
+
+            .announcement-close:hover {
+                opacity: 1;
+            }
+
+        /* Rest of your existing styles... */
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1100;
+            background: var(--sidebar-bg);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: linear-gradient(135deg, var(--sidebar-bg), #8c5dd1);
+            color: var(--sidebar-text);
+            width: 280px;
+            min-height: 100vh;
+            padding: 20px 0;
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .sidebar-brand {
+            padding: 0 20px 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            min-height: 60px;
+        }
+
+            .sidebar-brand i {
+                margin-right: 10px;
+                font-size: 1.5rem;
+            }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+            .sidebar-nav li a {
+                color: var(--sidebar-text);
+                padding: 12px 25px;
+                display: flex;
+                align-items: center;
+                text-decoration: none;
+                transition: all 0.3s;
+                border-left: 4px solid transparent;
+                font-weight: 400;
+                opacity: 0.9;
+                min-height: 44px;
+            }
+
+                .sidebar-nav li a:hover,
+                .sidebar-nav li a.active {
+                    background-color: rgba(255, 255, 255, 0.15);
+                    border-left: 4px solid white;
+                    opacity: 1;
+                }
+
+                .sidebar-nav li a i {
+                    margin-right: 12px;
+                    width: 20px;
+                    text-align: center;
+                    font-size: 1.1rem;
+                }
+
+        .sidebar-dropdown {
+            padding-left: 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+            .sidebar-dropdown.show {
+                max-height: 500px;
+            }
+
+            .sidebar-dropdown a {
+                padding: 10px 25px 10px 50px;
+                font-size: 0.9rem;
+                border-left: 0;
+            }
+
+                .sidebar-dropdown a:hover {
+                    background-color: rgba(255, 255, 255, 0.1);
+                }
+
+        .dropdown-toggle {
+            position: relative;
+        }
+
+            .dropdown-toggle::after {
+                content: '\f078';
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+                position: absolute;
+                right: 20px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 0.8rem;
+                transition: transform 0.3s;
+            }
+
+            .dropdown-toggle[aria-expanded="true"]::after {
+                transform: translateY(-50%) rotate(180deg);
+            }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 25px;
+            transition: margin-left 0.3s;
+        }
+
+        .content-card {
+            background-color: var(--content-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            padding: 25px;
+            margin-bottom: 25px;
+            border: none;
+        }
+
+        .card-header {
+            background-color: transparent;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .btn-primary {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 30px;
+            padding: 8px 20px;
+            font-weight: 500;
+            box-shadow: 0 4px 10px rgba(106, 17, 203, 0.3);
+        }
+
+            .btn-primary:hover {
+                background: linear-gradient(to right, #8c5dd1);
+                transform: translateY(-2px);
+                box-shadow: 0 6px 15px rgba(106, 17, 203, 0.4);
+            }
+
+        .btn-outline-danger {
+            border-radius: 30px;
+            padding: 8px 20px;
+            font-weight: 500;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+            padding: 15px 0;
+            background-color: var(--content-bg);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .notification-icon {
+            position: relative;
+            margin-right: 20px;
+            font-size: 1.2rem;
+            color: var(--text-light);
+            cursor: pointer;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: var(--text-dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+
+        .user-email {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            cursor: pointer;
+            margin-left: 15px;
+            font-size: 0.9rem;
+        }
+
+            .logout-btn:hover {
+                text-decoration: underline;
+            }
+
+        /* Responsive Breakpoints */
+        /* Tablet */
+        @@media (min-width: 768px) and (max-width: 991.98px) {
+            .sidebar {
+                width: 80px;
+                overflow: hidden;
+            }
+
+            .sidebar-brand span,
+            .sidebar-nav li a span {
+                display: none;
+            }
+
+            .sidebar-nav li a {
+                justify-content: center;
+                padding: 15px 0;
+            }
+
+                .sidebar-nav li a i {
+                    margin-right: 0;
+                    font-size: 1.3rem;
+                }
+
+            .dropdown-toggle::after {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 80px;
+            }
+
+            .sidebar:hover {
+                width: 280px;
+            }
+
+                .sidebar:hover .sidebar-brand span,
+                .sidebar:hover .sidebar-nav li a span {
+                    display: inline;
+                }
+
+                .sidebar:hover .sidebar-nav li a {
+                    justify-content: flex-start;
+                    padding: 12px 25px;
+                }
+
+                    .sidebar:hover .sidebar-nav li a i {
+                        margin-right: 12px;
+                    }
+
+                .sidebar:hover .dropdown-toggle::after {
+                    display: block;
+                }
+        }
+
+        .notification-badge {
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        /* Mobile */
+        @@media (max-width: 767.98px) {
+            .sidebar {
+                width: 280px;
+                height: 100vh;
+                position: fixed;
+                left: -280px;
+                top: 0;
+                transition: left 0.3s ease;
+                z-index: 1050;
+            }
+
+                .sidebar.active {
+                    left: 0;
+                }
+
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .top-bar {
+                padding-top: 70px;
+                margin-bottom: 15px;
+                flex-direction: column;
+                align-items: flex-end;
+            }
+
+            .content-card {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .card-title {
+                margin-bottom: 10px;
+            }
+
+            .user-info {
+                margin-top: 10px;
+                text-align: right;
+            }
+
+            .announcement-banner {
+                padding: 12px 15px;
+            }
+
+            .announcement-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .announcement-icon {
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            .announcement-close {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+            }
+        }
+
+        /* Small Mobile */
+        @@media (max-width: 575.98px) {
+            .main-content {
+                padding: 10px;
+            }
+
+            .top-bar {
+                padding: 10px;
+            }
+
+            .user-profile {
+                flex-direction: column;
+                align-items: flex-end;
+            }
+
+            .user-avatar {
+                margin-right: 0;
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-project-diagram"></i> <span>Final Year Student Portal</span>
+        </div>
+        <ul class="sidebar-nav">
+            <li>
+                <a asp-area="" asp-controller="Student" asp-action="Dashboard">
+                    <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+                </a>
+            </li>
+
+            <!-- Project Submission Menu -->
+           @*  <li>
+                <a asp-area="" asp-controller="Project" asp-action="Upload">
+                    <i class="fas fa-cloud-upload-alt"></i> <span>Project Submission</span>
+                </a>
+            </li> *@
+
+            <!-- Manage Dropdown Menu -->
+            <li>
+                <a class="dropdown-toggle" data-bs-toggle="collapse" href="#manageDropdown" role="button" aria-expanded="false">
+                    <i class="fas fa-cog"></i> <span>Manage</span>
+                </a>
+                <div class="sidebar-dropdown collapse" id="manageDropdown">
+                    <a asp-area="" asp-controller="Project" asp-action="Index">
+                        <i class="fas fa-project-diagram"></i> <span>Projects</span>
+                    </a>
+                    <a asp-area="" asp-controller="Language" asp-action="Index">
+                        <i class="fas fa-code"></i> <span>Languages</span>
+                    </a>
+
+                    <a asp-area="" asp-controller="Framework" asp-action="Index">
+                        <i class="fas fa-cubes"></i> <span>Frameworks</span>
+                    </a>
+                    <a asp-area="" asp-controller="ProjectType" asp-action="Index">
+                        <i class="fas fa-cubes"></i> <span>ProjectTypes</span>
+                    </a>
+                  
+                </div>
+            </li>
+
+            <!-- Notifications Menu -->
+            <li>
+                <a asp-area="" asp-controller="Notifications" asp-action="Index">
+                    <i class="fas fa-bell"></i> <span>Notifications</span>
+                    <span class="notification-badge">0</span>
+                </a>
+            </li>
+
+            <li>
+                <a asp-area="" asp-controller="Student" asp-action="Help">
+                    <i class="fas fa-life-ring"></i> <span>Support / Help</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="notification-icon position-relative">
+                <i class="fas fa-bell fa-lg text-secondary"></i>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    var rollNumber = Context.Session.GetString("RollNumber");
+                    var student = await _context.Students
+                    .Include(s => s.Email)
+                    .FirstOrDefaultAsync(s => s.Email.RollNumber == rollNumber);
+
+                    if (student != null)
+                    {
+                        var notificationCount = await _context.Notifications
+                        .CountAsync(n => n.UserId == student.Student_pkId && !n.IsRead);
+
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge">
+                            @notificationCount
+                        </span>
+                    }
+                }
+            </div>
+
+            @if (!string.IsNullOrEmpty(email))
+            {
+                <div class="user-profile">
+                    <div class="user-avatar" title="@studentName">@initials</div>
+                    <div class="user-info">
+                        <div class="user-name">@studentName</div>
+                        <div class="user-email">@email</div>
+                    </div>
+                    <form asp-action="Logout" asp-controller="StudentLogin" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-danger btn-sm logout-btn">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </form>
+                </div>
+            }
+        </div>
+
+        <!-- Announcement Banner -->
+        @* <div class="announcement-banner" id="announcementBanner">
+            <div class="announcement-content">
+                <div class="announcement-icon">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <div class="announcement-text">
+                    <div class="announcement-title">Project Submission Period</div>
+                    <div class="announcement-message">
+                        You can submit your project for evaluation during the Internship period from April to October.
+                        Please ensure all submissions are made before the deadline.
+                    </div>
+                    <div class="announcement-dates">
+                        Active from: April 1, 2023 to October 31, 2023
+                    </div>
+                </div>
+                <button class="announcement-close" id="announcementClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div> *@
+
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+            $(document).ready(function() {
+            // Load initial notification count
+            $.get('@Url.Action("GetUnreadCount", "Notifications")', function(count) {
+                $('.notification-badge').text(count);
+            });
+
+            // Update every 30 seconds
+            setInterval(function() {
+                $.get('@Url.Action("GetUnreadCount", "Notifications")', function(count) {
+                    $('.notification-badge').text(count);
+                });
+            }, 30000);
+        });
+
+        $(document).ready(function() {
+            // Mobile menu toggle
+            $('#mobileMenuToggle').on('click', function(e) {
+                e.stopPropagation();
+                $('#sidebar').toggleClass('active');
+                $(this).toggleClass('active');
+            });
+
+            // Close sidebar when clicking outside on mobile
+            $(document).on('click', function(e) {
+                if ($(window).width() <= 767) {
+                    if (!$(e.target).closest('#sidebar').length &&
+                        !$(e.target).is('#mobileMenuToggle')) {
+                        $('#sidebar').removeClass('active');
+                        $('#mobileMenuToggle').removeClass('active');
+                    }
+                }
+            });
+
+            // Prevent dropdown from closing when clicking inside
+            $('.sidebar-dropdown').on('click', function(e) {
+                e.stopPropagation();
+            });
+
+            // Announcement close functionality
+            $('#announcementClose').on('click', function() {
+                $('#announcementBanner').fadeOut(300, function() {
+                    $(this).remove();
+                });
+                // Store in localStorage that the user dismissed the announcement
+                localStorage.setItem('announcementDismissed', 'true');
+            });
+
+            // Check if announcement was previously dismissed
+            if (localStorage.getItem('announcementDismissed') === 'true') {
+                $('#announcementBanner').remove();
+            }
+
+            // Existing functionality
+            $('.dropdown-toggle').on('click', function() {
+                $(this).toggleClass('active');
+            });
+
+            $('.sidebar-nav li a').on('click', function() {
+                $('.sidebar-nav li a').removeClass('active');
+                $(this).addClass('active');
+
+                // Close sidebar after selection on mobile
+                if ($(window).width() <= 767) {
+                    $('#sidebar').removeClass('active');
+                    $('#mobileMenuToggle').removeClass('active');
+                }
+            });
+
+            // Handle window resize
+            $(window).on('resize', function() {
+                if ($(window).width() > 767) {
+                    $('#sidebar').removeClass('active');
+                    $('#mobileMenuToggle').removeClass('active');
+                }
+            });
+
+            // Initialize active state based on current page
+            function setActiveMenu() {
+                var currentPath = window.location.pathname.toLowerCase();
+                $('.sidebar-nav li a').each(function() {
+                    var linkPath = $(this).attr('href').toLowerCase();
+                    if (currentPath === linkPath ||
+                        (linkPath !== '/' && currentPath.startsWith(linkPath))) {
+                        $(this).addClass('active');
+                        // Expand parent dropdown if exists
+                        var dropdown = $(this).closest('.sidebar-dropdown');
+                        if (dropdown.length) {
+                            dropdown.addClass('show');
+                            dropdown.prev('.dropdown-toggle').attr('aria-expanded', 'true');
+                        }
+                        return false;
+                    }
+                });
+            }
+
+            setActiveMenu();
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

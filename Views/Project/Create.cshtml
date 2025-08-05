@@ -1,5 +1,4 @@
 ﻿@model ProjectManagementSystem.Models.Project
-
 @{
     ViewData["Title"] = "Create Project";
     Layout = "~/Views/Student/_Layout.cshtml";
@@ -13,45 +12,65 @@
     <div class="card-body small py-3 px-4">
         <form asp-action="Create" method="post" enctype="multipart/form-data">
             @Html.AntiForgeryToken()
+            <!-- Add these hidden fields -->
+            <input type="hidden" asp-for="SubmittedByStudent_pkId" value="@Context.Session.GetInt32("Student_pkId")" />
+            <input type="hidden" asp-for="CreatedDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+            <!-- Leader Information Section -->
+            <div class="alert alert-primary mb-4">
+                <h6 class="alert-heading"><i class="fas fa-crown"></i> You are creating this project as Leader</h6>
+                <hr>
+                <p class="mb-1"><strong>Leader Name:</strong> @Context.Session.GetString("StudentName")</p>
+                <p class="mb-1"><strong>Roll Number:</strong> @Context.Session.GetString("RollNumber")</p>
+                <p class="mb-0"><strong>Email:</strong> @Context.Session.GetString("EmailAddress")</p>
+            </div>
 
+            <!-- Project Basic Information -->
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label asp-for="ProjectName" class="form-label"></label>
-                    <input asp-for="ProjectName" class="form-control" />
+                    <label asp-for="ProjectName" class="form-label required"></label>
+                    <input asp-for="ProjectName" class="form-control" required />
                     <span asp-validation-for="ProjectName" class="text-danger"></span>
                 </div>
                 <div class="col-md-6">
-                    <label asp-for="SupervisorName" class="form-label"></label>
-                    <input asp-for="SupervisorName" class="form-control" />
+                    <label asp-for="SupervisorName" class="form-label required"></label>
+                    <input asp-for="SupervisorName" class="form-control" required />
                     <span asp-validation-for="SupervisorName" class="text-danger"></span>
                 </div>
             </div>
 
             <div class="mb-3">
-                <label asp-for="Description" class="form-label"></label>
-                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                <label asp-for="Description" class="form-label required"></label>
+                <textarea asp-for="Description" class="form-control" rows="3" required></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
 
+            <!-- Technical Stack Section -->
             <div class="row mb-3 align-items-end">
                 <div class="col-md-6">
-                    <label asp-for="ProjectType_pkId" class="form-label">Project Type</label>
+                    <label asp-for="ProjectType_pkId" class="form-label required">Project Type</label>
                     <div class="input-group">
-                        <select asp-for="ProjectType_pkId" class="form-select" asp-items="ViewBag.ProjectTypes">
+                        <select asp-for="ProjectType_pkId" id="ProjectTypeDropdown" class="form-select">
                             <option value="">-- Select Type --</option>
+                            @foreach (var item in (SelectList)ViewBag.ProjectTypes)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
                         </select>
                         <a href="@Url.Action("Index", "ProjectType")" target="_blank" class="btn btn-outline-success">+</a>
                     </div>
+                    <span asp-validation-for="ProjectType_pkId" class="text-danger"></span>
                 </div>
 
                 <div class="col-md-6">
-                    <label asp-for="Language_pkId" class="form-label">Language</label>
+                    <label asp-for="Language_pkId" class="form-label required">Language</label>
                     <div class="input-group">
-                        <select asp-for="Language_pkId" id="LanguageDropdown" class="form-select" asp-items="ViewBag.Languages">
+                        <select asp-for="Language_pkId" id="LanguageDropdown" class="form-select">
                             <option value="">-- Select Language --</option>
+                            @* Languages loaded dynamically via JS *@
                         </select>
                         <a href="@Url.Action("Index", "Language")" target="_blank" class="btn btn-outline-success">+</a>
                     </div>
+                    <span asp-validation-for="Language_pkId" class="text-danger"></span>
                 </div>
             </div>
 
@@ -71,11 +90,13 @@
                     <div class="input-group">
                         <select asp-for="Company_pkId" id="CompanyDropdown" class="form-select" asp-items="ViewBag.Companies">
                             <option value="">-- Select Company --</option>
+                            <option value="0">+ Create New Company</option>
                         </select>
                     </div>
                 </div>
             </div>
 
+            <!-- Dynamic Company Information Section -->
             <div id="companyInfo" style="display:none; margin-bottom:20px;">
                 <div class="card mt-3">
                     <div class="card-body bg-light small">
@@ -106,45 +127,96 @@
                         <div class="mb-2">
                             <label for="CompanyPhoto" class="form-label">Upload Company Photo</label>
                             <input type="file" id="CompanyPhoto" name="CompanyPhoto" class="form-control" accept="image/*" />
+                            <small class="form-text text-muted">Max size: 2MB (JPEG, PNG)</small>
                         </div>
                     </div>
                 </div>
             </div>
+
             <div class="mb-3">
                 <label class="form-label">Upload Project Files</label>
-                <input type="file" name="projectFiles" multiple class="form-control" />
+                <input type="file" id="projectFiles" name="projectFiles" multiple class="form-control" />
                 <small class="form-text text-muted">You can upload multiple files.</small>
             </div>
+
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label asp-for="ProjectSubmittedDate" class="form-label"></label>
-                    <input asp-for="ProjectSubmittedDate" class="form-control" type="date" />
+                    <label asp-for="ProjectSubmittedDate" class="form-label">Target Submission Date</label>
+                    <input asp-for="ProjectSubmittedDate" class="form-control" type="date" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                    <small class="form-text text-muted">Estimated completion date</small>
                 </div>
-                @* <div class="col-md-6">
-                    <label asp-for="Remark" class="form-label"></label>
-                    <textarea asp-for="Remark" class="form-control" rows="2"></textarea>
-                </div> *@
             </div>
 
-            <div class="mb-3">
-                <label asp-for="CreatedBy" class="form-label"></label>
-                <input asp-for="CreatedBy" class="form-control" />
-            </div>
+            <!-- Hidden Fields -->
+            <input type="hidden" asp-for="CreatedBy" value="@Context.Session.GetString("StudentName")" />
+            <input type="hidden" asp-for="Status" value="Draft" />
 
-            <div class="d-flex justify-content-between">
-                <button type="submit" class="btn btn-success">Create</button>
-                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            <!-- Form Actions -->
+            <div class="d-flex justify-content-between mt-4">
+                <button type="submit" class="btn btn-success px-4">
+                    <i class="fas fa-save"></i> Create Project
+                </button>
+                <a asp-action="Dashboard" asp-controller="Student" class="btn btn-secondary px-4">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
             </div>
         </form>
     </div>
 </div>
 
+@section Styles {
+    <style>
+        body {
+            background: linear-gradient(135deg, #e4eefd);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .required:after {
+            content: " *";
+            color: red;
+        }
+
+        .card-header {
+            border-radius: 0.25rem 0.25rem 0 0 !important;
+        }
+
+        .form-control, .form-select {
+            font-size: 0.875rem;
+        }
+    </style>
+}
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         $(function () {
+            // On Project Type change: load Languages
+            $('#ProjectTypeDropdown').change(function () {
+                var projectTypeId = $(this).val();
+                var $languageDropdown = $('#LanguageDropdown');
+
+                $languageDropdown.empty().append($('<option>').val('').text('-- Loading Languages --'));
+
+                if (projectTypeId) {
+                    $.getJSON('@Url.Action("GetLanguagesByProjectType", "Project")', { projectTypeId: projectTypeId })
+                        .done(function (data) {
+                            $languageDropdown.empty().append($('<option>').val('').text('-- Select Language --'));
+                            $.each(data, function (i, lang) {
+                                $languageDropdown.append($('<option>').val(lang.language_pkId).text(lang.languageName));
+                            });
+                        })
+                        .fail(function () {
+                            $languageDropdown.empty().append($('<option>').val('').text('-- Error loading languages --'));
+                        });
+                } else {
+                    $languageDropdown.empty().append($('<option>').val('').text('-- Select Language --'));
+                }
+            });
+
+            // On Language change: load Frameworks
             $('#LanguageDropdown').change(function () {
                 var languageId = $(this).val();
                 var $frameworkDropdown = $('#FrameworkDropdown');
@@ -165,9 +237,16 @@
                 }
             });
 
+            // On Company change: load company info and show/hide company info card
             $('#CompanyDropdown').change(function () {
                 var companyId = $(this).val();
-                if (companyId) {
+                if (companyId == "0") {
+                    // New company selected - show empty form
+                    $('#companyInfo').show();
+                    $('#CompanyAddress, #CompanyContact, #CompanyDescription').val('');
+                    $('#CompanyCity_pkId').val('');
+                } else if (companyId) {
+                    // Existing company selected - load info
                     $.getJSON('@Url.Action("GetCompanyInfo", "Project")', { companyId: companyId })
                         .done(function (data) {
                             $('#companyInfo').show();
@@ -177,11 +256,29 @@
                             $('#CompanyCity_pkId').val(data.city_pkId || '');
                         });
                 } else {
+                    // No company selected
                     $('#companyInfo').hide();
-                    $('#CompanyAddress, #CompanyContact, #CompanyDescription').val('');
-                    $('#CompanyCity_pkId').val('');
                 }
             });
+
+            // Form submission handling
+            $('form').submit(function(e) {
+                if ($(this).valid()) {
+                    Swal.fire({
+                        title: 'Creating Project',
+                        html: 'Please wait while we create your project...',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading()
+                        }
+                    });
+                }
+            });
+
+            // Initially hide company info if no company selected
+            if (!$('#CompanyDropdown').val()) {
+                $('#companyInfo').hide();
+            }
         });
     </script>
 }

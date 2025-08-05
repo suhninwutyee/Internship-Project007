@@ -8,11 +8,7 @@
 
 <h3>Are you sure you want to delete this member?</h3>
 
-<div>
-    <h4>Role: @Model.Role</h4>
-    <p>Student: @Model.Student?.StudentName</p>
-    <p>Project: @Model.Project?.ProjectName</p>
-</div>
+
 
 <form asp-action="DeleteConfirmed" method="post">
     <input type="hidden" asp-for="ProjectMember_pkId" />

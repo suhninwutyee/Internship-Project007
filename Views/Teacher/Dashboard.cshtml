@@ -177,7 +177,7 @@
             </div>
             <!-- In your Dashboard.cshtml -->
             <div class="col-md-4">
-                <div class="stat-card @(Model.Announcements.Any(a => a.IsActive && a.BlockSubmissions) ? "border-danger" : "")">
+                @* <div class="stat-card @(Model.Announcements.Any(a => a.IsActive && a.BlockSubmissions) ? "border-danger" : "")">
                     <div class="stat-icon">
                         <i class="bi bi-megaphone @(Model.Announcements.Any(a => a.IsActive && a.BlockSubmissions) ? "text-danger" : "text-primary")"></i>
                     </div>
@@ -222,7 +222,7 @@
                             </p>
                         </div>
                     }
-                </div>
+                </div> *@
             </div>
         </div>
 
@@ -248,7 +248,7 @@
                                 <i class="bi bi-plus"></i> Edit Announcement
                             </a>
                         </div>
-                        <div class="card-body">
+                        @* <div class="card-body">
                             @if (Model.Announcements.Any(a => a.IsActive))
                             {
                                 foreach (var announcement in Model.Announcements.Where(a => a.IsActive).OrderByDescending(a => a.StartDate))
@@ -278,7 +278,7 @@
                                     No active announcements currently.
                                 </div>
                             }
-                        </div>
+                        </div> *@
                     </div>
                 </div>
             </div>

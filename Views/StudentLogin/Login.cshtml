@@ -2,9 +2,12 @@
 
 @{
     ViewData["Title"] = "Student Login";
-    Layout = null ;
+   // Layout = "_Layout" ;
+    Layout = null;
 }
-
+<div>
+    <partial name="_ProgressBarPartial" />
+</div>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,9 +22,9 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-       
+
         .login-container {
-            justify-content: center; 
+            justify-content: center;
             background-color: #ffffff;
             border-radius: 15px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -31,7 +34,7 @@
             text-align: center;
         }
 
-       
+
         .header-section {
             background: linear-gradient(to right, #8c5dd1); /* Gradient for the header */
             border-radius: 10px;
@@ -102,7 +105,7 @@
         }
 
         .btn-send-otp {
-            background: linear-gradient(to right, #6a11cb, #2575fc); /* Gradient button */
+            background: linear-gradient(to right, #8c5dd1); /* Gradient button */
             color: white;
             border: none;
             border-radius: 8px;
@@ -135,56 +138,68 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
     <div class="d-flex justify-content-center align-item-center">
     <div class="login-container">
         <div class="header-section">
-            <h2>Welcome to Student Portal</h2>
+           <h2>Welcome to Internship Project Information Portal</h2>
+                <h5 class="benefits-title"><i class="fas fa-user-graduate"></i> Final Year Student</h5>
             <div class="feature-cards">
                 <div class="feature-card">
                     <i class="fas fa-book"></i>
-                    <span>Access all your courses and learning materials</span>
+                        <span>Access course materials and learn from previous internship projects</span>
                 </div>
                 <div class="feature-card">
                     <i class="fas fa-upload"></i>
-                    <span>Submit internship projects and track your progress</span>
+                        <span>Submit and manage your internship projects in one centralized platform</span>
                 </div>
                 <div class="feature-card">
                     <i class="fas fa-chart-line"></i>
-                    <span>View detailed performance analytics</span>
+                        <span>Track your progress with detailed analytics and feedback</span>
                 </div>
+                    <div class="feature-card">
+                        <i class="fas fa-network-wired"></i>
+                        <span>Connect with industry opportunities through your projects</span>
+                    </div>
             </div>
         </div>
 
-        <div class="login-form-section">
-            <h3>Student Login</h3>
-            <p>Enter your credentials to access your account</p>
+            <div class="login-form-section">
+                <h3>Student Login</h3>
+                <p>Enter your credentials to access your account</p>
 
-            <form asp-action="Login" method="post">
-                <div class="mb-3">
-                    <label asp-for="RollNumber" class="form-label">Roll Number</label>
-                    <input asp-for="RollNumber" class="form-control" placeholder="Enter your roll number" required>
-                    <span asp-validation-for="RollNumber" class="text-danger"></span>
-                </div>
-                <div class="mb-3">
-                    <label asp-for="EmailAddress" class="form-label">Email Address</label>
-                    <input asp-for="EmailAddress" class="form-control" placeholder="Enter your email address" >
-                    <span asp-validation-for="EmailAddress" class="text-danger"></span>
-                </div>
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" id="rememberMe" name="RememberMe" value="true">
-                    <label class="form-check-label" for="rememberMe">
-                        Remember me
-                    </label>
-                </div>
-                <button type="submit" class="btn btn-send-otp">Send OTP</button>
-            </form>
+                <form asp-action="Login" method="post">
+                    <div class="mb-3">
+                        <label asp-for="RollNumber" class="form-label">Roll Number</label>
+                        <input asp-for="RollNumber" class="form-control" placeholder="Enter your roll number" required>
+                        <span asp-validation-for="RollNumber" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="EmailAddress" class="form-label">Email Address</label>
+                        <input asp-for="EmailAddress" class="form-control" placeholder="Enter your email address">
+                        <span asp-validation-for="EmailAddress" class="text-danger"></span>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="rememberMe" name="RememberMe" value="true">
+                        <label class="form-check-label" for="rememberMe">
+                            Remember me
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-send-otp">Send OTP</button>
+                </form>
 
-            @if (ViewBag.Error != null)
-            {
-                <div class="alert alert-danger mt-3" role="alert">@ViewBag.Error</div>
-            }
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger mt-3" role="alert">@ViewBag.Error</div>
+                }
+            </div>
         </div>
-    </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

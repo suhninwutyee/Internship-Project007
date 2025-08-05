@@ -1,0 +1,86 @@
+﻿@model List<ProjectManagementSystem.Models.ProjectSubmitViewModel>
+<div>
+    <partial name="_ProgressBarPartial" />
+</div>
+<div id="project-submissions-container">
+    <h2 id="project-submissions-header" style="color: #8c5dd1;">Project Submissions</h2>
+
+    <div id="project-actions" class="mb-3">
+        <a id="create-project-btn" href="@Url.Action("Create", "ProjectSubmit")" class="btn" style="background-color: #8c5dd1; color: white;">
+            <i class="fas fa-plus"></i> Create New Project
+        </a>
+    </div>
+
+    <table id="projects-table" class="table table-bordered table-hover">
+        <thead style="background-color: #8c5dd1; color: white;">
+            <tr>
+                <th id="no-header">#No</th>
+                <th id="title-header">Project Title</th>
+                <th id="desc-header">Description</th>
+                <th id="members-header">Members</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int rowNumber = 1;
+            }
+            @foreach (var project in Model)
+            {
+                <tr class="project-row" data-project-id="@project.Project_pkId">
+                    <td class="row-number">@rowNumber</td>
+                    <td class="project-title">@project.ProjectName</td>
+                    <td class="project-description">
+                        @if (string.IsNullOrEmpty(project.Description))
+                        {
+                            <span class="text-muted">No</span>
+                        }
+                        else
+                        {
+                            @project.Description
+                        }
+                    </td>
+                    <td class="project-members">
+                        @if (project.Members.Any())
+                        {
+                            <ul class="list-unstyled member-list">
+                                @foreach (var member in project.Members)
+                                {
+                                    <li class="member-item" data-member-id="@member.Student_pkId">@member.StudentName (@member.Email)</li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No members assigned</span>
+                        }
+                    </td>
+                </tr>
+                rowNumber++;
+            }
+        </tbody>
+    </table>
+</div>
+
+<style>
+    #projects-table {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+        #projects-table th {
+            font-weight: 600;
+        }
+
+        #projects-table .project-row:hover {
+            background-color: rgba(140, 93, 209, 0.1);
+        }
+
+    #create-project-btn:hover {
+        background-color: #7a4fb8 !important;
+    }
+
+    .row-number {
+        font-weight: bold;
+        color: #8c5dd1;
+    }
+</style>

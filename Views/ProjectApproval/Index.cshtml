@@ -1,515 +1,361 @@
-﻿@model IEnumerable<ProjectManagementSystem.Models.Project>
+﻿@using ProjectManagementSystem.Controllers
+@model ProjectApprovalViewModel
 @{
     ViewData["Title"] = ViewBag.PageTitle;
     Layout = "~/Views/Shared/_TeacherLayout.cshtml";
 }
 
 <head>
-    <!-- SweetAlert2 -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-</head>
-
-<style>
-
-    
-
-    
-
-    .search-container {
-        background: #E4EEFD;
-        padding: 1rem;
-        border-radius: 8px;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-    /* Approval-page filter buttons */
-    .filter-buttons {
-        margin: 16px 0;
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .filter-btn {
-        background: #fff;
-        border: 1px solid var(--accent);
-        border-radius: 4px;
-        padding: 6px 12px;
-        font-size: 14px;
-        color: var(--accent);
-        cursor: pointer;
-        transition: background 0.2s, color 0.2s;
-    }
-
-        .filter-btn:hover {
-            background: var(--accent);
-            color: #fff;
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
         }
 
-        .filter-btn.active {
-            background: var(--accent);
-            color: #fff;
+        .page-header {
+            margin-bottom: 25px;
         }
 
-    /* Section wrapper */
-    .approval-section {
-        margin-top: 20px;
-    }
+        .main-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
 
-        .approval-section h2 {
-            margin-bottom: 12px;
-            font-size: 20px;
+        .sub-title {
+            font-size: 14px;
+            color: #6c757d;
+            margin: 0;
+        }
+
+        .search-filter-container {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            background: #e9ecef;
+            color: #495057;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+            .filter-btn.active {
+                background: #8C5DD1;
+                color: white;
+            }
+
+        .search-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex-grow: 1;
+            min-width: 250px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding-right: 40px;
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 100%;
+            width: 40px;
+            background: transparent;
+            border: none;
+            color: #6c757d;
+        }
+
+        .date-range-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .date-range-container input {
+                padding: 8px 12px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                max-width: 150px;
+            }
+
+        .action-buttons-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .export-btn {
+            padding: 8px 15px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            color: #333;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+            .export-btn:hover {
+                background: #f8f9fa;
+            }
+
+        .approval-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .approval-table th {
+                background: #f8f9fa;
+                padding: 12px 15px;
+                text-align: left;
+                font-weight: 600;
+                color: #495057;
+                border-bottom: 2px solid #dee2e6;
+            }
+
+            .approval-table td {
+                padding: 12px 15px;
+                border-bottom: 1px solid #dee2e6;
+                vertical-align: middle;
+            }
+
+            .approval-table tr:hover {
+                background-color: #f8f9fa;
+            }
+
+        .project-name {
+            font-weight: 500;
             color: #333;
         }
 
-    /* Responsive container */
-    .table-container {
-        overflow-x: auto;
-    }
-
-    /* Table base styles */
-    .approval-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-        .approval-table th,
-        .approval-table td {
-            padding: 12px;
-            text-align: left;
-            vertical-align: middle;
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: capitalize;
         }
 
-        .approval-table thead th {
-            background: var(--accent);
-            color: #fff;
-            font-weight: 600;
-            position: sticky;
-            top: 0;
-            z-index: 1;
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
         }
 
-        .approval-table tbody tr:nth-child(even) td {
-            background: #f9f9f9;
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
         }
 
-        .approval-table tbody tr:hover td {
-            background: #f1f1f1;
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
         }
 
-        /* Status styling */
-        .approval-table td.status {
-            font-weight: 600;
+        .action-buttons {
+            display: flex;
+            gap: 8px;
         }
 
-    .status-approved {
-        color: #28a745;
-    }
-
-    .status-rejected {
-        color: #dc3545;
-    }
-
-    /* Action buttons */
-    .action-buttons {
-        display: flex;
-        gap: 8px;
-    }
-
-    .btn-icon {
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 5px;
-        border-radius: 4px;
-        transition: background 0.2s;
-        position: relative;
-    }
-
-        .btn-icon:hover {
-            background: rgba(0, 0, 0, 0.1);
+        .btn-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            position: relative;
         }
 
-        .btn-icon.approve {
-            color: #28a745;
+        .approve {
+            background: #d4edda;
+            color: #155724;
         }
 
-        .btn-icon.reject {
-            color: #dc3545;
+        .reject {
+            background: #f8d7da;
+            color: #721c24;
         }
 
-        .btn-icon.view {
-            color: #007bff;
+        .view {
+            background: #d1ecf1;
+            color: #0c5460;
         }
 
-        .btn-icon[disabled] {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .btn-icon .tooltip {
-            visibility: hidden;
-            width: 80px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px;
+        .tooltip {
             position: absolute;
-            z-index: 1;
-            bottom: 125%;
+            top: -30px;
             left: 50%;
             transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
             opacity: 0;
             transition: opacity 0.3s;
+            white-space: nowrap;
         }
 
         .btn-icon:hover .tooltip {
-            visibility: visible;
             opacity: 1;
         }
 
-    /* Project name wrapping */
-    .project-name {
-        max-width: 200px;
-        word-wrap: break-word;
-    }
-
-    /* SweetAlert customization */
-    .swal2-popup {
-        border-radius: 8px !important;
-    }
-
-    .swal2-title {
-        font-size: 1.2rem !important;
-    }
-
-    .swal2-content {
-        font-size: 1rem !important;
-    }
-
-    .swal2-textarea {
-        min-height: 100px;
-        margin-top: 10px;
-        border-radius: 4px;
-        padding: 10px;
-    }
-
-    .custom-swal-popup {
-        border-radius: 12px !important;
-        border: 1px solid #C8C6C1;
-        width: 500px; /* Medium size */
-        max-width: 80%;
-    }
-
-    .custom-swal-title {
-        color: #8C5DD1;
-        font-size: 1.4rem !important;
-        font-weight: 600;
-    }
-
-    .custom-swal-content {
-        color: #333;
-        font-size: 1rem !important;
-    }
-
-    .custom-swal-confirm-btn {
-        background-color: #8C5DD1 !important;
-        border-radius: 6px !important;
-        padding: 8px 20px !important;
-        font-weight: 500;
-    }
-
-    .custom-swal-cancel-btn {
-        background-color: #C8C6C1 !important;
-        border-radius: 6px !important;
-        padding: 8px 20px !important;
-        font-weight: 500;
-        color: #333 !important;
-    }
-
-    .swal2-textarea {
-        border-radius: 6px !important;
-        border: 1px solid #C8C6C1 !important;
-        background: white !important;
-        color: #333 !important;
-    }
-
-    .swal2-icon {
-        color: #8C5DD1 !important;
-        border-color: #8C5DD1 !important;
-    }
-
-    /* Header styling */
-    .page-header {
-        margin-bottom: 1.5rem;
-    }
-
-    .main-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #8C5DD1;
-        margin-bottom: 0.5rem;
-    }
-
-    .sub-title {
-        font-size: 1rem;
-        color: #6c757d;
-        margin-bottom: 1rem;
-    }
-
-    /* Search and filter container */
-    .search-filter-container {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    /* Search box styling */
-    .search-box {
-        flex-grow: 1;
-        min-width: 250px;
-        position: relative;
-    }
-
-    .search-input {
-        width: 100%;
-        padding: 0.5rem 1rem;
-        padding-right: 2.5rem;
-        border: 1px solid #C8C6C1;
-        border-radius: 20px;
-        background: #E4EEFD;
-        transition: all 0.3s;
-    }
-
-        .search-input:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(140, 93, 209, 0.2);
+        .pagination-container {
+            margin-top: 20px;
         }
 
-    .search-btn {
-        position: absolute;
-        right: 0.5rem;
-        top: 50%;
-        transform: translateY(-50%);
-        background: none;
-        border: none;
-        color: #8C5DD1;
-        cursor: pointer;
-    }
+        .pagination {
+            display: flex;
+            gap: 5px;
+            list-style: none;
+            padding: 0;
+        }
 
-    /* Filter buttons */
-    .filter-buttons {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
+        .page-item {
+            display: inline-block;
+        }
 
-    .filter-btn {
-        background: white;
-        border: 1px solid #8C5DD1;
-        border-radius: 20px;
-        padding: 0.4rem 1rem;
-        font-size: 0.85rem;
-        color: #8C5DD1;
-        cursor: pointer;
-        transition: all 0.3s;
-        white-space: nowrap;
-    }
+        .page-link {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            color: #8C5DD1;
+            text-decoration: none;
+        }
 
-        .filter-btn:hover {
+        .page-item.active .page-link {
             background: #8C5DD1;
             color: white;
-            transform: translateY(-2px);
-        }
-
-        .filter-btn.active {
-            background: #8C5DD1;
-            color: white;
-            box-shadow: 0 2px 6px rgba(140, 93, 209, 0.3);
-        }
-
-    /* Table styling (keep your existing table styles) */
-    .approval-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        border-radius: 10px;
-        overflow: hidden;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-        margin-bottom: 1.5rem;
-    }
-
-    /* ... (keep all your existing table styles) ... */
-
-    /* Status badges */
-    .status-badge {
-        padding: 0.3rem 0.6rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 500;
-        display: inline-block;
-    }
-
-    /* Action buttons */
-    .action-buttons {
-        display: flex;
-        gap: 0.5rem;
-    }
-
-    /* Pagination */
-    .pagination-container {
-        display: flex;
-        justify-content: center;
-        margin-top: 1.5rem;
-    }
-
-    .pagination {
-        display: flex;
-        gap: 0.5rem;
-        list-style: none;
-        padding: 0;
-    }
-
-    .page-link {
-        color: #8C5DD1;
-        background: white;
-        border: 1px solid #C8C6C1;
-        padding: 0.5rem 0.9rem;
-        border-radius: 6px;
-        text-decoration: none;
-        transition: all 0.3s;
-    }
-
-        .page-link:hover {
-            background: #E4EEFD;
             border-color: #8C5DD1;
         }
 
-    .page-item.active .page-link {
-        background: #8C5DD1;
-        color: white;
-        border-color: #8C5DD1;
-    }
+        .no-print {
+            display: block;
+        }
 
-    .page-item.disabled .page-link {
-        color: #C8C6C1;
-        pointer-events: none;
-    }
+        @@media print {
+            .no-print {
+                display: none !important;
+            }
 
-    /* Project name wrapping */
-    .project-name {
-        max-width: 200px;
-        word-wrap: break-word;
-    }
+            body {
+                padding: 20px;
+                font-size: 12px;
+            }
 
-    /* SweetAlert customization */
-    .swal2-popup {
-        border-radius: 8px !important;
-    }
-</style>
+            .approval-table {
+                font-size: 12px;
+            }
+
+                .approval-table th, .approval-table td {
+                    padding: 6px 8px;
+                }
+        }
+    </style>
+</head>
 
 <div class="container mt-3">
-    <!-- Page Header -->
-    <div class="page-header">
-        <h2 class="main-title">Submitted Projects</h2>
-        <p class="sub-title">@ViewBag.PageTitle</p>
-    </div>
+    
 
-    <!-- Search and Filter Container -->
     <div class="search-filter-container">
-        
-
-        <!-- Filter Buttons -->
+        <form asp-action="Index" method="get" class="search-form">
+            <div class="search-box">
+                <input type="text" class="search-input" name="searchString" value="@Model.SearchString" placeholder="Search projects, students or emails...">
+                <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="date-range-container">
+                <input type="date" name="fromDate" value="@Model.FromDate?.ToString("yyyy-MM-dd")" class="form-control">
+                <span>to</span>
+                <input type="date" name="toDate" value="@Model.ToDate?.ToString("yyyy-MM-dd")" class="form-control">
+            </div>
+            <input type="hidden" name="statusFilter" value="@Model.StatusFilter" />
+        </form>
         <div class="filter-buttons">
-            <button class="filter-btn @(ViewBag.CurrentFilter == "all" ? "active" : "")"
-                    onclick="window.location.href='@Url.Action("Index", new { statusFilter = "all", searchString = ViewBag.SearchString })'">
-                All (@ViewBag.TotalCount)
-            </button>
-            <button class="filter-btn @(ViewBag.CurrentFilter == "Pending" ? "active" : "")"
-                    onclick="window.location.href='@Url.Action("Index", new { statusFilter = "Pending", searchString = ViewBag.SearchString })'">
-                Pending (@ViewBag.PendingCount)
-            </button>
-            <button class="filter-btn @(ViewBag.CurrentFilter == "Approved" ? "active" : "")"
-                    onclick="window.location.href='@Url.Action("Index", new { statusFilter = "Approved", searchString = ViewBag.SearchString })'">
-                Approved (@ViewBag.ApprovedCount)
-            </button>
-            <button class="filter-btn @(ViewBag.CurrentFilter == "Rejected" ? "active" : "")"
-                    onclick="window.location.href='@Url.Action("Index", new { statusFilter = "Rejected", searchString = ViewBag.SearchString })'">
-                Rejected (@ViewBag.RejectedCount)
-            </button>
-        </div>
-
-        <!-- Search Box -->
-        <div class="search-box">
-            <form asp-action="Index" method="get">
-                <input type="text" class="search-input" name="searchString" value="@ViewBag.SearchString"
-                       placeholder="Search projects...">
-                <input type="hidden" name="statusFilter" value="@ViewBag.CurrentFilter" />
-                <button type="submit" class="search-btn">
-                    <i class="fas fa-search"></i>
-                </button>
-            </form>
+            <button type="button" class="filter-btn @(Model.StatusFilter == "all" ? "active" : "")" onclick="updateStatusFilter('all')">All (@Model.TotalCount)</button>
+            <button type="button" class="filter-btn @(Model.StatusFilter == "Pending" ? "active" : "")" onclick="updateStatusFilter('Pending')">Pending (@Model.PendingCount)</button>
+            <button type="button" class="filter-btn @(Model.StatusFilter == "Approved" ? "active" : "")" onclick="updateStatusFilter('Approved')">Approved (@Model.ApprovedCount)</button>
+            <button type="button" class="filter-btn @(Model.StatusFilter == "Rejected" ? "active" : "")" onclick="updateStatusFilter('Rejected')">Rejected (@Model.RejectedCount)</button>
+            <button class="export-btn" onclick="printTable();"><i class="fas fa-print"></i> Print</button>
+            <button class="export-btn" onclick="exportToExcel();"><i class="fas fa-file-excel"></i> Export</button>
         </div>
     </div>
-
-    <!-- Projects Table -->
     <div class="table-responsive">
-        <table class="approval-table">
-            <!-- Table content remains the same -->
+        <table class="approval-table" id="projectsTable">
             <thead>
                 <tr>
                     <th>No.</th>
                     <th>Project Name</th>
-                    <th>Created By</th>
+                    <th>Student Name</th>
                     <th>Submitted</th>
                     <th>Status</th>
-                    <th>Actions</th>
+                    <th class="no-print">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @{
-                    int counter = (ViewBag.PageNumber - 1)  + 1;
+                    int counter = (Model.PageNumber - 1) * Model.PageSize + 1;
                 }
-                @foreach (var project in Model)
+                @foreach (var project in Model.Projects)
                 {
                     <tr>
                         <td>@(counter++)</td>
                         <td class="project-name">@project.ProjectName</td>
-                        <td>@project.CreatedBy</td>
-                        <td>
-                            @(project.ProjectSubmittedDate.HasValue ? project.ProjectSubmittedDate.Value.ToString("yyyy-MM-dd") : "Not submitted")
-                        </td>
-                        <td>
-                            <span class="status-badge status-@project.Status.ToLower()">@project.Status</span>
-                        </td>
-                        <td>
+                        @{
+                            var leader = project.ProjectMembers.FirstOrDefault(m => m.Role == "Leader");
+                        }
+                        <td>@(leader != null ? leader.Student.StudentName : "No Leader")</td>
+
+                        <td>@(project.ProjectSubmittedDate.HasValue? project.ProjectSubmittedDate.Value.ToString("dd-MMM-yyyy") : "Not submitted")</td>
+                        <td><span class="status-badge status-@project.Status.ToLower()">@project.Status</span></td>
+                        <td class="no-print">
                             <div class="action-buttons">
                                 @if (project.Status != "Approved")
                                 {
-                                    <button class="btn-icon approve"
-                                            onclick="confirmApprove(@project.Project_pkId, '@Html.Raw(project.ProjectName.Replace("'", "\\'"))', '@Html.Raw(project.CreatedBy?.Replace("'", "\\'") ?? "")')">
-                                        <i class="fas fa-check"></i>
+                                    <button class="btn-icon approve" onclick="confirmApprove(@project.Project_pkId, '@Html.Raw(project.ProjectName.Replace("'", "\\'"))', '@Html.Raw(project.CreatedBy?.Replace("'", "\\'") ?? "")')">
+                                        <i class="fas fa-check"></i><span class="tooltip">Approve</span>
                                     </button>
                                 }
                                 @if (project.Status != "Rejected")
                                 {
-                                    <button class="btn-icon reject"
-                                            onclick="confirmReject(@project.Project_pkId, '@Html.Raw(project.ProjectName.Replace("'", "\\'"))', '@Html.Raw(project.CreatedBy?.Replace("'", "\\'") ?? "")')">
-                                        <i class="fas fa-times"></i>
+                                    <button class="btn-icon reject" onclick="confirmReject(@project.Project_pkId, '@Html.Raw(project.ProjectName.Replace("'", "\\'"))', '@Html.Raw(project.CreatedBy?.Replace("'", "\\'") ?? "")')">
+                                        <i class="fas fa-times"></i><span class="tooltip">Reject</span>
                                     </button>
                                 }
                                 <a href="@Url.Action("Details", "ProjectApproval", new { id = project.Project_pkId })" class="btn-icon view">
-                                    <i class="fas fa-eye"></i>
+                                    <i class="fas fa-eye"></i><span class="tooltip">View</span>
                                 </a>
                             </div>
                         </td>
@@ -519,35 +365,26 @@
         </table>
     </div>
 
-    <!-- Pagination -->
-    @if (ViewBag.TotalPages > 1)
+    @if (Model.TotalPages > 1)
     {
-        <div class="pagination-container">
+        <div class="pagination-container no-print">
             <ul class="pagination">
-                @if (ViewBag.PageNumber > 1)
+                @if (Model.PageNumber > 1)
                 {
                     <li class="page-item">
-                        <a class="page-link" href="@Url.Action("Index", new { statusFilter = ViewBag.CurrentFilter, searchString = ViewBag.SearchString, pageNumber = ViewBag.PageNumber - 1 })">
-                            &laquo;
-                        </a>
+                        <a class="page-link" href="@Url.Action("Index", new { statusFilter = Model.StatusFilter, searchString = Model.SearchString, fromDate = Model.FromDate?.ToString("yyyy-MM-dd"), toDate = Model.ToDate?.ToString("yyyy-MM-dd"), pageNumber = Model.PageNumber - 1 })">&laquo;</a>
                     </li>
                 }
-
-                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                @for (int i = 1; i <= Model.TotalPages; i++)
                 {
-                    <li class="page-item @(i == ViewBag.PageNumber ? "active" : "")">
-                        <a class="page-link" href="@Url.Action("Index", new { statusFilter = ViewBag.CurrentFilter, searchString = ViewBag.SearchString, pageNumber = i })">
-                            @i
-                        </a>
+                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", new { statusFilter = Model.StatusFilter, searchString = Model.SearchString, fromDate = Model.FromDate?.ToString("yyyy-MM-dd"), toDate = Model.ToDate?.ToString("yyyy-MM-dd"), pageNumber = i })">@i</a>
                     </li>
                 }
-
-                @if (ViewBag.PageNumber < ViewBag.TotalPages)
+                @if (Model.PageNumber < Model.TotalPages)
                 {
                     <li class="page-item">
-                        <a class="page-link" href="@Url.Action("Index", new { statusFilter = ViewBag.CurrentFilter, searchString = ViewBag.SearchString, pageNumber = ViewBag.PageNumber + 1 })">
-                            &raquo;
-                        </a>
+                        <a class="page-link" href="@Url.Action("Index", new { statusFilter = Model.StatusFilter, searchString = Model.SearchString, fromDate = Model.FromDate?.ToString("yyyy-MM-dd"), toDate = Model.ToDate?.ToString("yyyy-MM-dd"), pageNumber = Model.PageNumber + 1 })">&raquo;</a>
                     </li>
                 }
             </ul>
@@ -555,142 +392,150 @@
     }
 </div>
 
+<div id="printSection" style="display:none;">
+    <h2>Projects Report - @DateTime.Now.ToString("yyyy-MM-dd")</h2>
+    <p>Status: @Model.StatusFilter</p>
+    @if (!string.IsNullOrEmpty(Model.SearchString))
+    {
+        <p>Search: @Model.SearchString</p>
+    }
+    @if (Model.FromDate.HasValue || Model.ToDate.HasValue)
+    {
+        <p>Date Range: @Model.FromDate?.ToString("dd-MMM-yyyy") to @Model.ToDate?.ToString("dd-MMM-yyyy")</p>
+    }
+    <table class="approval-table" style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr>
+                <th>No.</th>
+                <th>Project Name</th>
+                <th>Student Name</th>
+                <th>Submitted</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int count = 0;
+            }
+            @foreach (var project in Model.Projects)
+            {
+                var leader = project.ProjectMembers.FirstOrDefault(m => m.Role == "Leader");
+                <tr>
+                    <td>@(++count)</td>
+                    <td>@project.ProjectName</td>
+                    <td>@(leader != null ? leader.Student.StudentName : "No Leader")</td>
+                    <td>@(project.ProjectSubmittedDate?.ToString("dd-MMM-yyyy") ?? "Not submitted")</td>
+                    <td>@project.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>
+
 @Html.AntiForgeryToken()
 
 @section Scripts {
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Function to handle project approval
-        function confirmApprove(projectId, projectName, createdBy) {
-            Swal.fire({
-                title: 'Approve Project',
-                html: `<p>Project: <strong>${projectName}</strong></p>
-                       <p>Submitted by: <strong>${createdBy}</strong></p>
-                       <p>Are you sure you want to approve this project?</p>`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#8C5DD1',
-                cancelButtonColor: '#C8C6C1',
-                background: '#E4EEFD',
-                confirmButtonText: 'Yes, approve it!',
-                cancelButtonText: 'Cancel',
-                customClass: {
-                    popup: 'custom-swal-popup',
-                    title: 'custom-swal-title',
-                    content: 'custom-swal-content',
-                    confirmButton: 'custom-swal-confirm-btn',
-                    cancelButton: 'custom-swal-cancel-btn'
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    submitApprove(projectId);
-                }
-            });
+        function updateStatusFilter(status){
+            document.querySelector('input[name="statusFilter"]').value=status;
+            document.querySelector('.search-form').submit();
         }
-
-        // Function to handle project rejection
-        function confirmReject(projectId, projectName, createdBy) {
+        function confirmApprove(projectId,projectName,createdBy){
             Swal.fire({
-                title: 'Reject Project',
-                html: `<p>Project: <strong>${projectName}</strong></p>
-                       <p>Submitted by: <strong>${createdBy}</strong></p>
-                       <textarea id="swal-reject-reason" class="swal2-textarea" placeholder="Please provide a reason for rejection..." required></textarea>`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#8C5DD1',
-                cancelButtonColor: '#C8C6C1',
-                background: '#E4EEFD',
-                confirmButtonText: 'Yes, reject it',
-                cancelButtonText: 'Cancel',
-                customClass: {
-                    popup: 'custom-swal-popup',
-                    title: 'custom-swal-title',
-                    content: 'custom-swal-content',
-                    confirmButton: 'custom-swal-confirm-btn',
-                    cancelButton: 'custom-swal-cancel-btn'
-                },
-                preConfirm: () => {
-                    const reason = document.getElementById('swal-reject-reason').value;
-                    if (!reason.trim()) {
-                        Swal.showValidationMessage('Please enter a rejection reason.');
-                        return false;
-                    }
+                title:'Approve Project',
+                html:`<p>Project: <strong>${projectName}</strong></p><p>Submitted by: <strong>${createdBy}</strong></p><p>Are you sure you want to approve this project?</p>`,
+                icon:'question',
+                showCancelButton:true,
+                confirmButtonColor:'#8C5DD1',
+                cancelButtonColor:'#C8C6C1',
+                confirmButtonText:'Yes, approve it!',
+                cancelButtonText:'Cancel'
+            }).then((result)=>{if(result.isConfirmed){submitApprove(projectId);}});
+        }
+        function confirmReject(projectId,projectName,createdBy){
+            Swal.fire({
+                title:'Reject Project',
+                html:`<p>Project: <strong>${projectName}</strong></p><p>Submitted by: <strong>${createdBy}</strong></p><textarea id="swal-reject-reason" class="swal2-textarea" placeholder="Please provide a reason for rejection..." required></textarea>`,
+                icon:'warning',
+                showCancelButton:true,
+                confirmButtonColor:'#8C5DD1',
+                cancelButtonColor:'#C8C6C1',
+                confirmButtonText:'Yes, reject it',
+                cancelButtonText:'Cancel',
+                preConfirm:()=>{
+                    const reason=document.getElementById('swal-reject-reason').value;
+                    if(!reason.trim()){Swal.showValidationMessage('Please enter a rejection reason.');return false;}
                     return reason;
                 }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    submitReject(projectId, result.value);
-                }
-            });
+            }).then((result)=>{if(result.isConfirmed){submitReject(projectId,result.value);}});
         }
-
-        // Function to submit approval
-        function submitApprove(projectId) {
-            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-
-            fetch('@Url.Action("Approve", "ProjectApproval")', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': token
-                },
-                body: JSON.stringify(projectId)
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Network error');
+        function submitApprove(projectId){
+            const token=document.querySelector('input[name="__RequestVerificationToken"]').value;
+            fetch('@Url.Action("Approve", "ProjectApproval")',{
+                method:'POST',
+                headers:{'Content-Type':'application/json','RequestVerificationToken':token},
+                body:JSON.stringify(projectId)
+            }).then(response=>{
+                if(!response.ok)throw new Error('Network error');
                 return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    Swal.fire("Success!", "Project approved.", "success")
-                        .then(() => location.reload());
-                } else {
-                    Swal.fire("Error", data.message || "Failed to approve.", "error");
-                }
-            })
-            .catch(error => {
-                Swal.fire("Error", "Request failed: " + error.message, "error");
-            });
+            }).then(data=>{
+                if(data.success){Swal.fire("Success!","Project approved.","success").then(()=>location.reload());}
+                else{Swal.fire("Error",data.message||"Failed to approve.","error");}
+            }).catch(error=>{Swal.fire("Error","Request failed: "+error.message,"error");});
         }
-
-        // Reject function
-        function submitReject(projectId, reason) {
-            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-
-            fetch('@Url.Action("Reject", "ProjectApproval")', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'RequestVerificationToken': token
-                },
-                body: JSON.stringify({ Id: projectId, Reason: reason })
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Network error');
+        function submitReject(projectId,reason){
+            const token=document.querySelector('input[name="__RequestVerificationToken"]').value;
+            fetch('@Url.Action("Reject", "ProjectApproval")',{
+                method:'POST',
+                headers:{'Content-Type':'application/json','RequestVerificationToken':token},
+                body:JSON.stringify({Id:projectId,Reason:reason})
+            }).then(response=>{
+                if(!response.ok)throw new Error('Network error');
                 return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    Swal.fire("Success!", "Project rejected.", "success")
-                        .then(() => location.reload());
-                } else {
-                    Swal.fire("Error", data.message || "Failed to reject.", "error");
-                }
-            })
-            .catch(error => {
-                Swal.fire("Error", "Request failed: " + error.message, "error");
-            });
+            }).then(data=>{
+                if(data.success){Swal.fire("Success!","Project rejected.","success").then(()=>location.reload());}
+                else{Swal.fire("Error",data.message||"Failed to reject.","error");}
+            }).catch(error=>{Swal.fire("Error","Request failed: "+error.message,"error");});
         }
-
-        // Set active filter button on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentFilter = '@ViewBag.CurrentFilter';
-            const filterButtons = document.querySelectorAll('.filter-btn');
-
-            filterButtons.forEach(button => {
-                if (button.getAttribute('data-filter') === currentFilter) {
-                    button.classList.add('active');
-                }
-            });
-        });
+        function exportToExcel(){
+            try{
+                Swal.fire({title:'Preparing Export',html:'Please wait...',allowOutsideClick:false,didOpen:()=>{Swal.showLoading();}});
+                const table=document.getElementById('projectsTable');
+                const clonedTable=table.cloneNode(true);
+                const actionColumns=clonedTable.querySelectorAll('.no-print');
+                actionColumns.forEach(col=>col.remove());
+                const wb=XLSX.utils.table_to_book(clonedTable,{sheet:"Projects",raw:true});
+                const today=new Date();
+                const dateString=today.toISOString().split('T')[0];
+                XLSX.writeFile(wb,`Projects_${dateString}.xlsx`);
+                Swal.close();
+            }catch(error){
+                Swal.fire({title:'Export Error',text:'An error occurred while exporting: '+error.message,icon:'error'});
+            }
+        }
+        function printTable(){
+            const printSection=document.getElementById('printSection');
+            if(!printSection){console.error('Print section not found');return;}
+            const printWindow=window.open('','_blank');
+            const printContent=printSection.innerHTML.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,'');
+            printWindow.document.write(`<head><title>Projects Report</title><style>
+                body{font-family:Arial,sans-serif;padding:20px;margin:0;}
+                h2{color:#333;margin-bottom:15px;}
+                p{margin:5px 0;color:#555;}
+                table{width:100%;border-collapse:collapse;margin-top:15px;}
+                th{background:#f8f9fa;text-align:left;padding:8px;border-bottom:2px solid #ddd;}
+                td{padding:8px;border-bottom:1px solid #ddd;}
+                .status-badge{padding:3px 8px;border-radius:10px;font-size:12px;display:inline-block;}
+                .status-pending{background:#fff3cd;color:#856404;}
+                .status-approved{background:#d4edda;color:#155724;}
+                .status-rejected{background:#f8d7da;color:#721c24;}
+                @@media print{body{padding:0;}table{page-break-inside:auto;}tr{page-break-inside:avoid;}}
+            </style></head>${printContent}`);
+            printWindow.document.close();
+            printWindow.onload=function(){setTimeout(()=>{printWindow.print();},200);};
+        }
     </script>
 }

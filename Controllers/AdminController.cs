@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using ProjectManagementSystem.Data;
 using ProjectManagementSystem.Models;
 using ProjectManagementSystem.Services.Interface;
+using ProjectManagementSystem.ViewModels;
+
 
 namespace ProjectManagementSystem.Controllers
 {
@@ -29,6 +31,9 @@ namespace ProjectManagementSystem.Controllers
             _context = context;
         }
 
+      
+
+
         [HttpGet]
         public IActionResult Login()
         {
@@ -47,13 +52,6 @@ namespace ProjectManagementSystem.Controllers
                     return View(model);
                 }
 
-                // Update stored name if different
-                if (user.FullName != model.Name)
-                {
-                    user.FullName = model.Name;
-                    await _userManager.UpdateAsync(user);
-                }
-
                 var result = await _signInManager.PasswordSignInAsync(
                     model.Email,
                     model.Password,
@@ -62,20 +60,21 @@ namespace ProjectManagementSystem.Controllers
 
                 if (result.Succeeded)
                 {
-                    // Log using the EXACT name from the form
                     await _activityLogger.LogActivityAsync(
                         user.Id,
                         "Login",
-                        model.Name,  // This is critical
+                        user.Email,
                         HttpContext);
 
-                    return RedirectToAction("Index", "Email");
+                    return RedirectToAction("Dashboard", "Teacher");
                 }
 
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             }
+
             return View(model);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -95,6 +94,8 @@ namespace ProjectManagementSystem.Controllers
             return RedirectToAction("Login");
         }
 
+
+
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ActivityLogs()
@@ -105,5 +106,135 @@ namespace ProjectManagementSystem.Controllers
 
             return View(logs);
         }
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+
+
+            var user = await _userManager.GetUserAsync(User);
+            Console.WriteLine("user null?............................" + (user == null));
+
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Admin");
+            }
+            var changePasswordResult = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+            Console.WriteLine("changePasswordResult?............................" + changePasswordResult);
+
+            if (!changePasswordResult.Succeeded)
+            {
+                foreach (var error in changePasswordResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+                return View(model);
+            }
+
+            await _signInManager.RefreshSignInAsync(user);
+            TempData["StatusMessage"] = "Password changed successfully.";
+            return RedirectToAction("ChangePassword");
+        }
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> MyProfile(bool isEditMode = false)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var model = new MyProfileViewModel
+            {
+                FullName = user.FullName,
+                Email = user.Email,
+                IsEditMode = isEditMode
+            };
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MyProfile(MyProfileViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                model.IsEditMode = true;
+                return View(model);
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // Update profile information
+            if (user.FullName != model.FullName)
+            {
+                user.FullName = model.FullName;
+                var updateResult = await _userManager.UpdateAsync(user);
+                if (!updateResult.Succeeded)
+                {
+                    foreach (var error in updateResult.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                    model.IsEditMode = true;
+                    return View(model);
+                }
+            }
+
+            // Change password if provided
+            if (!string.IsNullOrEmpty(model.OldPassword) &&
+                !string.IsNullOrEmpty(model.NewPassword))
+            {
+                var changePasswordResult = await _userManager.ChangePasswordAsync(
+                    user,
+                    model.OldPassword,
+                    model.NewPassword);
+
+                if (!changePasswordResult.Succeeded)
+                {
+                    foreach (var error in changePasswordResult.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                    model.IsEditMode = true;
+                    return View(model);
+                }
+
+                await _signInManager.RefreshSignInAsync(user);
+            }
+
+            model.IsEditMode = false;
+            TempData["SuccessMessage"] = "Profile updated successfully!";
+            return View(model);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public IActionResult ToggleEditMode()
+        {
+            return RedirectToAction(nameof(MyProfile), new { isEditMode = true });
+        }
+
+
     }
+
+
+
 }

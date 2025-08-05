@@ -112,4 +112,6 @@ public class MyProfileViewModel
     [Display(Name = "Confirm New Password")]
     [Compare("NewPassword", ErrorMessage = "The new password and confirmation do not match.")]
     public string? ConfirmPassword { get; set; }
+
+    public bool? IsEditMode { get; set; }
 }

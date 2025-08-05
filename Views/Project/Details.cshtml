@@ -2,10 +2,15 @@
 
 @{
     ViewData["Title"] = "Project Details";
-    Layout = "~/Views/Student/_Layout.cshtml";
+    Layout = "_Layout";
 }
 
 <style>
+    body {
+        background: linear-gradient(135deg, #e4eefd);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
     .custom-details-card {
         max-width: 900px;
         margin: 0 auto;
@@ -64,10 +69,52 @@
                 <th>Company</th>
                 <td>@Model.Company?.CompanyName</td>
             </tr>
+
+            <tr>
+                <th>Leader</th>
+                <td>
+                    @{
+                        var leader = Model.ProjectMembers?
+                        .FirstOrDefault(pm => pm.Role == "Leader" && !pm.IsDeleted && pm.Student != null);
+                        if (leader != null)
+                        {
+                            <span>@leader.Student.StudentName </span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No leader assigned</span>
+                        }
+                    }
+                </td>
+            </tr>
+
+            <tr>
+                <th>Members</th>
+                <td>
+                    @{
+                        var members = Model.ProjectMembers?
+                        .Where(pm => pm.Role == "Member" && !pm.IsDeleted && pm.Student != null)
+                        .ToList();
+                        if (members != null && members.Any())
+                        {
+                            foreach (var member in members)
+                            {
+                                <div>@member.Student.StudentName</div>
+                            }
+                        }
+                        else
+                        {
+                            <span class="text-muted">No members assigned</span>
+                        }
+                    }
+                </td>
+            </tr>
+
+
             <tr>
                 <th>Submitted Date</th>
-                @(Model.ProjectSubmittedDate.HasValue ? Model.ProjectSubmittedDate.Value.ToShortDateString() : "Not submitted")
-
+                <td> @(Model.ProjectSubmittedDate.HasValue ? Model.ProjectSubmittedDate.Value.ToShortDateString() : "Not submitted")
+                </td>
             </tr>
             <tr>
                 <th>Created By</th>

@@ -25,7 +25,7 @@ public class AnnouncementController : Controller
         if (ModelState.IsValid)
         {
             // Ensure we only have one announcement
-            model.Id = 1;
+            model.AnnouncementId = 1;
 
             if (_context.Announcements.Any())
             {

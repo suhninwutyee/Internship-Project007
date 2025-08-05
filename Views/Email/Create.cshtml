@@ -1,50 +1,82 @@
 ﻿@model ProjectManagementSystem.Models.Email
-
 @{
     ViewData["Title"] = "Create Email";
     Layout = "~/Views/Shared/_TeacherLayout.cshtml";
 }
 
-<div class="container py-5">
+<div class="container py-4">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white py-4">
-                    <h3 class="card-title mb-0 text-center fw-bold">Create Email</h3>
+            <div class="card shadow-lg border-0 animate__animated animate__fadeIn">
+                <div class="card-header bg-gradient-primary text-white py-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <a asp-action="Index" class="btn btn-sm btn-outline-light hover-scale">
+                            <i class="fas fa-arrow-left me-1"></i>
+                        </a>
+                        <h3 class="h5 mb-0 text-center flex-grow-1">Create New Student Email</h3>
+                        <div style="width: 34px;"></div> <!-- Spacer for balance -->
+                    </div>
                 </div>
-                <div class="card-body p-5">
-                    <form asp-action="Create" method="post" novalidate>
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger mb-4"></div>
 
-                        <div class="mb-4">
-                            <label asp-for="EmailAddress" class="form-label fw-semibold text-purple mb-2 d-block">Email Address</label>
-                            <input asp-for="EmailAddress" class="form-control input-field w-100" />
-                            <span asp-validation-for="EmailAddress" class="text-danger small mt-1 d-block"></span>
+                <div class="card-body p-4 p-md-5">
+                    <form asp-action="Create" method="post" class="needs-validation" novalidate id="createForm">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-light-danger mb-4 animate__animated animate__fadeIn"></div>
+
+                        <!-- Email Address -->
+                        <div class="form-group mb-4">
+                            <label asp-for="EmailAddress" class="form-label fw-semibold text-primary mb-2">
+                                <i class="fas fa-envelope me-2"></i>Email Address
+                            </label>
+                            <div class="input-group">
+                                <input asp-for="EmailAddress" class="form-control form-control-lg"
+                                       placeholder="student@example.com" />
+                                <span class="input-group-text bg-primary text-white">
+                                    <i class="fas fa-at"></i>
+                                </span>
+                            </div>
+                            <span asp-validation-for="EmailAddress" class="text-danger small mt-2 d-block"></span>
                         </div>
 
-                        <div class="mb-4">
-                            <label asp-for="RollNumber" class="form-label fw-semibold text-purple mb-2 d-block">Roll Number</label>
-                            <input asp-for="RollNumber" class="form-control input-field w-100" />
-                            <span asp-validation-for="RollNumber" class="text-danger small mt-1 d-block"></span>
+                        <!-- Roll Number -->
+                        <div class="form-group mb-4">
+                            <label asp-for="RollNumber" class="form-label fw-semibold text-primary mb-2">
+                                <i class="fas fa-id-card me-2"></i>Roll Number
+                            </label>
+                            <div class="input-group">
+                                <input asp-for="RollNumber" class="form-control form-control-lg"
+                                       placeholder="e.g. 2023001" />
+                                <span class="input-group-text bg-primary text-white">
+                                    <i class="fas fa-hashtag"></i>
+                                </span>
+                            </div>
+                            <span asp-validation-for="RollNumber" class="text-danger small mt-2 d-block"></span>
                         </div>
 
+                        <!-- Academic Year -->
+                        <div class="form-group mb-4">
+                            <label asp-for="AcademicYear_pkId" class="form-label fw-semibold text-primary mb-2">
+                                <i class="fas fa-calendar-alt me-2"></i>Academic Year
+                            </label>
+                            <div class="input-group">
+                                <select asp-for="AcademicYear_pkId" class="form-select form-select-lg"
+                                        asp-items="@(new SelectList(ViewBag.AcademicYears, "AcademicYear_pkId", "YearRange"))">
+                                    <option value="">Select Academic Year</option>
+                                </select>
+                                <span class="input-group-text bg-primary text-white">
+                                    <i class="fas fa-chevron-down"></i>
+                                </span>
+                            </div>
+                            <span asp-validation-for="AcademicYear_pkId" class="text-danger small mt-2 d-block"></span>
+                        </div>
+
+                        <!-- Hidden Field -->
                         <input type="hidden" asp-for="Class" value="Final Year" />
 
-                        <div class="mb-4">
-                            <label asp-for="AcademicYear" class="form-label fw-semibold text-purple mb-2 d-block">Academic Year</label>
-                            <select asp-for="AcademicYear" class="form-select input-field w-100" asp-items="new SelectList(ViewBag.AcademicYears)">
-                                <option value="">-- Select Academic Year --</option>
-                            </select>
-                            <span asp-validation-for="AcademicYear" class="text-danger small mt-1 d-block"></span>
-                        </div>
-
-                        <div class="d-flex justify-content-center gap-3 mt-5 pt-2">
-                            <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold">
-                                <i class="fas fa-save me-2"></i>Create
+                        <!-- Submit Button -->
+                        <div class="d-grid mt-4 pt-2">
+                            <button type="submit" class="btn btn-primary btn-lg hover-scale shadow-sm">
+                                <i class="fas fa-paper-plane me-2"></i>Create Email
                             </button>
-                            <a asp-action="Index" class="btn btn-outline-primary px-4 py-2 fw-semibold">
-                                <i class="fas fa-list me-2"></i>Back to List
-                            </a>
                         </div>
                     </form>
                 </div>
@@ -54,77 +86,371 @@
 </div>
 
 @section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
-        .text-purple {
-            color: #8C5DD1;
+        /* Add to your existing styles */
+        .is-invalid {
+            border-color: #dc3545 !important;
         }
 
+        .validation-message {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Loading animation for submit button */
+        @@keyframes spin {
+            0%
+
+        {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+
+        }
+
+        .button-icon.loading {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+        /* Color Variables */
+        :root {
+            --primary: #8C5DD1;
+            --primary-light: #E4EEFD;
+            --primary-dark: #6a3093;
+            --primary-extra-light: #f5f1fd;
+            --danger: #ff4757;
+            --light: #f8f9fa;
+            --border: #e0e0e0;
+            --text-muted: #6c757d;
+        }
+
+        /* Card Styling */
         .card {
-            border-radius: 16px;
-            overflow: hidden;
             border: none;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        .card-header {
-            border-bottom: none;
-        }
-
-        .input-field {
-            background-color: #f8f9fa;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 12px 16px;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-        }
-
-            .input-field:focus {
-                border-color: #8C5DD1;
-                box-shadow: 0 0 0 3px rgba(140, 93, 209, 0.15);
-                outline: none;
-                background-color: #fff;
+            .card:hover {
+                transform: translateY(-5px);
             }
 
-        .btn-primary {
-            background-color: #8C5DD1;
-            border: none;
-            font-weight: 600;
-            border-radius: 10px;
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        }
+
+        /* Form Elements */
+        .form-label {
+            display: flex;
+            align-items: center;
+            font-size: 0.95rem;
             transition: all 0.3s ease;
-            padding: 10px 24px;
+        }
+
+        .form-control, .form-select {
+            border: 1px solid var(--border);
+            border-radius: 10px !important;
+            padding: 0.75rem 1.25rem;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            background-color: var(--primary-extra-light);
+        }
+
+        .form-control-lg, .form-select-lg {
+            padding: 1rem 1.5rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(140, 93, 209, 0.15);
+            background-color: white;
+        }
+
+        .input-group-text {
+            min-width: 50px;
+            justify-content: center;
+            border: none;
+            background-color: var(--primary) !important;
+            color: white !important;
+        }
+
+        /* Buttons */
+        .btn {
+            border-radius: 10px;
+            padding: 0.75rem 1.75rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-lg {
+            padding: 1rem 2rem;
+            font-size: 1.05rem;
+        }
+
+        .btn-outline-light {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            background: transparent;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(140, 93, 209, 0.25);
         }
 
             .btn-primary:hover {
-                background-color: #7a4cb8;
+                background-color: var(--primary-dark);
                 transform: translateY(-2px);
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                box-shadow: 0 6px 16px rgba(140, 93, 209, 0.35);
             }
 
-        .btn-outline-primary {
-            color: #8C5DD1;
-            border: 2px solid #8C5DD1;
-            font-weight: 600;
+        .hover-scale {
+            transition: transform 0.2s ease;
+        }
+
+            .hover-scale:hover {
+                transform: scale(1.05);
+            }
+
+        /* Validation */
+        .alert-light-danger {
+            background-color: rgba(255, 71, 87, 0.08);
+            border: 1px solid rgba(255, 71, 87, 0.15);
+            color: var(--danger);
             border-radius: 10px;
-            transition: all 0.3s ease;
-            padding: 10px 24px;
-            background-color: transparent;
+            padding: 1rem 1.5rem;
         }
 
-            .btn-outline-primary:hover {
-                background-color: #8C5DD1;
-                color: white;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        .text-danger {
+            color: var(--danger) !important;
+        }
+
+        .field-validation-error {
+            font-size: 0.85rem;
+        }
+
+        /* Animations */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
             }
 
-        .form-label {
-            font-size: 0.95rem;
-            letter-spacing: 0.2px;
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .card-title {
-            font-size: 1.5rem;
-            letter-spacing: 0.5px;
+        .animate-fade-in {
+            animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        /* Ripple Effect */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+
+        @@keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive Adjustments */
+        @@media (max-width: 768px) {
+            .card-body {
+                padding: 1.5rem;
+            }
+
+            .btn-lg {
+                padding: 0.85rem 1.5rem;
+            }
+        }
+
+        .spinner-border {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            vertical-align: text-bottom;
+            border: 0.2em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border .75s linear infinite;
+        }
+
+        @@keyframes spinner-border {
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
+}
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function() {
+            // Display any TempData messages on page load
+            @if (TempData["SuccessMessage"] != null)
+            {
+                    <text>
+                    showToast('success', '@TempData["SuccessMessage"]');
+                    </text>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                    <text>
+                    showToast('error', '@TempData["ErrorMessage"]');
+                    </text>
+            }
+
+            // Initialize form submission handler
+            $('#createForm').on('submit', function(e) {
+                e.preventDefault();
+                handleFormSubmission(this);
+            });
+
+            // Clear validation errors when user starts typing
+            $('input, select').on('input', function() {
+                clearFieldError(this);
+            });
+        });
+
+        // Handle form submission with AJAX
+        function handleFormSubmission(form) {
+            if (!$(form).valid()) return;
+
+            var submitBtn = $(form).find('button[type="submit"]');
+            var originalBtnText = submitBtn.html();
+
+            // Set loading state
+            submitBtn.prop('disabled', true);
+            submitBtn.html(`
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Processing...
+            `);
+
+            $.ajax({
+                url: $(form).attr('action'),
+                type: 'POST',
+                data: $(form).serialize(),
+                success: function(response) {
+                    if (response.success) {
+                        // Show success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: response.message,
+                            confirmButtonColor: '#8C5DD1',
+                            showCancelButton: false,
+                            confirmButtonText: 'Continue',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // Redirect to Index page with selected year
+                                if (response.redirectUrl) {
+                                    window.location.href = response.redirectUrl;
+                                } else {
+                                    window.location.href = '@Url.Action("Index")';
+                                }
+                            }
+                        });
+                    } else {
+                        // Handle validation errors
+                        if (response.errors) {
+                            $.each(response.errors, function(key, errors) {
+                                showFieldError(key, errors.join(', '));
+                            });
+                        }
+                        showToast('error', response.message || 'An error occurred');
+                    }
+                },
+                error: function(xhr) {
+                    var errorMessage = xhr.responseJSON?.message ||
+                                     xhr.statusText ||
+                                     'An unexpected error occurred';
+                    showToast('error', errorMessage);
+                },
+                complete: function() {
+                    // Reset button state
+                    submitBtn.prop('disabled', false);
+                    submitBtn.html(originalBtnText);
+                }
+            });
+        }
+
+        // Helper function to display toast notifications
+        function showToast(icon, message) {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+
+            Toast.fire({
+                icon: icon,
+                title: message
+            });
+        }
+
+        // Helper function to show field validation errors
+        function showFieldError(fieldName, errorMessage) {
+            var field = $('[name="' + fieldName + '"]');
+            var validationElement = $('[data-valmsg-for="' + fieldName + '"]');
+
+            field.addClass('is-invalid');
+            if (validationElement.length) {
+                validationElement.text(errorMessage);
+            } else {
+                field.after('<div class="invalid-feedback">' + errorMessage + '</div>');
+            }
+        }
+
+        // Helper function to clear field errors
+        function clearFieldError(field) {
+            var fieldName = $(field).attr('name');
+            var validationElement = $('[data-valmsg-for="' + fieldName + '"]');
+
+            $(field).removeClass('is-invalid');
+            if (validationElement.length) {
+                validationElement.text('');
+            } else {
+                $(field).next('.invalid-feedback').remove();
+            }
+        }
+    </script>
 }
