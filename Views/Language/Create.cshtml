@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Create Language";
+    Layout = "~/Views/Student/_Layout.cshtml";
 }
 
 <h3>Create Language</h3>
@@ -15,9 +16,18 @@
         <span asp-validation-for="LanguageName" class="text-danger"></span>
     </div>
 
+    <div class="mb-3">
+        <label asp-for="ProjectType_pkId" class="form-label">Project Type</label>
+        <select asp-for="ProjectType_pkId" class="form-select" asp-items="ViewBag.ProjectTypes">
+            <option value="">-- Select Project Type --</option>
+        </select>
+        <span asp-validation-for="ProjectType_pkId" class="text-danger"></span>
+    </div>
+
     <button type="submit" class="btn btn-success">Create</button>
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

@@ -1,0 +1,124 @@
+﻿@model ProjectManagementSystem.Models.MyProfileViewModel
+
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+}
+
+<div class="container">
+    <h2>My Profile</h2>
+    <hr />
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    @if (!Model.IsEditMode)
+    {
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Profile Information</h4>
+                <dl class="row">
+                    <dt class="col-sm-3">Full Name</dt>
+                    <dd class="col-sm-9">@Model.FullName</dd>
+
+                    <dt class="col-sm-3">Email</dt>
+                    <dd class="col-sm-9">@Model.Email</dd>
+                </dl>
+
+                <form asp-action="ToggleEditMode" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Edit Profile
+                    </button>
+                </form>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title">Edit Profile</h4>
+                <form asp-action="MyProfile" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="form-group row">
+                        <label asp-for="FullName" class="col-sm-3 col-form-label"></label>
+                        <div class="col-sm-9">
+                            <input asp-for="FullName" class="form-control" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label asp-for="Email" class="col-sm-3 col-form-label"></label>
+                        <div class="col-sm-9">
+                            <input asp-for="Email" class="form-control" readonly />
+                        </div>
+                    </div>
+
+                    <hr />
+                    <h5>Change Password</h5>
+                    <p class="text-muted">Fill these fields only if you want to change your password</p>
+
+                    <div class="form-group row">
+                        <label asp-for="OldPassword" class="col-sm-3 col-form-label"></label>
+                        <div class="col-sm-9">
+                            <input asp-for="OldPassword" type="password" class="form-control" />
+                            <span asp-validation-for="OldPassword" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label asp-for="NewPassword" class="col-sm-3 col-form-label"></label>
+                        <div class="col-sm-9">
+                            <input asp-for="NewPassword" type="password" class="form-control" />
+                            <span asp-validation-for="NewPassword" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label asp-for="ConfirmPassword" class="col-sm-3 col-form-label"></label>
+                        <div class="col-sm-9">
+                            <input asp-for="ConfirmPassword" type="password" class="form-control" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-sm-9 offset-sm-3">
+                            <button type="submit" class="btn btn-success mr-2">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                            <a asp-action="MyProfile" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Close the alert after 5 seconds
+        $(document).ready(function() {
+            setTimeout(function() {
+                $(".alert").alert('close');
+            }, 5000);
+        });
+    </script>
+}

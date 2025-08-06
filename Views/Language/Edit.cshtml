@@ -2,23 +2,29 @@
 
 @{
     ViewData["Title"] = "Edit Language";
+    Layout = "~/Views/Student/_Layout.cshtml";
 }
 
-<h2>@ViewData["Title"]</h2>
-
-<!-- Display model validation errors (if any) -->
-@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+<h3>Edit Language</h3>
 
 <form asp-action="Edit" method="post">
     @Html.AntiForgeryToken()
 
-    <!-- Hidden field for primary key -->
+    <!-- Hidden field for Language primary key -->
     <input type="hidden" asp-for="Language_pkId" />
 
-    <div class="form-group">
+    <div class="mb-3">
         <label asp-for="LanguageName" class="form-label"></label>
         <input asp-for="LanguageName" class="form-control" />
         <span asp-validation-for="LanguageName" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ProjectType_pkId" class="form-label">Project Type</label>
+        <select asp-for="ProjectType_pkId" class="form-select" asp-items="ViewBag.ProjectTypes">
+            <option value="">-- Select Project Type --</option>
+        </select>
+        <span asp-validation-for="ProjectType_pkId" class="text-danger"></span>
     </div>
 
     <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -26,6 +32,5 @@
 </form>
 
 @section Scripts {
-    <!-- Required for client-side validation -->
     <partial name="_ValidationScriptsPartial" />
 }

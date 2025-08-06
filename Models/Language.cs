@@ -11,9 +11,11 @@ namespace ProjectManagementSystem.Models
         public int Language_pkId { get; set; }
 
         [Required(ErrorMessage = "Language Name is required")]
-        public string LanguageName { get; set; } = "";// e.g., C#, Java
-
-        public virtual ICollection<Project> Projects { get; set; }
-        public virtual ICollection<Framework>? Frameworks{ get; set; }
+        public string? LanguageName { get; set; } = "";
+        [ForeignKey(nameof(ProjectType_pkId))]
+        public int? ProjectType_pkId { get; set; }
+        public ProjectType? ProjectType { get; set; }
+        public virtual ICollection<Project>? Projects { get; set; }
+        public virtual ICollection<Framework>? Frameworks { get; set; }
     }
 }

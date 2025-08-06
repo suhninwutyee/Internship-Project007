@@ -15,7 +15,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<ApplicationUser> ApplicationUsers { get; set; }
     public DbSet<Student> Students { get; set; }
     public DbSet<StudentDepartment> StudentDepartments { get; set; }
-    public DbSet<Company> Companies { get; set; }    
+    public DbSet<Company> Companies { get; set; }
     public DbSet<City> Cities { get; set; }
     public DbSet<Project> Projects { get; set; }
     public DbSet<SuccessStory> SuccessStories { get; set; }
@@ -37,8 +37,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<OTP> OTPs { get; set; }
 
     public DbSet<AcademicYear> AcademicYears { get; set; }
-
-    public DbSet<AdminActivityLog> AdminActivityLog { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -97,7 +95,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         .Property(a => a.IsActive)
         .HasDefaultValue(true);
 
-       
+
         // Configure composite key for ProjectMember
         modelBuilder.Entity<ProjectMember>()
             .HasKey(pm => new { pm.Project_pkId, pm.Student_pkId });
@@ -125,7 +123,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
         modelBuilder.Entity<ProjectFile>()
             .HasOne(f => f.Project)
-            .WithMany(p => p.Files)  
+            .WithMany(p => p.Files)
             .HasForeignKey(f => f.Project_pkId);
 
         modelBuilder.Entity<AuditLog>()

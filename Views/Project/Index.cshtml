@@ -33,7 +33,7 @@
             <i class="bi bi-plus-lg me-2"></i> Create New Project
         </a>
 
-       @*  <div class="input-group" style="max-width: 300px;">
+        @*  <div class="input-group" style="max-width: 300px;">
             <input type="text" class="form-control" placeholder="Search projects..." aria-label="Search">
             <button class="btn btn-outline-secondary" type="button" style="border-color: @primaryColor; color: @primaryColor;">
                 <i class="bi bi-search"></i>
@@ -119,24 +119,24 @@
                                             }
                                         }
                                     }
-                                </ul>
-                            </div>
+                            </ul>
+                        </div>
 
-                            <div class="mb-3">
-                                <p class="card-text mb-2">
-                                    <span style="color: @darkPurple; font-weight: 500;">
-                                        <i class="bi bi-calendar me-1"></i>Submitted:
-                                    </span>
-                                    @(project.ProjectSubmittedDate.HasValue
-                                        ? project.ProjectSubmittedDate.Value.ToString("dd MMM yyyy")
-                                        : "Not submitted")
-                                </p>
+                        <div class="mb-3">
+                            <p class="card-text mb-2">
+                                <span style="color: @darkPurple; font-weight: 500;">
+                                    <i class="bi bi-calendar me-1"></i>Submitted:
+                                </span>
+                                @(project.ProjectSubmittedDate.HasValue
+                                                            ? project.ProjectSubmittedDate.Value.ToString("dd MMM yyyy")
+                                                            : "Not submitted")
+                        </p>
 
                                 <p class="card-text mb-2">
                                     <span style="color: @darkPurple; font-weight: 500;">
                                         <i class="bi bi-file-earmark me-1"></i>Files:
                                     </span>
-                                    @if (project.Files != null && project.Files.Any())
+                            @if (project.Files != null && project.Files.Any())
                                     {
                                         <div class="mt-1">
                                             @foreach (var file in project.Files)
@@ -168,11 +168,11 @@
                                     }
                                     <span class="badge @statusClass rounded-pill">
                                         <i class="bi @(project.Status == "Approved" ? "bi-check-circle" :
-                                                     project.Status == "Rejected" ? "bi-x-circle" :
-                                                     project.Status == "Pending" ? "bi-hourglass" : "bi-pencil") me-1"></i>
-                                        @project.Status
-                                    </span>
-                                </div>
+                                                                                                project.Status == "Rejected" ? "bi-x-circle" :
+                                                                                                project.Status == "Pending" ? "bi-hourglass" : "bi-pencil") me-1"></i>
+                                @project.Status
+                            </span>
+                        </div>
 
                                 <div class="dropdown">
                                     <button class="btn btn-sm" type="button" id="dropdownMenuButton_@project.Project_pkId"
@@ -186,7 +186,7 @@
                                                 <i class="bi bi-info-circle me-2"></i>Details
                                             </a>
                                         </li>
-                                        @if (project.Status == "Draft")
+                                @if (project.Status == "Draft")
                                         {
                                             <li>
                                                 <a class="dropdown-item" asp-action="Edit" asp-route-id="@project.Project_pkId">
@@ -236,16 +236,16 @@
 
     <div class="d-flex justify-content-center mt-5">
         @Html.PagedListPager(Model, page => Url.Action("Index", new { page }), new X.PagedList.Web.Common.PagedListRenderOptions
-   {
-       UlElementClasses = new[] { "pagination", "pagination-sm" },
-       LiElementClasses = new[] { "page-item" },
-       PageClasses = new[] { "page-link" },
-       ActiveLiElementClass = "active",
-       LinkToPreviousPageFormat = "<i class='bi bi-chevron-left'></i>",
-       LinkToNextPageFormat = "<i class='bi bi-chevron-right'></i>",
-       LinkToFirstPageFormat = "<i class='bi bi-chevron-double-left'></i>",
-       LinkToLastPageFormat = "<i class='bi bi-chevron-double-right'></i>"
-   })
+        {
+            UlElementClasses = new[] { "pagination", "pagination-sm" },
+                LiElementClasses = new[] { "page-item" },
+                PageClasses = new[] { "page-link" },
+                ActiveLiElementClass = "active",
+                LinkToPreviousPageFormat = "<i class='bi bi-chevron-left'></i>",
+                LinkToNextPageFormat = "<i class='bi bi-chevron-right'></i>",
+                LinkToFirstPageFormat = "<i class='bi bi-chevron-double-left'></i>",
+                LinkToLastPageFormat = "<i class='bi bi-chevron-double-right'></i>"
+                })
     </div>
 </div>
 
@@ -256,6 +256,7 @@
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
         .card {
             transition: transform 0.2s, box-shadow 0.2s;
         }
@@ -266,7 +267,6 @@
             }
 
         .pagination .page-item .page-link {
-
             border: 1px solid #dee2e6;
         }
 

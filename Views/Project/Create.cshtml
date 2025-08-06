@@ -49,8 +49,12 @@
                 <div class="col-md-6">
                     <label asp-for="ProjectType_pkId" class="form-label required">Project Type</label>
                     <div class="input-group">
-                        <select asp-for="ProjectType_pkId" class="form-select" asp-items="ViewBag.ProjectTypes" required>
+                        <select asp-for="ProjectType_pkId" id="ProjectTypeDropdown" class="form-select">
                             <option value="">-- Select Type --</option>
+                            @foreach (var item in (SelectList)ViewBag.ProjectTypes)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
                         </select>
                         <a href="@Url.Action("Index", "ProjectType")" target="_blank" class="btn btn-outline-success">+</a>
                     </div>
@@ -60,8 +64,9 @@
                 <div class="col-md-6">
                     <label asp-for="Language_pkId" class="form-label required">Language</label>
                     <div class="input-group">
-                        <select asp-for="Language_pkId" id="LanguageDropdown" class="form-select" asp-items="ViewBag.Languages" required>
+                        <select asp-for="Language_pkId" id="LanguageDropdown" class="form-select">
                             <option value="">-- Select Language --</option>
+                            @* Languages loaded dynamically via JS *@
                         </select>
                         <a href="@Url.Action("Index", "Language")" target="_blank" class="btn btn-outline-success">+</a>
                     </div>
@@ -128,14 +133,12 @@
                 </div>
             </div>
 
-            <!-- File Upload Section -->
-            <div class="mb-4">
+            <div class="mb-3">
                 <label class="form-label">Upload Project Files</label>
-                <input type="file" name="projectFiles" multiple class="form-control" />
-                <small class="form-text text-muted">You can upload multiple files (Max 10 files, 5MB each)</small>
+                <input type="file" id="projectFiles" name="projectFiles" multiple class="form-control" />
+                <small class="form-text text-muted">You can upload multiple files.</small>
             </div>
 
-            <!-- Submission Date -->
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label asp-for="ProjectSubmittedDate" class="form-label">Target Submission Date</label>
@@ -190,7 +193,30 @@
 
     <script>
         $(function () {
-            // Framework dropdown population based on language
+            // On Project Type change: load Languages
+            $('#ProjectTypeDropdown').change(function () {
+                var projectTypeId = $(this).val();
+                var $languageDropdown = $('#LanguageDropdown');
+
+                $languageDropdown.empty().append($('<option>').val('').text('-- Loading Languages --'));
+
+                if (projectTypeId) {
+                    $.getJSON('@Url.Action("GetLanguagesByProjectType", "Project")', { projectTypeId: projectTypeId })
+                        .done(function (data) {
+                            $languageDropdown.empty().append($('<option>').val('').text('-- Select Language --'));
+                            $.each(data, function (i, lang) {
+                                $languageDropdown.append($('<option>').val(lang.language_pkId).text(lang.languageName));
+                            });
+                        })
+                        .fail(function () {
+                            $languageDropdown.empty().append($('<option>').val('').text('-- Error loading languages --'));
+                        });
+                } else {
+                    $languageDropdown.empty().append($('<option>').val('').text('-- Select Language --'));
+                }
+            });
+
+            // On Language change: load Frameworks
             $('#LanguageDropdown').change(function () {
                 var languageId = $(this).val();
                 var $frameworkDropdown = $('#FrameworkDropdown');
@@ -211,7 +237,7 @@
                 }
             });
 
-            // Company information toggle
+            // On Company change: load company info and show/hide company info card
             $('#CompanyDropdown').change(function () {
                 var companyId = $(this).val();
                 if (companyId == "0") {
@@ -249,9 +275,10 @@
                 }
             });
 
-            // Set minimum date for submission date
-            var today = new Date().toISOString().split('T')[0];
-            $('#ProjectSubmittedDate').attr('min', today);
+            // Initially hide company info if no company selected
+            if (!$('#CompanyDropdown').val()) {
+                $('#companyInfo').hide();
+            }
         });
     </script>
 }

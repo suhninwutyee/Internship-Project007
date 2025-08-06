@@ -240,6 +240,31 @@
             color: white;
             text-decoration: none;
         }
+
+    .custom-swal-popup {
+        border-radius: 12px;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .custom-swal-title {
+        color: #8C5DD1;
+        font-weight: 600;
+    }
+
+    .custom-swal-content {
+        color: #333;
+    }
+
+    .custom-swal-confirm-btn {
+        background-color: #8C5DD1 !important;
+        color: white !important;
+    }
+
+    .custom-swal-cancel-btn {
+        background-color: #C8C6C1 !important;
+        color: #333 !important;
+    }
+
 </style>
 
 <div class="project-details-container">
@@ -255,7 +280,7 @@
         }
         else
         {
-            <span>Project Pending Approval</span>
+            <span>Project Pending </span>
         }
     </div>
 
@@ -273,8 +298,12 @@
         <div>
             <h1 class="project-title">@Model.ProjectName</h1>
             <div class="project-meta">
-                Created by @Model.CreatedBy on @Model.CreatedDate.??ToString("MMMM dd, yyyy") |
-                Submitted on @Model.ProjectSubmittedDate?.ToString("MMMM dd, yyyy")
+                Created by @Model.CreatedBy on @(Model.CreatedDate.HasValue
+                ? Model.CreatedDate.Value.ToString("dd MMM yyyy")
+                : "Not submitted") |
+                Submitted on @(Model.ProjectSubmittedDate.HasValue
+                ? Model.ProjectSubmittedDate.Value.ToString("dd MMM yyyy")
+                : "Not submitted")
             </div>
         </div>
     </div>
@@ -416,15 +445,23 @@
     <!-- Approval Buttons (if pending) -->
     @if (isPending)
     {
+        @Html.AntiForgeryToken() <!-- Required for the token in JS -->
+
         <div class="action-buttons">
-            <button type="button" class="btn-approve" onclick="confirmApprove(@Model.Project_pkId, '@Html.Raw(Model.ProjectName.Replace("'", "\\'"))')">
+            <button type="button" class="btn-approve"
+                    data-id="@Model.Project_pkId"
+                    data-name="@Model.ProjectName">
                 <i class="fas fa-check"></i> Approve Project
             </button>
-            <button type="button" class="btn-reject" onclick="confirmReject(@Model.Project_pkId, '@Html.Raw(Model.ProjectName.Replace("'", "\\'"))')">
+
+            <button type="button" class="btn-reject"
+                    data-id="@Model.Project_pkId"
+                    data-name="@Model.ProjectName">
                 <i class="fas fa-times"></i> Reject Project
             </button>
         </div>
     }
+
     <!-- Back to List Button -->
     <div class="back-to-list">
         <a href="@Url.Action("Index", "ProjectApproval")" class="btn-back">
@@ -434,103 +471,124 @@
 </div>
 
 @section Scripts {
-    @* <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> *@
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!-- Ensure SweetAlert2 is included -->
+
     <script>
-        function confirmApprove(projectId, projectName) {
+        // Approve Confirmation
+        function confirmApprove(projectId, projectName, createdBy) {
             Swal.fire({
                 title: 'Approve Project',
-                html: `Are you sure you want to approve <strong>${projectName}</strong>?`,
+                html: `<p>Project: <strong>${projectName}</strong></p>
+                       <p>Submitted by: <strong>${createdBy}</strong></p>
+                       <p>Are you sure you want to approve this project?</p>`,
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonColor: '#8C5DD1',
                 cancelButtonColor: '#C8C6C1',
                 background: '#E4EEFD',
-                confirmButtonText: 'Yes, Approve',
-                cancelButtonText: 'Cancel',
-                customClass: {
-                    popup: 'custom-swal-popup',
-                    title: 'custom-swal-title',
-                    content: 'custom-swal-content',
-                    confirmButton: 'custom-swal-confirm-btn',
-                    cancelButton: 'custom-swal-cancel-btn'
-                }
-            }).then((result) => {
+                confirmButtonText: 'Yes, approve it!',
+                cancelButtonText: 'Cancel'
+            }).then(result => {
                 if (result.isConfirmed) {
-                    $.ajax({
-                        url: '@Url.Action("Approve", "ProjectApproval")',
-                        type: 'POST',
-                        data: JSON.stringify(projectId),
-                        contentType: 'application/json',
-                        headers: {
-                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                location.reload();
-                            } else {
-                                Swal.fire('Error', response.message || 'Failed to approve', 'error');
-                            }
-                        },
-                        error: function () {
-                            Swal.fire('Error', 'An error occurred', 'error');
-                        }
-                    });
+                    submitApprove(projectId);
                 }
             });
         }
 
-        function confirmReject(projectId, projectName) {
+        // Reject Confirmation
+        function confirmReject(projectId, projectName, createdBy) {
             Swal.fire({
                 title: 'Reject Project',
-                html: `
-                    <p>Please provide a reason for rejecting <strong>${projectName}</strong></p>
-                    <textarea id="swal-reject-reason" class="swal2-textarea" placeholder="Enter rejection reason..." required></textarea>
-                `,
+                html: `<p>Project: <strong>${projectName}</strong></p>
+                       <p>Submitted by: <strong>${createdBy}</strong></p>
+                       <textarea id="swal-reject-reason" class="swal2-textarea" placeholder="Please provide a reason for rejection..." required></textarea>`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#8C5DD1',
                 cancelButtonColor: '#C8C6C1',
                 background: '#E4EEFD',
-                confirmButtonText: 'Confirm Rejection',
+                confirmButtonText: 'Yes, reject it',
                 cancelButtonText: 'Cancel',
-                customClass: {
-                    popup: 'custom-swal-popup',
-                    title: 'custom-swal-title',
-                    content: 'custom-swal-content',
-                    confirmButton: 'custom-swal-confirm-btn',
-                    cancelButton: 'custom-swal-cancel-btn'
-                },
                 preConfirm: () => {
                     const reason = document.getElementById('swal-reject-reason').value;
                     if (!reason.trim()) {
-                        Swal.showValidationMessage('Please enter a rejection reason');
+                        Swal.showValidationMessage('Please enter a rejection reason.');
                         return false;
                     }
-                    return { id: projectId, reason: reason };
+                    return reason;
                 }
-            }).then((result) => {
+            }).then(result => {
                 if (result.isConfirmed) {
-                    $.ajax({
-                        url: '@Url.Action("Reject", "ProjectApproval")',
-                        type: 'POST',
-                        data: JSON.stringify(result.value),
-                        contentType: 'application/json',
-                        headers: {
-                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                        },
-                        success: function (response) {
-                            if (response.success) {
-                                location.reload();
-                            } else {
-                                Swal.fire('Error', response.message || 'Failed to reject', 'error');
-                            }
-                        },
-                        error: function () {
-                            Swal.fire('Error', 'An error occurred', 'error');
-                        }
-                    });
+                    submitReject(projectId, result.value);
                 }
             });
         }
+
+        // Submit Approve
+        function submitApprove(projectId) {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            fetch('@Url.Action("Approve", "ProjectApproval")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify(projectId)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire("Approved!", "The project was approved successfully.", "success")
+                        .then(() => location.reload());
+                } else {
+                    Swal.fire("Error", data.message || "Failed to approve the project.", "error");
+                }
+            })
+            .catch(error => {
+                Swal.fire("Error", "Request failed: " + error.message, "error");
+            });
+        }
+
+        // Submit Reject
+        function submitReject(projectId, reason) {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            fetch('@Url.Action("Reject", "ProjectApproval")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': token
+                },
+                body: JSON.stringify({ Id: projectId, Reason: reason })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire("Rejected!", "The project was rejected successfully.", "success")
+                        .then(() => location.reload());
+                } else {
+                    Swal.fire("Error", data.message || "Failed to reject the project.", "error");
+                }
+            })
+            .catch(error => {
+                Swal.fire("Error", "Request failed: " + error.message, "error");
+            });
+        }
+
+        // Attach event listeners to buttonsm
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.btn-approve').forEach(button => {
+                button.addEventListener('click', function () {
+                    confirmApprove(this.dataset.id, this.dataset.name, '@Model.CreatedBy');
+                });
+            });
+
+            document.querySelectorAll('.btn-reject').forEach(button => {
+                button.addEventListener('click', function () {
+                    confirmReject(this.dataset.id, this.dataset.name, '@Model.CreatedBy');
+                });
+            });
+        });
     </script>
 }

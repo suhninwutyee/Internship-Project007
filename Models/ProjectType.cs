@@ -13,5 +13,6 @@ namespace ProjectManagementSystem.Models
         [StringLength(50, ErrorMessage = "Type name cannot exceed 50 characters")]
         public string TypeName { get; set; }
         public virtual ICollection<Project> Projects { get; set; }
+        public ICollection<Language> Languages { get; set; }
     }
 }

@@ -10,7 +10,9 @@ namespace ProjectManagementSystem.Models
         [Required]
         [MaxLength(20)]
         public string YearRange { get; set; }
+
         public bool IsActive { get; set; } = true;
+
         public ICollection<Student> Students { get; set; }
     }
 

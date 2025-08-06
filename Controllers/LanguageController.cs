@@ -5,6 +5,8 @@ using ProjectManagementSystem.Models;
 using System.Threading.Tasks;
 using System.Linq;
 using X.PagedList;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
 namespace ProjectManagementSystem.Controllers
 {
     public class LanguageController : Controller
@@ -29,7 +31,8 @@ namespace ProjectManagementSystem.Controllers
             int pageNumber = page ?? 1;     // Current page number (default 1)
 
             var languages = await _context.Languages
-                                .OrderBy(l => l.Language_pkId)  // Order items (required)
+                .Include(l => l.ProjectType)
+                                .OrderBy(l => l.Language_pkId)
                                 .ToPagedListAsync(pageNumber, pageSize);
 
             return View(languages);
@@ -53,6 +56,7 @@ namespace ProjectManagementSystem.Controllers
         // GET: Language/Create
         public IActionResult Create()
         {
+            ViewBag.ProjectTypes = new SelectList(_context.ProjectTypes.OrderBy(t => t.TypeName), "ProjectType_pkId", "TypeName");
             return View();
         }
 
@@ -61,12 +65,15 @@ namespace ProjectManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Language language)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid) // Fix: Validate properly
             {
                 _context.Languages.Add(language);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
+            // Reload ProjectTypes if validation fails
+            ViewBag.ProjectTypes = new SelectList(_context.ProjectTypes.OrderBy(t => t.TypeName), "ProjectType_pkId", "TypeName", language.ProjectType_pkId);
             return View(language);
         }
 
@@ -78,6 +85,7 @@ namespace ProjectManagementSystem.Controllers
             var language = await _context.Languages.FindAsync(id);
             if (language == null) return NotFound();
 
+            ViewBag.ProjectTypes = new SelectList(_context.ProjectTypes.OrderBy(t => t.TypeName), "ProjectType_pkId", "TypeName", language.ProjectType_pkId);
             return View(language);
         }
 
@@ -89,12 +97,13 @@ namespace ProjectManagementSystem.Controllers
             if (id != language.Language_pkId)
                 return NotFound();
 
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid) // Fix: run update only if valid
             {
                 try
                 {
                     _context.Update(language);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -103,11 +112,12 @@ namespace ProjectManagementSystem.Controllers
                     else
                         throw;
                 }
-                return RedirectToAction(nameof(Index));
             }
+
+            // Reload ProjectTypes dropdown if validation fails
+            ViewBag.ProjectTypes = new SelectList(_context.ProjectTypes.OrderBy(t => t.TypeName), "ProjectType_pkId", "TypeName", language.ProjectType_pkId);
             return View(language);
         }
-
 
         // GET: Language/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -121,9 +131,9 @@ namespace ProjectManagementSystem.Controllers
         }
 
         // POST: Language/Delete/5
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var language = await _context.Languages.FindAsync(id);
             if (language != null)
@@ -131,7 +141,7 @@ namespace ProjectManagementSystem.Controllers
                 _context.Languages.Remove(language);
                 await _context.SaveChangesAsync();
             }
-            return RedirectToAction("Index", "Language"); // Redirect back to list
-        }       
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

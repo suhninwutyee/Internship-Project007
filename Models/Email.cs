@@ -34,8 +34,6 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-using ProjectManagementSystem;
-using ProjectManagementSystem.Models;
 namespace ProjectManagementSystem.Models
 {
     public class Email
@@ -63,10 +61,8 @@ namespace ProjectManagementSystem.Models
 
         public bool IsDeleted { get; set; } = false;
 
-        public DateTimeOffset CreatedDate { get; set; } = DateTimeOffset.Now; // Auto-set
 
         public virtual ICollection<Student>? Students { get; set; }
 
     }
-
 }

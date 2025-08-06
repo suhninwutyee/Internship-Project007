@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using ProjectManagementSystem.Data;
 using ProjectManagementSystem.Models;
+using ProjectManagementSystem.ViewModels;
 
 namespace ProjectManagementSystem.Controllers
 {
@@ -14,9 +15,14 @@ namespace ProjectManagementSystem.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string statusFilter = "all", string searchString = "", int pageNumber = 1)
+  public async Task<IActionResult> Index(
+    string statusFilter = "all",
+    string searchString = "",
+    DateTime? fromDate = null,
+    DateTime? toDate = null,
+    int pageNumber = 1)
         {
-            int pageSize = 3; // Items per page
+            const int pageSize = 15;
 
             var query = _context.Projects
                 .Include(p => p.Company)
@@ -31,8 +37,19 @@ namespace ProjectManagementSystem.Controllers
                 query = query.Where(p =>
                     p.ProjectName.Contains(searchString) ||
                     p.CreatedBy.Contains(searchString) ||
-                    p.ProjectMembers.Any(pm => pm.Student.StudentName.Contains(searchString))
+                    p.ProjectMembers.Any(pm =>  
+                                              pm.Student.StudentName.Contains(searchString))
                 );
+            }
+
+            // Apply date range filter
+            if (fromDate.HasValue)
+            {
+                query = query.Where(p => p.ProjectSubmittedDate >= fromDate);
+            }
+            if (toDate.HasValue)
+            {
+                query = query.Where(p => p.ProjectSubmittedDate <= toDate.Value.AddDays(1));
             }
 
             // Apply status filter
@@ -49,18 +66,33 @@ namespace ProjectManagementSystem.Controllers
                 .Take(pageSize)
                 .ToListAsync();
 
-            // Set ViewBag values
-            ViewBag.TotalCount = await _context.Projects.CountAsync(p => p.IsDeleted == null || p.IsDeleted == false);
-            ViewBag.PendingCount = await _context.Projects.CountAsync(p => p.Status == "Pending" && (p.IsDeleted == null || p.IsDeleted == false));
-            ViewBag.ApprovedCount = await _context.Projects.CountAsync(p => p.Status == "Approved" && (p.IsDeleted == null || p.IsDeleted == false));
-            ViewBag.RejectedCount = await _context.Projects.CountAsync(p => p.Status == "Rejected" && (p.IsDeleted == null || p.IsDeleted == false));
-            ViewBag.CurrentFilter = statusFilter;
-            ViewBag.SearchString = searchString;
-            ViewBag.PageNumber = pageNumber;
-            ViewBag.TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-            ViewBag.PageTitle = statusFilter == "all" ? "All Projects" : $"{statusFilter} Projects";
+            var model = new ProjectApprovalViewModel
+            {
+                //    Projects = await query
+                //.OrderByDescending(p => p.ProjectSubmittedDate)
+                //.Skip((pageNumber - 1) * pageSize)
+                //.Take(pageSize)
+                //.ToListAsync(),
+                Projects = projects,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+                StatusFilter = statusFilter,
+                SearchString = searchString,
+                FromDate = fromDate,
+                ToDate = toDate,
+                PageTitle = statusFilter == "all" ? "All Projects" : $"{statusFilter} Projects",
+                PendingCount = await _context.Projects.CountAsync(p => p.Status == "Pending" && (p.IsDeleted == null || p.IsDeleted == false)),
+                ApprovedCount = await _context.Projects.CountAsync(p => p.Status == "Approved" && (p.IsDeleted == null || p.IsDeleted == false)),
+                RejectedCount = await _context.Projects.CountAsync(p => p.Status == "Rejected" && (p.IsDeleted == null || p.IsDeleted == false))
+            };
 
-            return View(projects);
+            ViewBag.PageTitle = model.PageTitle;
+            ViewBag.CurrentFilter = model.StatusFilter;
+            ViewBag.SearchString = model.SearchString;
+
+            return View(model);
         }
 
         [HttpPost]
@@ -101,14 +133,14 @@ namespace ProjectManagementSystem.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var project = await _context.Projects
-        .Include(p => p.Company)
-        .Include(p => p.ProjectType)
-        .Include(p => p.Language)
-        .Include(p => p.Framework)
-        .Include(p => p.Files)
-        .Include(p => p.ProjectMembers)
-            .ThenInclude(pm => pm.Student) // Include Student data
-        .FirstOrDefaultAsync(p => p.Project_pkId == id);
+                .Include(p => p.Company)
+                .Include(p => p.ProjectType)
+                .Include(p => p.Language)
+                .Include(p => p.Framework)
+                .Include(p => p.Files)
+                .Include(p => p.ProjectMembers)
+                    .ThenInclude(pm => pm.Student)
+                .FirstOrDefaultAsync(p => p.Project_pkId == id);
 
             if (project == null)
             {
@@ -128,5 +160,80 @@ namespace ProjectManagementSystem.Controllers
             public string Reason { get; set; }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Export([FromBody] ProjectApprovalViewModel model)
+        {
+            try
+            {
+                // Get all projects based on filters, ignoring pagination
+                var projects = await _context.Projects
+                    .Where(p => model.StatusFilter == "all" || p.Status == model.StatusFilter)
+                    .Where(p => string.IsNullOrEmpty(model.SearchString) ||
+                           p.ProjectName.Contains(model.SearchString) ||
+                           p.CreatedBy.Contains(model.SearchString))
+                    .Where(p => !model.FromDate.HasValue || p.ProjectSubmittedDate >= model.FromDate)
+                    .Where(p => !model.ToDate.HasValue || p.ProjectSubmittedDate <= model.ToDate)
+                    .Select(p => new
+                    {
+                        projectName = p.ProjectName,
+                        createdBy = p.CreatedBy,
+                        projectSubmittedDate = p.ProjectSubmittedDate,
+                        status = p.Status,
+                        description = p.Description,
+                       
+                    })
+                    .ToListAsync();
+
+                return Json(new { success = true, projects = projects });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+        // In ProjectApprovalController.cs
+        [HttpGet]
+        public IActionResult SharedView(string statusFilter)
+        {
+            // This ensures the Index action can handle requests from both controllers
+            return RedirectToAction("Index", new { statusFilter });
+        }
+
+        // Add to ProjectApprovalController.cs
+        public async Task<IActionResult> AllProjects()
+        {
+            var model = new ProjectApprovalViewModel
+            {
+                Projects = await _context.Projects
+                    .Include(p => p.Company)
+                    .Include(p => p.ProjectType)
+                    .Where(p => p.IsDeleted == null || p.IsDeleted == false)
+                    .OrderByDescending(p => p.ProjectSubmittedDate)
+                    .ToListAsync(),
+                PageTitle = "All Projects"
+            };
+            return View("Index", model);
+        }
+
+        public async Task<IActionResult> ProjectsByDate(string date)
+        {
+            if (!DateTime.TryParse(date, out var filterDate))
+            {
+                filterDate = DateTime.Today;
+            }
+
+            var model = new ProjectApprovalViewModel
+            {
+                Projects = await _context.Projects
+                    .Include(p => p.Company)
+                    .Include(p => p.ProjectType)
+                    .Where(p => p.ProjectSubmittedDate.HasValue &&
+                           p.ProjectSubmittedDate.Value.Date == filterDate.Date)
+                    .OrderByDescending(p => p.ProjectSubmittedDate)
+                    .ToListAsync(),
+                PageTitle = $"Projects Submitted on {filterDate.ToShortDateString()}"
+            };
+            return View("Index", model);
+        }
     }
 }
