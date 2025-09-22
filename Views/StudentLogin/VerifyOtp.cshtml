@@ -2,156 +2,230 @@
 
 @{
     ViewData["Title"] = "Verify OTP";
-    //Layout = "_Layout";
     Layout = null;
 }
-<div>
-    <partial name="_ProgressBarPartial" />
-</div>
-<style>
-    body {
-        background: linear-gradient(135deg, #e4eefd);
-        min-height: 100vh;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    /* Specific styles for the OTP verification card */
-    .otp-container {
-        background-color: #ffffff;
-        border-radius: 15px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        padding: 40px;
-        width: 100%;
-        max-width: 500px; /* Smaller max-width for OTP card */
-        text-align: center;
-        margin-left: auto;
-        margin-right: auto;
-        margin-top: 100px; /* Adjust top margin to position it below the navbar */
-        margin-bottom: 50px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
 
-        .otp-container h2 {
-            font-size: 2em;
-            margin-bottom: 10px;
-            color: #333;
-            font-weight: 600;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #e4eefd, #f5f9ff);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
-        .otp-container p {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 1.1em;
+        .otp-container {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
         }
 
-    .form-group-otp {
-        width: 100%;
-        margin-bottom: 25px;
-    }
-
-    .form-label {
-        font-weight: 500;
-        color: #555;
-        margin-bottom: 8px;
-        display: block; /* Ensure label is on its own line */
-        text-align: left;
-    }
-
-    .form-control {
-        border-radius: 8px;
-        padding: 12px 15px;
-        border: 1px solid #ddd;
-        text-align: center; /* Center the OTP input text */
-        font-size: 1.2em; /* Make OTP input larger */
-        letter-spacing: 2px; /* Add some spacing between OTP digits */
-    }
-
-    .btn-verify-otp {
-        background: linear-gradient(to right, #8c5dd1); /* Gradient button */
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 12px 25px;
-        font-size: 1.1em;
-        width: 100%;
-        margin-top: 20px;
-        transition: all 0.3s ease;
-    }
-
-        .btn-verify-otp:hover {
-            opacity: 0.9;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-
-    .text-danger {
-        font-size: 0.85em;
-        margin-top: 5px; /* Spacing for validation message */
-        display: block; /* Ensure validation message is on its own line */
-        text-align: left;
-    }
-
-    .resend-otp-link {
-        margin-top: 20px;
-        font-size: 0.9em;
-    }
-
-        .resend-otp-link a {
-            color: #2575fc;
-            text-decoration: none;
-        }
-
-            .resend-otp-link a:hover {
-                text-decoration: underline;
+            .otp-container h2 {
+                font-size: 2em;
+                margin-bottom: 10px;
+                color: #333;
+                font-weight: 600;
             }
-</style>
-<div class="otp-container">
-    <h2>Enter OTP</h2>
-    <p>Please check your email and enter the 6-digit verification code sent to you.</p>
 
-    <form asp-action="VerifyOtp" method="post" class="w-100">
-        <input type="hidden" asp-for="RollNumber" />
-        <div class="form-group-otp">
-            <label asp-for="OTPCode" class="form-label">OTP Code</label>
-            <input asp-for="OTPCode" class="form-control" placeholder="______" maxlength="6" inputmode="numeric" pattern="[0-9]*" />
-            <span asp-validation-for="OTPCode" class="text-danger"></span>
+            .otp-container p {
+                color: #666;
+                margin-bottom: 30px;
+                font-size: 1.1em;
+            }
+
+        .form-group-otp {
+            width: 100%;
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
+            display: block;
+            text-align: left;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            text-align: center;
+            font-size: 1.2em;
+            letter-spacing: 2px;
+        }
+
+        .btn-verify-otp {
+            background: linear-gradient(to right, #8c5dd1);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-size: 1.1em;
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+            .btn-verify-otp:hover {
+                opacity: 0.9;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            }
+
+        .text-danger {
+            font-size: 0.85em;
+            margin-top: 5px;
+            display: block;
+            text-align: left;
+        }
+
+        .resend-otp-link {
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+
+            .resend-otp-link a {
+                color: #8c5dd1;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+                .resend-otp-link a:hover {
+                    text-decoration: underline;
+                }
+
+        .alert {
+            margin-top: 20px;
+        }
+
+        #resendMessage {
+            margin-top: 10px;
+            display: none;
+            font-size: 0.9em;
+        }
+
+        .countdown {
+            color: #666;
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="otp-container">
+        <h2>Enter OTP</h2>
+        <p>Please check your email and enter the 6-digit verification code sent to you.</p>
+
+        <form asp-action="VerifyOtp" method="post" class="w-100">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="RollNumber" />
+            <div class="form-group-otp">
+                <label asp-for="OTPCode" class="form-label">OTP Code</label>
+                <input asp-for="OTPCode" class="form-control"
+                       placeholder="______"
+                       maxlength="6"
+                       inputmode="numeric"
+                       pattern="[0-9]*"
+                       autocomplete="one-time-code" />
+                <span asp-validation-for="OTPCode" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-verify-otp">Verify</button>
+        </form>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger mt-3" role="alert">@ViewBag.Error</div>
+        }
+
+        <div class="resend-otp-link">
+            Didn't receive the OTP? <a id="resendOtpLink">Resend OTP</a>
+            <div id="resendMessage"></div>
+            <div id="countdown" class="countdown" style="display:none;">
+                You can request a new OTP in <span id="countdownSeconds">30</span> seconds
+            </div>
         </div>
-        <button type="submit" class="btn btn-verify-otp">Verify</button>
-    </form>
-
-    @if (ViewBag.Error != null)
-    {
-        <div class="alert alert-danger mt-3" role="alert">@ViewBag.Error</div>
-    }
-    <div class="resend-otp-link">
-        Didn't receive the OTP? <a href="#" id="resendOtpLink">Resend OTP</a>
-        <div id="resendMessage" style="margin-top: 10px; display:none;"></div>
     </div>
-</div>
 
-@section Scripts {
     <script>
         $(document).ready(function () {
+            // Start countdown timer on page load (30 seconds)
+            startCountdown(30);
+
             $('#resendOtpLink').click(function (e) {
                 e.preventDefault();
 
-                var rollNumber = $('input[name="RollNumber"]').val();
+                // Disable the link temporarily to prevent spamming
+                $(this).css('pointer-events', 'none');
+                $('#resendMessage').hide();
 
-                $.post('@Url.Action("ResendOtp", "StudentLogin")', { rollNumber: rollNumber })
-                    .done(function (response) {
-                        $('#resendMessage').show();
+                var rollNumber = $('input[name="RollNumber"]').val();
+                var token = $('input[name="__RequestVerificationToken"]').val();
+
+                $.ajax({
+                    url: '@Url.Action("ResendOtp", "StudentLogin")',
+                    type: 'POST',
+                    data: {
+                        rollNumber: rollNumber,
+                        __RequestVerificationToken: token
+                    },
+                    success: function (response) {
                         if (response.success) {
-                            $('#resendMessage').css('color', 'green').text(response.message);
-                            // Optionally start cooldown timer here
+                            $('#resendMessage').css('color', 'green').text(response.message).show();
+                            // Start countdown again
+                            startCountdown(30);
                         } else {
-                            $('#resendMessage').css('color', 'red').text(response.message);
+                            $('#resendOtpLink').css('pointer-events', 'auto');
+                            $('#resendMessage').css('color', 'red').text(response.message).show();
                         }
-                    })
-                    .fail(function () {
-                        $('#resendMessage').show().css('color', 'red').text('Error sending request.');
-                    });
+                    },
+                    error: function () {
+                        $('#resendOtpLink').css('pointer-events', 'auto');
+                        $('#resendMessage').css('color', 'red').text('Error sending request. Please try again.').show();
+                    }
+                });
+            });
+
+            function startCountdown(seconds) {
+                $('#countdown').show();
+                $('#countdownSeconds').text(seconds);
+                $('#resendOtpLink').css('pointer-events', 'none').css('color', '#999');
+
+                var countdownInterval = setInterval(function() {
+                    seconds--;
+                    $('#countdownSeconds').text(seconds);
+
+                    if (seconds <= 0) {
+                        clearInterval(countdownInterval);
+                        $('#countdown').hide();
+                        $('#resendOtpLink').css('pointer-events', 'auto').css('color', '#2575fc');
+                    }
+                }, 1000);
+            }
+
+            // Auto-focus OTP input and move between inputs
+            $('input[name="OTPCode"]').focus();
+
+            // Auto move to next input (if you implement multiple input fields)
+            $('input[name="OTPCode"]').on('input', function() {
+                if (this.value.length === this.maxLength) {
+                    $(this).next('input').focus();
+                }
             });
         });
     </script>
-}
+</body>
+</html>

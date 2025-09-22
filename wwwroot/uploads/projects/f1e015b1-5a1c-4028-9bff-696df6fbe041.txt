@@ -1,0 +1,143 @@
+ public async Task<IActionResult> Index(string statusFilter = "all", string searchString = "", int pageNumber = 1)
+ {
+     int pageSize = 3; // Items per page
+
+     var query = _context.Projects
+         .Include(p => p.Company)
+         .Include(p => p.ProjectType)
+         .Include(p => p.ProjectMembers)
+             .ThenInclude(pm => pm.Student)
+         .Where(p => p.IsDeleted == null || p.IsDeleted == false);
+
+     // Apply search filter
+     if (!string.IsNullOrEmpty(searchString))
+     {
+         query = query.Where(p =>
+             p.ProjectName.Contains(searchString) ||
+             p.CreatedBy.Contains(searchString) 
+             //p.ProjectMembers.Any(pm => pm.Student.StudentName.Contains(searchString))
+         );
+     }
+
+     // Apply status filter
+     if (statusFilter != "all")
+     {
+         query = query.Where(p => p.Status == statusFilter);
+     }
+
+     // Get counts and paginated results
+     var totalCount = await query.CountAsync();
+     var projects = await query
+         .OrderByDescending(p => p.ProjectSubmittedDate)
+         .Skip((pageNumber - 1) * pageSize)
+         .Take(pageSize)
+         .ToListAsync();
+
+     // Set ViewBag values
+     ViewBag.TotalCount = await _context.Projects.CountAsync(p => p.IsDeleted == null || p.IsDeleted == false);
+     ViewBag.PendingCount = await _context.Projects.CountAsync(p => p.Status == "Pending" && (p.IsDeleted == null || p.IsDeleted == false));
+     ViewBag.ApprovedCount = await _context.Projects.CountAsync(p => p.Status == "Approved" && (p.IsDeleted == null || p.IsDeleted == false));
+     ViewBag.RejectedCount = await _context.Projects.CountAsync(p => p.Status == "Rejected" && (p.IsDeleted == null || p.IsDeleted == false));
+     ViewBag.CurrentFilter = statusFilter;
+     ViewBag.SearchString = searchString;
+     ViewBag.PageNumber = pageNumber;
+     ViewBag.TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+     ViewBag.PageTitle = statusFilter == "all" ? "All Projects" : $"{statusFilter} Projects";
+
+     return View(projects);
+ }
+
+
+
+ public async Task<IActionResult> Details(int id)
+ {
+     var project = await _context.Projects
+ .Include(p => p.Company)
+ .Include(p => p.ProjectType)
+ .Include(p => p.Language)
+ .Include(p => p.Framework)
+ .Include(p => p.Files)
+ .Include(p => p.ProjectMembers)
+     .ThenInclude(pm => pm.Student) // Include Student data
+ .FirstOrDefaultAsync(p => p.Project_pkId == id);
+
+     if (project == null)
+     {
+         return NotFound();
+     }
+
+     ViewBag.IsPending = project.Status == "Pending";
+     ViewBag.StatusMessage = TempData["StatusMessage"];
+     ViewBag.IsSuccess = TempData["IsSuccess"];
+
+     return View(project);
+ }
+
+
+Index
+
+ <td class="project-name">@project.ProjectName</td>
+ @{
+     var leader = project.ProjectMembers.FirstOrDefault(m => m.Role == "Leader");
+ }
+ <td>@(leader != null ? leader.Student.StudentName : "No Leader")</td>
+
+
+
+
+Detail
+
+ <div class="detail-row">
+     <div class="detail-label">Supervisor:</div>
+     <div class="detail-value">@Model.SupervisorName</div>
+ </div>
+
+ <!-- Leader Detail -->
+ <div class="detail-row">
+     <div class="detail-label">Leader:</div>
+     <div class="detail-value">
+         @{
+             var leader = Model.ProjectMembers?.FirstOrDefault(pm => pm.Role == "Leader");
+         }
+
+         @if (leader != null && leader.Student != null)
+         {
+             @leader.Student.StudentName
+         }
+         else
+         {
+             <span>No Leader assigned</span>
+         }
+     </div>
+ </div>
+
+ <!-- Members Detail -->
+ <div class="detail-row">
+     <div class="detail-label">Members:</div>
+     <div class="detail-value">
+         @if (Model.ProjectMembers != null)
+         {
+             var members = Model.ProjectMembers
+             .Where(pm => pm.Role == "Member" && pm.Student != null)
+             .ToList();
+
+             if (members.Any())
+             {
+                 <ul class="mb-0" style="padding-left: 18px;">
+                     @foreach (var member in members)
+                     {
+                         <li>@member.Student.StudentName</li>
+                     }
+                 </ul>
+             }
+             else
+             {
+                 <span>No members assigned</span>
+             }
+         }
+         else
+         {
+             <span>No members assigned</span>
+         }
+     </div>
+ </div>

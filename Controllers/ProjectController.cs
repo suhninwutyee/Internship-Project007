@@ -26,6 +26,31 @@ namespace ProjectManagementSystem.Controllers
 
         }
 
+        //   public async Task<IActionResult> Index(int page = 1)
+        //   {
+        //       var rollNumber = HttpContext.Session.GetString("RollNumber");
+        //       if (string.IsNullOrEmpty(rollNumber))
+        //       {
+        //           return RedirectToAction("Login", "StudentLogin");
+        //       }
+
+        //       int pageSize = 3;
+        //       var projects = _context.Projects
+        //.Include(p => p.ProjectType)
+        //.Include(p => p.Language)
+        //.Include(p => p.Framework)
+        //.Include(p => p.Company)
+        //.Include(p => p.Files)
+        //.Include(p => p.ProjectMembers)
+        //    .ThenInclude(pm => pm.Student)
+        //.OrderByDescending(p => p.ProjectSubmittedDate);
+
+
+        //       var pagedProjects = await projects.ToPagedListAsync(page, pageSize);
+
+        //       return View(pagedProjects);
+        //   }
+
         public async Task<IActionResult> Index(int page = 1)
         {
             var rollNumber = HttpContext.Session.GetString("RollNumber");
@@ -34,17 +59,17 @@ namespace ProjectManagementSystem.Controllers
                 return RedirectToAction("Login", "StudentLogin");
             }
 
-            int pageSize = 3;
+            int pageSize = 1; // Show only one project per page
             var projects = _context.Projects
-     .Include(p => p.ProjectType)
-     .Include(p => p.Language)
-     .Include(p => p.Framework)
-     .Include(p => p.Company)
-     .Include(p => p.Files)
-     .Include(p => p.ProjectMembers)
-         .ThenInclude(pm => pm.Student)
-     .OrderByDescending(p => p.ProjectSubmittedDate);
-
+                .Include(p => p.ProjectType)
+                .Include(p => p.Language)
+                .Include(p => p.Framework)
+                .Include(p => p.Company)
+                .Include(p => p.Files)
+                .Include(p => p.ProjectMembers)
+                    .ThenInclude(pm => pm.Student)
+                .Where(p => p.ProjectMembers.Any(pm => pm.Student.Email.RollNumber == rollNumber)) // Filter by current student
+                .OrderByDescending(p => p.ProjectSubmittedDate);
 
             var pagedProjects = await projects.ToPagedListAsync(page, pageSize);
 
@@ -579,8 +604,12 @@ namespace ProjectManagementSystem.Controllers
 
             var project = await _context.Projects
                 .Include(p => p.ProjectType)
+                .Include(p => p.Language)
+                .Include(p => p.Framework)
                 .Include(p => p.Company)
                 .Include(p => p.Files)
+                .Include(p => p.ProjectMembers)
+                    .ThenInclude(pm => pm.Student)
                 .FirstOrDefaultAsync(p => p.Project_pkId == id);
 
             if (project == null) return NotFound();
@@ -708,11 +737,33 @@ namespace ProjectManagementSystem.Controllers
 
 
 
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Delete(int id)
+        //{
+        //    var project = await _context.Projects.FindAsync(id);
+        //    if (project == null)
+        //        return NotFound();
+
+        //    if (project.Status == "Pending" || project.Status == "Approved")
+        //    {
+        //        TempData["Error"] = "You cannot delete a project that is pending or approved. Wait for teacher feedback.";
+        //        return RedirectToAction(nameof(Index));
+        //    }
+
+        //    _context.Projects.Remove(project);
+        //    await _context.SaveChangesAsync();
+
+        //    return RedirectToAction(nameof(Index));
+        //}
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var project = await _context.Projects.FindAsync(id);
+            var project = await _context.Projects
+                .Include(p => p.ProjectMembers)
+                .FirstOrDefaultAsync(p => p.Project_pkId == id);
+
             if (project == null)
                 return NotFound();
 
@@ -722,9 +773,17 @@ namespace ProjectManagementSystem.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            // First remove project members
+            if (project.ProjectMembers.Any())
+            {
+                _context.ProjectMembers.RemoveRange(project.ProjectMembers);
+            }
+
+            // Then remove the project
             _context.Projects.Remove(project);
             await _context.SaveChangesAsync();
 
+            TempData["Success"] = "Project deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
 

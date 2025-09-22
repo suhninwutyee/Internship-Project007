@@ -233,7 +233,7 @@
         </div>
 
         <div class="step-item @(ViewBag.CurrentStep >= 3 ? "completed" : "") @(ViewBag.CurrentStep == 3 ? "active" : "")">
-            <a href="@Url.Action("Upload", "Project")">
+            <a href="@Url.Action("Index", "Project")">
                 <div class="step-indicator">
                     @if (ViewBag.CurrentStep > 3)
                     {

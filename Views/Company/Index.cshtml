@@ -1,8 +1,79 @@
 ﻿@model List<ProjectManagementSystem.Models.CompanyViewModel>
 @{
     ViewData["Title"] = "Companies";
-    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+    Layout = "_Layout";
 }
+
+<style>
+    body {
+        background: linear-gradient(135deg, #e4eefd);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .btn-primary {
+        background-color: #8c5dd1;
+        border-color: #8c5dd1;
+    }
+
+        .btn-primary:hover {
+            background-color: #7a4bc2;
+            border-color: #7a4bc2;
+        }
+
+    .company-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+        .company-table th {
+            background-color: #8c5dd1;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .company-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .company-table tr:hover {
+            background-color: #f9f5ff;
+        }
+
+    .add-form {
+        background-color: #f9f5ff;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+        .add-form input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 10px;
+            width: 300px;
+        }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+    }
+</style>
 
 @if (TempData["SuccessMessage"] != null)
 {
@@ -77,4 +148,4 @@
             document.getElementById('edit-btn-' + id).style.display = 'inline';
         }
     </script>
-} 
+}

@@ -68,6 +68,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         }
         modelBuilder.Entity<ProjectMember>().HasQueryFilter(pm => !pm.IsDeleted);
 
+        modelBuilder.Entity<ProjectMember>()
+        .HasOne(pm => pm.Project)
+        .WithMany(p => p.ProjectMembers)
+        .HasForeignKey(pm => pm.Project_pkId)
+        .OnDelete(DeleteBehavior.Cascade);
+
         // ProjectMember - Student (many-to-one)
         modelBuilder.Entity<ProjectMember>()
             .HasOne(pm => pm.Student)
@@ -81,6 +87,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithOne(s => s.SubmittedProject)
             .HasForeignKey<Project>(p => p.SubmittedByStudent_pkId)
             .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.Entity<AcademicYear>().HasData(years);
 
         modelBuilder.Entity<Student>()

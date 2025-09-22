@@ -135,6 +135,7 @@ namespace ProjectManagementSystem.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var student = await _context.Students
+                .Include(s => s.Email)
                 .Include(s => s.NRCTownship)
                 .Include(s => s.NRCType)
                 .Include(s => s.StudentDepartment)
