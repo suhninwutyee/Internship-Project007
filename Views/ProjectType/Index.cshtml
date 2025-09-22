@@ -86,10 +86,10 @@
         display: inline-block;
     }
 
-    .add-button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(140, 93, 209, 0.3);
-    }
+        .add-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(140, 93, 209, 0.3);
+        }
 
     .project-types-container {
         display: grid;
@@ -107,26 +107,26 @@
         text-align: left;
     }
 
-    .project-type-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(140, 93, 209, 0.2);
-    }
+        .project-type-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(140, 93, 209, 0.2);
+        }
 
-    .project-type-card::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 5px;
-        height: 100%;
-        background: linear-gradient(to bottom, var(--primary), #A37FE2);
-    }
+        .project-type-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary), #A37FE2);
+        }
 
-    .project-type-card h3 {
-        margin: 0 0 15px 0;
-        color: var(--primary);
-        font-size: 1.2rem;
-    }
+        .project-type-card h3 {
+            margin: 0 0 15px 0;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
 
     .card-actions {
         display: flex;
@@ -146,20 +146,20 @@
         transition: all 0.3s ease;
     }
 
-    .action-button:hover {
-        transform: scale(1.1);
-        background: var(--white);
-    }
+        .action-button:hover {
+            transform: scale(1.1);
+            background: var(--white);
+        }
 
     /* Animation for cards */
-    @@foreach (var item in Model)
-    {
-        <text>
+    @@foreach (var item in Model) {
+        <text >
         .project-type-card[data-id="@@item.ProjectType_pkId"] {
             animation: fadeIn 0.5s ease @@(Model.IndexOf(item) * 0.1s forwards;
-            opacity: 0;
-            transform: translateY(10px);
+                opacity: 0;
+                transform: translateY(10px);
         }
+
         </text>
     }
 
@@ -175,11 +175,11 @@
         .project-types-container {
             grid-template-columns: 1fr;
         }
-        
+
         .dashboard-title {
             font-size: 1.8rem;
         }
-        
+
         .add-button {
             padding: 8px 16px;
             font-size: 0.9rem;

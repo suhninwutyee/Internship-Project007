@@ -333,21 +333,27 @@
         <h2 class="main-title">Student Email Management</h2>
         <p class="sub-title">Manage student email addresses</p>
     </div>
-
-    <!-- Year Selection -->
+    <div class="action-buttons-container" style="margin-bottom: 1.5rem;">
+        <a asp-action="Create" class="action-btn create-btn">
+            <i class="fas fa-plus-circle"></i> Add New Email
+        </a>
+        <a asp-action="UploadBulk" class="action-btn upload-btn">
+            <i class="fas fa-file-upload"></i> Bulk Upload
+        </a>
+    </div>
     <form method="get" asp-action="Index" class="mb-3">
         <div class="search-box">
             <select name="selectedYear" onchange="this.form.submit()" class="search-input">
-                <option value="">-- All Academic Years --</option>
-                @foreach (var year in (List<string>)ViewBag.AcademicYears)
+                <option value="">-- Select Academic Year --</option>
+                @foreach (var year in (List<AcademicYear>)ViewBag.AcademicYears)
                 {
-                    if (ViewBag.SelectedYear == year)
+                    if (ViewBag.SelectedYear == year.YearRange)
                     {
-                        <option value="@year" selected>@year</option>
+                        <option value="@year.YearRange" selected>@year.YearRange</option>
                     }
                     else
                     {
-                        <option value="@year">@year</option>
+                        <option value="@year.YearRange">@year.YearRange</option>
                     }
                 }
             </select>
@@ -356,21 +362,13 @@
 
     @if (!string.IsNullOrEmpty((string)ViewBag.SelectedYear))
     {
-        <div class="action-buttons-container" style="margin-bottom: 1.5rem;">
-            <a asp-action="Create" class="action-btn create-btn">
-                <i class="fas fa-plus-circle"></i> Add New Email
-            </a>
-            <a asp-action="UploadBulk" class="action-btn upload-btn">
-                <i class="fas fa-file-upload"></i> Bulk Upload
-            </a>
-        </div>
-
+      
         <!-- Email Table -->
         <div class="table-responsive">
             <table class="approval-table">
                 <thead>
                     <tr>
-                        <th>No</th>                        
+                        <th>No</th>
                         <th>Email Address</th>
                         <th>Roll Number</th>
                         <th>Class</th>
@@ -382,15 +380,6 @@
                     {
                         <tr id="row-@item.Email_PkId">
                             <td>@rowNumber</td>
-
-                           @*  <td>
-                                <span class="view-mode" data-field="StudentName">@item.StudentName</span>
-                                <input type="text" class="form-control edit-mode" name="StudentName"
-                                       value="@item.StudentName" style="display:none;"
-                                       data-val="true"
-                                       data-val-required="Student name is required" />
-                                <span class="text-danger field-validation-error" data-valmsg-for="StudentName"></span>
-                            </td> *@
                             <td>
                                 <span class="view-mode" data-field="EmailAddress">@item.EmailAddress</span>
                                 <input type="email" class="form-control edit-mode" name="EmailAddress"
@@ -441,7 +430,6 @@
                     }
                 </tbody>
             </table>
-
             @if (Model.Any())
             {
                 <div class="pagination-container">
@@ -490,72 +478,103 @@
                 row.find('.view-mode.btn-group').show();
                 row.find('.edit-mode.btn-group').hide();
                 row.find('.is-invalid').removeClass('is-invalid');
-                row.find('.field-validation-error').text('');
-            });
+        // SAVE BUTTON - CORRECTED VERSION
+$(document).on('click', '.save-btn', function () {
+    const btn = $(this);
+    const row = btn.closest('tr');
+    const id = btn.data('id');
+                const btn = $(this);
+    // Get form values
+    const formData = {
+        Email_PkId: id,
+        EmailAddress: row.find('[name="EmailAddress"]').val().trim(),
+        RollNumber: row.find('[name="RollNumber"]').val().trim(),
+        Class: row.find('[name="Class"]').val().trim(),
+        AcademicYear_pkId: @(Model.FirstOrDefault()?.AcademicYear_pkId ?? 0)
+    };
+                // Prepare data
+    // Clear previous validation errors
+    row.find('.is-invalid').removeClass('is-invalid');
+    row.find('.field-validation-error').text('');
 
-                // SAVE BUTTON - UPDATED VERSION
-        $(document).on('click', '.save-btn', function () {
-            const btn = $(this);
-            const row = btn.closest('tr');
-            const id = btn.data('id');
+    // Validate fields
+    let isValid = true;
+    if (!formData.EmailAddress) {
+        row.find('[data-valmsg-for="EmailAddress"]').text('Email address is required');
+        row.find('[name="EmailAddress"]').addClass('is-invalid');
+        isValid = false;
+    }
+    if (!formData.RollNumber) {
+        row.find('[data-valmsg-for="RollNumber"]').text('Roll number is required');
+        row.find('[name="RollNumber"]').addClass('is-invalid');
+        isValid = false;
+    }
+    if (!formData.Class) {
+        row.find('[data-valmsg-for="Class"]').text('Class is required');
+        row.find('[name="Class"]').addClass('is-invalid');
+        isValid = false;
+    }
 
-            // Get form values
-            const formData = {
-                Email_PkId: id,
-                StudentName: row.find('[name="StudentName"]').val().trim(),
-                EmailAddress: row.find('[name="EmailAddress"]').val().trim(),
-                RollNumber: row.find('[name="RollNumber"]').val().trim(),
-                Class: row.find('[name="Class"]').val().trim(),
-                AcademicYear: '@ViewBag.SelectedYear'
-            };
+    if (!isValid) {
+        return;
+    }
 
-            // Basic validation
-            if (!formData.StudentName || !formData.EmailAddress || !formData.RollNumber || !formData.Class) {
-                Swal.fire('Error!', 'All fields are required', 'error');
-                return;
-            }
+    // Show loading icon
+    btn.html('<i class="fas fa-spinner fa-spin"></i>');
+                    EmailAddress: row.find('[name="EmailAddress"]').val().trim(),
+    // AJAX Save
+    $.ajax({
+        url: '/Email/EditInline/' + id,
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(formData),
+        headers: {
+            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+        },
+        success: function (response) {
+            if (response.success) {
+                // Update UI
+                row.find('[data-field="EmailAddress"]').text(formData.EmailAddress);
+                row.find('[data-field="RollNumber"]').text(formData.RollNumber);
+                row.find('[data-field="Class"]').text(formData.Class);
 
-            // Show loading icon
-            btn.html('<i class="fas fa-spinner fa-spin"></i>');
+                // Switch modes
+                row.find('.view-mode').show();
+                row.find('.edit-mode').hide();
 
-            // AJAX Save
-            $.ajax({
-                url: '/Email/EditInline/' + id,
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(formData),
-                headers: {
-                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-                },
-                success: function (response) {
-                    if (response.success) {
-                        // Update UI
-                        row.find('[data-field="StudentName"]').text(formData.StudentName);
-                        row.find('[data-field="EmailAddress"]').text(formData.EmailAddress);
-                        row.find('[data-field="RollNumber"]').text(formData.RollNumber);
-                        row.find('[data-field="Class"]').text(formData.Class);
-
-                        // Switch modes
-                        row.find('.view-mode').show();
-                        row.find('.edit-mode').hide();
-
-                        Swal.fire('Success!', 'Updated successfully', 'success');
-                    } else {
-                        Swal.fire('Error!', response.message || 'Update failed', 'error');
+                Swal.fire('Success!', 'Updated successfully', 'success');
+            } else {
+                Swal.fire('Error!', response.message || 'Update failed', 'error');
+                // Show server-side validation errors if any
+                if (response.errors) {
+                    for (const [key, value] of Object.entries(response.errors)) {
+                        row.find(`[data-valmsg-for="${key}"]`).text(value.join(', '));
+                        row.find(`[name="${key}"]`).addClass('is-invalid');
                     }
-                },
-                error: function (xhr) {
-                    let errorMsg = 'Request failed';
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMsg = xhr.responseJSON.message;
-                    }
-                    Swal.fire('Error!', errorMsg, 'error');
-                },
-                complete: function () {
-                    btn.html('<i class="fas fa-check"></i>');
                 }
+            }
+        },
+        error: function (xhr) {
+            let errorMsg = 'Request failed';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMsg = xhr.responseJSON.message;
+            }
+            Swal.fire('Error!', errorMsg, 'error');
+        },
+        complete: function () {
+            btn.html('<i class="fas fa-check"></i>');
+        }
+    });
+});
+                        } else {
+                            toastr.error('Error: ' + xhr.statusText);
+                        }
+                    },
+                    complete: function () {
+                        btn.prop('disabled', false).html('<i class="fas fa-check"></i>');
+                    }
+                });
             });
-        });
 
                     // DELETE BUTTON - UPDATED VERSION
         $(document).on('click', '.delete-btn', function () {

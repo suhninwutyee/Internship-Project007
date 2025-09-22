@@ -1,0 +1,398 @@
+﻿/* Project Approval Page Styles */
+:root {
+    --accent: #8C5DD1;
+    --light-bg: #E4EEFD;
+    --border-color: #C8C6C1;
+    --text-muted: #6c757d;
+}
+
+/* Base Container */
+.container {
+    padding: 0.5rem 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Page Header */
+.page-header {
+    margin-bottom: 0.5rem;
+}
+
+.main-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 0.25rem;
+}
+
+.sub-title {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+/* Search and Filter Container */
+.search-filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.search-box {
+    flex-grow: 1;
+    min-width: 250px;
+    position: relative;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    padding-right: 2.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    background: var(--light-bg);
+    transition: all 0.3s;
+}
+
+    .search-input:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(140, 93, 209, 0.2);
+    }
+
+.search-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+}
+
+/* Filter Buttons */
+.filter-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: white;
+    border: 1px solid var(--accent);
+    border-radius: 20px;
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+    .filter-btn:hover {
+        background: var(--accent);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .filter-btn.active {
+        background: var(--accent);
+        color: white;
+        box-shadow: 0 2px 6px rgba(140, 93, 209, 0.3);
+    }
+
+/* Action Buttons Container */
+.action-buttons-container {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.export-btn {
+    background: white;
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    color: var(--accent);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+    .export-btn:hover {
+        background: var(--light-bg);
+    }
+
+/* Table Styles */
+.table-responsive {
+    overflow-x: auto;
+    margin-top: 0.5rem;
+}
+
+.approval-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    margin-bottom: 0.5rem;
+}
+
+    .approval-table th,
+    .approval-table td {
+        padding: 12px;
+        text-align: left;
+        vertical-align: middle;
+    }
+
+    .approval-table thead th {
+        background: var(--accent);
+        color: #fff;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .approval-table tbody tr:nth-child(even) td {
+        background: #f9f9f9;
+    }
+
+    .approval-table tbody tr:hover td {
+        background: #f1f1f1;
+    }
+
+/* Status Badges */
+.status-badge {
+    padding: 0.3rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.status-approved {
+    background-color: #28a745;
+    color: white;
+}
+
+.status-rejected {
+    background-color: #dc3545;
+    color: white;
+}
+
+.status-pending {
+    background-color: #ffc107;
+    color: black;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background 0.2s;
+    position: relative;
+}
+
+    .btn-icon:hover {
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-icon.approve {
+        color: #28a745;
+    }
+
+    .btn-icon.reject {
+        color: #dc3545;
+    }
+
+    .btn-icon.view {
+        color: #007bff;
+    }
+
+    .btn-icon[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .btn-icon .tooltip {
+        visibility: hidden;
+        width: 80px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .btn-icon:hover .tooltip {
+        visibility: visible;
+        opacity: 1;
+    }
+
+/* Project name wrapping */
+.project-name {
+    max-width: 200px;
+    word-wrap: break-word;
+}
+
+/* Pagination */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 0.5rem;
+}
+
+.pagination {
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+}
+
+.page-link {
+    color: var(--accent);
+    background: white;
+    border: 1px solid var(--border-color);
+    padding: 0.5rem 0.9rem;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+    .page-link:hover {
+        background: var(--light-bg);
+        border-color: var(--accent);
+    }
+
+.page-item.active .page-link {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.page-item.disabled .page-link {
+    color: var(--border-color);
+    pointer-events: none;
+}
+
+/* Print Styles */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .container, .container * {
+        visibility: visible;
+    }
+
+    .container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    .approval-table {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+
+    @page {
+        size: auto;
+        margin: 10mm;
+    }
+}
+
+/* SweetAlert Customization */
+.swal2-popup {
+    border-radius: 8px !important;
+    border: 1px solid var(--border-color) !important;
+    width: 500px !important;
+    max-width: 80% !important;
+}
+
+.swal2-title {
+    color: var(--accent) !important;
+    font-size: 1.4rem !important;
+    font-weight: 600 !important;
+}
+
+.swal2-content {
+    color: #333 !important;
+    font-size: 1rem !important;
+}
+
+.swal2-confirm {
+    background-color: var(--accent) !important;
+    border-radius: 6px !important;
+    padding: 8px 20px !important;
+    font-weight: 500 !important;
+}
+
+.swal2-cancel {
+    background-color: var(--border-color) !important;
+    border-radius: 6px !important;
+    padding: 8px 20px !important;
+    font-weight: 500 !important;
+    color: #333 !important;
+}
+
+.swal2-textarea {
+    border-radius: 6px !important;
+    border: 1px solid var(--border-color) !important;
+    background: white !important;
+    color: #333 !important;
+}
+
+.swal2-icon {
+    color: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
+/* Add to your project-approval.css */
+.swal2-select {
+    display: block;
+    width: 100%;
+    padding: 0.5em;
+    margin: 1em 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.export-options {
+    text-align: left;
+}
+
+    .export-options p {
+        margin-bottom: 0.5em;
+        font-weight: bold;
+    }

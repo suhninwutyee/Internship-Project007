@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿// In Models/Announcement.cs
+using System.ComponentModel.DataAnnotations;
 
 public class Announcement
 {
@@ -25,6 +26,7 @@ public class Announcement
     [Display(Name = "Block Submissions?")]
     public bool BlocksSubmissions { get; set; }
 
+    // Calculated property to check if announcement is active
     public bool IsActive => DateTime.Now >= StartDate &&
                           (ExpiryDate == null || DateTime.Now <= ExpiryDate);
 }

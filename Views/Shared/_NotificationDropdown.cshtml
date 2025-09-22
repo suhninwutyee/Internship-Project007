@@ -1,0 +1,59 @@
+﻿@model List<NotificationViewModel>
+
+@if (Model.Any())
+{
+    foreach (var notification in Model)
+    {
+        <a class="notification-item @(notification.IsRead ? "" : "unread")"
+           asp-controller="ProjectApproval"
+           asp-action="Details"
+           asp-route-id="@notification.ProjectId"
+           data-notification-id="@notification.Id">
+            <div class="notification-content">
+                @Html.Raw(notification.Message)
+            </div>
+            <div class="notification-time">
+                @notification.CreatedAt.ToString("M/d/yyyy h:mm tt")
+            </div>
+        </a>
+    }
+}
+else
+{
+    <div class="empty-notifications">
+        <i class="far fa-bell-slash"></i>
+        <p>No new notifications</p>
+    </div>
+}
+
+<!-- Antiforgery token (hidden) -->
+<form id="notificationAntiforgeryForm" style="display:none;">
+    @Html.AntiForgeryToken()
+</form>
+
+<style>
+    .notification-item {
+        padding: 10px 15px;
+        border-bottom: 1px solid #f5f5f5;
+        display: block;
+        color: #333;
+        text-decoration: none;
+    }
+
+    .notification-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .notification-item.unread {
+        background-color: #f5f3ff;
+        font-weight: 500;
+        border-left: 4px solid #8C5DD1;
+    }
+
+    #notificationBadge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        font-size: 0.6rem;
+    }
+</style>

@@ -20,7 +20,7 @@ namespace ProjectManagementSystem.Controllers
 
         public ProjectController(ApplicationDbContext context, IWebHostEnvironment env, ILogger<ProjectController> logger)
         {
-            _context = context;           
+            _context = context;
             _env = env;
             _logger = logger;
 
@@ -75,6 +75,20 @@ namespace ProjectManagementSystem.Controllers
 
             return View(pagedProjects);
         }
+        [HttpGet]
+        public JsonResult GetSuggestions(string term)
+        {
+            var suggestions = _context.Projects
+                .Where(p => p.ProjectName.Contains(term))
+                .OrderBy(p => p.ProjectName)
+                .Select(p => p.ProjectName)
+                .Distinct()
+                .Take(5)
+                .ToList();
+
+            return Json(suggestions);
+        }
+
         // GET: Project/Upload/5
         //public async Task<IActionResult> Upload(int id)
         //{
@@ -209,7 +223,7 @@ namespace ProjectManagementSystem.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["UploadSuccess"] = "Project successfully uploaded and sent to teacher.";
+            TempData["Success"] = "Project submitted successfully!";
             return RedirectToAction(nameof(Index));
         }
 
@@ -489,10 +503,9 @@ namespace ProjectManagementSystem.Controllers
 
             if (ModelState.IsValid)  // <-- FIXED: Run only if model is valid
             {
-                project.Status = "Draft"; // Set initial status to Draft
+                project.Status = "Draft";
                 project.ProjectSubmittedDate = null;
 
-                // Update company details if company is selected
                 if (project.Company_pkId != null && project.Company_pkId != 0)
                 {
                     var company = await _context.Companies.FindAsync(project.Company_pkId);
@@ -511,10 +524,8 @@ namespace ProjectManagementSystem.Controllers
                             var uniqueCompanyFileName = $"{Guid.NewGuid()}{Path.GetExtension(CompanyPhoto.FileName)}";
                             var companyFilePath = Path.Combine(companyFolder, uniqueCompanyFileName);
 
-                            using (var stream = new FileStream(companyFilePath, FileMode.Create))
-                            {
-                                await CompanyPhoto.CopyToAsync(stream);
-                            }
+                            using var stream = new FileStream(companyFilePath, FileMode.Create);
+                            await CompanyPhoto.CopyToAsync(stream);
 
                             company.ImageFileName = uniqueCompanyFileName;
                         }
@@ -523,7 +534,6 @@ namespace ProjectManagementSystem.Controllers
                     }
                 }
 
-                // Save project to get Project_pkId
                 _context.Projects.Add(project);
                 await _context.SaveChangesAsync();
 
@@ -550,7 +560,6 @@ namespace ProjectManagementSystem.Controllers
                     }
                 }
 
-                // Save project files
                 if (projectFiles != null && projectFiles.Count > 0)
                 {
                     var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "projects");
@@ -563,10 +572,8 @@ namespace ProjectManagementSystem.Controllers
                             var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
                             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                            using (var stream = new FileStream(filePath, FileMode.Create))
-                            {
-                                await file.CopyToAsync(stream);
-                            }
+                            using var stream = new FileStream(filePath, FileMode.Create);
+                            await file.CopyToAsync(stream);
 
                             var projectFile = new ProjectFile
                             {
@@ -574,11 +581,9 @@ namespace ProjectManagementSystem.Controllers
                                 FilePath = $"/uploads/projects/{uniqueFileName}",
                                 FileType = Path.GetExtension(file.FileName)
                             };
-
                             _context.ProjectFiles.Add(projectFile);
                         }
                     }
-
                     await _context.SaveChangesAsync();
                 }
 
@@ -626,21 +631,21 @@ namespace ProjectManagementSystem.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
-    int id,
-    Project project,
-    string CompanyAddress,
-    string CompanyContact,
-    string CompanyDescription,
-    int? CompanyCity_pkId,
-    IFormFile CompanyPhoto,
-    List<IFormFile> projectFiles)
+            int id,
+            Project project,
+            string CompanyAddress,
+            string CompanyContact,
+            string CompanyDescription,
+            int? CompanyCity_pkId,
+            IFormFile CompanyPhoto,
+            List<IFormFile> projectFiles)
         {
             if (id != project.Project_pkId)
                 return NotFound();
-
             var existingProject = await _context.Projects.AsNoTracking().FirstOrDefaultAsync(p => p.Project_pkId == id);
             if (existingProject == null)
                 return NotFound();
+
 
             if (existingProject.Status == "Pending" || existingProject.Status == "Approved")
             {
@@ -656,8 +661,28 @@ namespace ProjectManagementSystem.Controllers
 
             try
             {
-                // Update company info
-                if (project.Company_pkId != 0)
+                // Fetch the existing project with related data
+                var projectInDb = await _context.Projects
+                    .Include(p => p.Company)
+                    .Include(p => p.Files)
+                    .FirstOrDefaultAsync(p => p.Project_pkId == id);
+
+                if (projectInDb == null)
+                    return NotFound();
+
+                // Update project fields explicitly
+                projectInDb.ProjectName = project.ProjectName;
+                projectInDb.SupervisorName = project.SupervisorName;
+                projectInDb.Description = project.Description;
+                projectInDb.ProjectType_pkId = project.ProjectType_pkId;
+                projectInDb.Language_pkId = project.Language_pkId;
+                projectInDb.Framework_pkId = project.Framework_pkId;
+                projectInDb.Company_pkId = project.Company_pkId;
+                projectInDb.ProjectSubmittedDate = project.ProjectSubmittedDate;
+                projectInDb.CreatedBy = project.CreatedBy;
+
+                // Update company info if company selected
+                if (project.Company_pkId != null && project.Company_pkId != 0)
                 {
                     var company = await _context.Companies.FindAsync(project.Company_pkId);
                     if (company != null)
@@ -667,6 +692,7 @@ namespace ProjectManagementSystem.Controllers
                         company.Description = CompanyDescription;
                         company.City_pkId = CompanyCity_pkId;
 
+                        // Handle company photo upload
                         if (CompanyPhoto != null && CompanyPhoto.Length > 0)
                         {
                             var uploadsFolder = Path.Combine(_env.WebRootPath, "images", "companies");
@@ -675,10 +701,8 @@ namespace ProjectManagementSystem.Controllers
                             var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(CompanyPhoto.FileName)}";
                             var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                            using (var stream = new FileStream(filePath, FileMode.Create))
-                            {
-                                await CompanyPhoto.CopyToAsync(stream);
-                            }
+                            using var stream = new FileStream(filePath, FileMode.Create);
+                            await CompanyPhoto.CopyToAsync(stream);
 
                             company.ImageFileName = uniqueFileName;
                         }
@@ -687,10 +711,10 @@ namespace ProjectManagementSystem.Controllers
                     }
                 }
 
-                _context.Projects.Update(project);
+                _context.Projects.Update(projectInDb);
                 await _context.SaveChangesAsync();
 
-                // Save new project files
+                // Handle project files upload
                 if (projectFiles != null && projectFiles.Count > 0)
                 {
                     var uploadPath = Path.Combine(_env.WebRootPath, "uploads", "projects");
@@ -703,24 +727,22 @@ namespace ProjectManagementSystem.Controllers
                             var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
                             var filePath = Path.Combine(uploadPath, uniqueFileName);
 
-                            using (var stream = new FileStream(filePath, FileMode.Create))
-                            {
-                                await file.CopyToAsync(stream);
-                            }
+                            using var stream = new FileStream(filePath, FileMode.Create);
+                            await file.CopyToAsync(stream);
 
                             var projectFile = new ProjectFile
                             {
-                                Project_pkId = project.Project_pkId,
+                                Project_pkId = projectInDb.Project_pkId,
                                 FilePath = $"/uploads/projects/{uniqueFileName}",
-                                FileType = Path.GetExtension(file.FileName) // REQUIRED if not nullable
+                                FileType = Path.GetExtension(file.FileName)
                             };
 
                             _context.ProjectFiles.Add(projectFile);
                         }
                     }
-
-                    await _context.SaveChangesAsync();
                 }
+
+                await _context.SaveChangesAsync();
 
                 return RedirectToAction(nameof(Index));
             }
@@ -791,22 +813,34 @@ namespace ProjectManagementSystem.Controllers
         public async Task<IActionResult> DeleteProjectFile(int id)
         {
             var file = await _context.ProjectFiles.FindAsync(id);
-            if (file == null)
-                return NotFound();
+            if (file == null) return NotFound();
 
-            // Delete file from disk
             var filePath = Path.Combine(_env.WebRootPath, file.FilePath.TrimStart('/'));
             if (System.IO.File.Exists(filePath))
             {
                 System.IO.File.Delete(filePath);
             }
 
-            // Remove from DB
             _context.ProjectFiles.Remove(file);
             await _context.SaveChangesAsync();
 
-            // Redirect to Edit page of the associated project
             return RedirectToAction("Edit", new { id = file.Project_pkId });
+        }
+
+        [HttpGet]
+        public JsonResult GetLanguagesByProjectType(int projectTypeId)
+        {
+            var languages = _context.Languages
+                .Where(l => l.ProjectType_pkId == projectTypeId)
+                .OrderBy(l => l.LanguageName)
+                .Select(l => new
+                {
+                    language_pkId = l.Language_pkId,
+                    languageName = l.LanguageName
+                })
+                .ToList();
+
+            return Json(languages);
         }
 
         [HttpGet]
@@ -845,31 +879,76 @@ namespace ProjectManagementSystem.Controllers
         {
             ViewBag.ProjectTypes = new SelectList(
                 _context.ProjectTypes.OrderBy(p => p.TypeName),
-                "ProjectType_pkId", "TypeName", selectedProject?.ProjectType_pkId
+                "ProjectType_pkId",
+                "TypeName",
+                selectedProject?.ProjectType_pkId
             );
 
-            ViewBag.Languages = new SelectList(
-                _context.Languages.OrderBy(l => l.LanguageName),
-                "Language_pkId", "LanguageName", selectedProject?.Language_pkId
-            );
+            // ✅ Show only related languages for selected project type
+            if (selectedProject?.ProjectType_pkId != null)
+            {
+                var relatedLanguages = _context.Languages
+                    .Where(l => l.ProjectType_pkId == selectedProject.ProjectType_pkId)
+                    .OrderBy(l => l.LanguageName)
+                    .ToList();
+
+                ViewBag.Languages = new SelectList(
+                    relatedLanguages,
+                    "Language_pkId",
+                    "LanguageName",
+                    selectedProject.Language_pkId
+                );
+            }
+            else
+            {
+                ViewBag.Languages = new SelectList(
+                    Enumerable.Empty<SelectListItem>(),
+                    "Language_pkId",
+                    "LanguageName"
+                );
+            }
 
             ViewBag.Frameworks = new SelectList(
                 _context.Frameworks.OrderBy(f => f.FrameworkName),
-                "Framework_pkId", "FrameworkName", selectedProject?.Framework_pkId
+                "Framework_pkId",
+                "FrameworkName",
+                selectedProject?.Framework_pkId
             );
 
-            var companies = _context.Companies
-                .Where(c => c.CompanyName != null)
-                .ToList();
-
             ViewBag.Companies = new SelectList(
-                companies, "Company_pkId", "CompanyName", selectedProject?.Company_pkId
+                _context.Companies
+                    .Where(c => !string.IsNullOrEmpty(c.CompanyName))
+                    .OrderBy(c => c.CompanyName),
+                "Company_pkId",
+                "CompanyName",
+                selectedProject?.Company_pkId
             );
 
             ViewBag.CityList = new SelectList(
                 _context.Cities.OrderBy(c => c.CityName),
-                "City_pkId", "CityName"
+                "City_pkId",
+                "CityName"
             );
         }
+        // GET: Project/Details/5
+        //public async Task<IActionResult> Details(int? id)
+        //{
+        //    if (id == null) return NotFound();
+
+        //    var project = await _context.Projects
+        //        .Include(p => p.ProjectType)
+        //        .Include(p => p.Language)
+        //        .Include(p => p.Framework)
+        //        .Include(p => p.Company)
+        //        .Include(p => p.Company.City)
+        //        .Include(p => p.Files)
+        //        .FirstOrDefaultAsync(p => p.Project_pkId == id);
+
+        //    if (project == null) return NotFound();
+
+        //    return View(project);
+        //}
+
+
     }
 }

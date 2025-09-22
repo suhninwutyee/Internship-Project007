@@ -1,21 +1,33 @@
-﻿<!DOCTYPE html>
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Teacher Portal</title>
-    <!-- Boxicons -->
+    <title>@ViewData["Title"] - Internship Project Information System</title>
+
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <link rel="stylesheet" href="~/css/site.css" />
-    @RenderSection("Styles", required: false)
+    <link rel="stylesheet" href="~/css/approve.css" />
 </head>
 <body>
     <div class="app">
-        <!-- SIDEBAR -->
         <aside class="sidebar" id="sidebar">
             <div class="brand">
-                <i class="bx bx-rocket"></i>
-                <span class="brand-name">Teacher Portal</span>
+                <img src="~/images/logo.png" alt="Company Logo" class="brand-logo" />
+                <span class="brand-name">Admin Panel</span>
             </div>
             <ul class="menu">
                 <li class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "Dashboard" ? "active" : "")">
@@ -24,12 +36,12 @@
                         <span class="menu-text">Dashboard</span>
                     </a>
                 </li>
-                <li class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "Approvals" ? "active" : "")">
-                    <a asp-area="" asp-controller="Home" asp-action="Approvals">
-                        <i class="bx bx-check-square"></i>
-                        <span class="menu-text">Project Approvals</span>
+                @* <li class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "Announcements" ? "active" : "")">
+                    <a asp-area="" asp-controller="Announcement" asp-action="Index">
+                        <i class="fas fa-bullhorn"></i>
+                        <span class="menu-text">Announcements</span>
                     </a>
-                </li>
+                </li> *@
                 <li class="menu-item has-submenu" id="managementMenu">
                     <div class="submenu-header">
                         <i class="bx bx-briefcase"></i>
@@ -37,12 +49,18 @@
                         <i class="bx bx-chevron-right submenu-toggle"></i>
                     </div>
                     <ul class="submenu">
-                        <li class="submenu-item"><a asp-area="" asp-controller="Email" asp-action="Index">Email</a></li>
-                        <li class="submenu-item"><a asp-area="" asp-controller="Company" asp-action="Index">Company</a></li>
-                        <li class="submenu-item"><a asp-area="" asp-controller="Management" asp-action="Tasks">Tasks</a></li>
+                        <li class="submenu-item @(ViewContext.RouteData.Values["Action"].ToString() == "StudentManagement" ? "active" : "")">
+                            <a asp-area="" asp-controller="Email" asp-action="Index">Student Management</a>
+                        </li>
+                        <li class="submenu-item @(ViewContext.RouteData.Values["Action"].ToString() == "Company" ? "active" : "")">
+                            <a asp-area="" asp-controller="Company" asp-action="Index">Company</a>
+                        </li>
+                        @* <li class="submenu-item @(ViewContext.RouteData.Values["Action"].ToString() == "Tasks" ? "active" : "")">
+                            <a asp-area="Teacher" asp-controller="Management" asp-action="Tasks">Tasks</a>
+                        </li> *@
                     </ul>
                 </li>
-                <li class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "Submitted" ? "active" : "")">
+                <li class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "SubmittedProjects" ? "active" : "")">
                     <a asp-area="" asp-controller="ProjectApproval" asp-action="Index">
                         <i class="bx bx-folder-open"></i>
                         <span class="menu-text">Submitted Projects</span>
@@ -54,10 +72,22 @@
                         <span class="menu-text">Activity Log</span>
                     </a>
                 </li>
-                <li class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "Settings" ? "active" : "")">
-                    <a asp-area="" asp-controller="Home" asp-action="Settings">
-                        <i class="bx bx-cog"></i>
-                        <span class="menu-text">Settings</span>
+                <li class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "Profile" ? "active" : "")">
+                    <a asp-area="" asp-controller="Admin" asp-action="Profile">
+                        <i class="bx bx-user"></i>
+                        <span class="menu-text">My Profile</span>
+                    </a>
+                </li>
+                <li class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "ChangePassword" ? "active" : "")">
+                    <a asp-area="" asp-controller="Admin" asp-action="ChangePassword">
+                        <i class="bx bx-lock"></i>
+                        <span class="menu-text">Change Password</span>
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a asp-area="" asp-controller="Admin" asp-action="Logout">
+                        <i class="bx bx-log-out"></i>
+                        <span class="menu-text">Logout</span>
                     </a>
                 </li>
             </ul>
@@ -66,23 +96,51 @@
             </div>
         </aside>
 
-        <!-- MAIN + NAVBAR -->
         <div class="main">
             <header class="navbar">
-                <i class="bx bx-menu toggle-btn" id="menuBtn"></i>
-                <div class="search">
-                    <i class="bx bx-search"></i>
-                    <input type="text" placeholder="Search students, projects..." />
+                <div class="nav-left">
+                    <i class="bx bx-menu toggle-btn" id="menuBtn"></i>
+                    <div class="date-time" id="dateTimeDisplay"></div>
                 </div>
-                <div class="nav-icons">
-                    <div class="icon-btn notification">
-                        <i class="bx bx-bell"></i>
-                        <span class="badge">3</span>
+
+                <div class="nav-icons-container">
+                    <!-- Notification Bell -->
+                    <div class="cute-notifications">
+                        <a class="cute-bell" href="#" id="notificationDropdown">
+                            <svg class="bell-icon" viewBox="0 0 24 24">
+                                <path fill="#8C5DD1" d="M12,22A2,2 0 0,0 14,20H10A2,2 0 0,0 12,22M18,16V11C18,7.93 16.36,5.36 13.5,4.68V4A1.5,1.5 0 0,0 12,2.5A1.5,1.5 0 0,0 10.5,4V4.68C7.63,5.36 6,7.92 6,11V16L4,18V19H20V18L18,16Z" />
+                                <circle class="pulse" fill="#FF6B6B" cx="18" cy="5" r="3.2" />
+                            </svg>
+                            <span class="cute-badge" id="notificationBadge">
+                                await _viewComponentHelper.InvokeAsync(typeof(ProjectManagementSystem.ViewComponents.NotificationCountViewComponent));
+                            </span>
+                        </a>
+
+                        <!-- Notification Dropdown -->
+                        <div class="cute-notification-box">
+                            <div class="notification-header">
+                                <div class="header-left">
+                                    <h6 class="cute-title">My Notifications</h6>
+                                    
+                                </div>
+                                <button class="mark-all-read" id="markAllRead">Mark all as read</button>
+                            </div>
+
+                            <div class="notification-list">
+                                @await Component.InvokeAsync("Notification")
+                            </div>
+                            <div class="notification-footer">
+                                <a asp-controller="Notification" asp-action="Inbox" class="cute-view-all">
+                                    View All Notifications <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
                     </div>
-                    @* <div class="icon-btn profile">
+
+                    <div class="profile-container">
                         <span class="avatar">@User.Identity.Name.Substring(0, 1).ToUpper()</span>
                         <span class="profile-name">@User.Identity.Name</span>
-                    </div> *@
+                    </div> 
                 </div>
             </header>
 
@@ -92,8 +150,244 @@
         </div>
     </div>
 
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @RenderSection("Scripts", required: false)
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+                $(document).ready(function () {
+                    // --- SIDEBAR AND MENU LOGIC ---
+
+                    // Sidebar toggle for both desktop and mobile
+                    $("#collapseBtn, #menuBtn").click(() => {
+                        $("#sidebar").toggleClass("collapsed");
+                    });
+
+                    // Submenu toggle logic
+                    $(".submenu-header").click(function () {
+                        const parentItem = $(this).parent();
+                        // On non-collapsed sidebar, close other submenus
+                        if (!$("#sidebar").hasClass("collapsed")) {
+                            $(".has-submenu.open").not(parentItem).removeClass("open");
+                        }
+                        parentItem.toggleClass("open");
+                    });
+
+                    // Set active class on menu item click
+                    $(".menu-item a").on("click", function (e) {
+                        // Don't prevent default for submenu headers
+                        if (!$(this).closest(".has-submenu").length) {
+
+                        }
+                        $(".menu-item").removeClass("active");
+                        $(this).closest(".menu-item").addClass("active");
+                    });
+                            $(document).ready(function () {
+                    $(document).ready(function() {
+          // Toggle notification dropdown
+          $(document).on('click', '#notificationDropdown', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $('.cute-notifications').toggleClass('active');
+          });
+
+          // Close dropdown when clicking outside
+          $(document).on('click', function(e) {
+            if (!$(e.target).closest('.cute-notifications').length) {
+              $('.cute-notifications').removeClass('active');
+            }
+          });
+
+          // Notification item click handler
+          $(document).on('click', '.notification-item', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            var notificationId = $this.data('notification-id');
+            var redirectUrl = $this.attr('href');
+
+            $.post('/Notification/MarkAsRead', { id: notificationId }, function(res) {
+              if (res.success) {
+                $('#notificationBadge').text(res.unreadCount);
+                $this.removeClass('new-notification');
+                window.location.href = redirectUrl;
+              }
+            });
+          });
+
+          // Mark all as read
+          $('#markAllRead').on('click', function(e) {
+            e.stopPropagation();
+            fetch('/Notification/MarkAllAsRead', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+              }
+            })
+            .then(response => {
+              if (response.ok) {
+                $('.notification-item').removeClass('new-notification');
+                $('#notificationBadge').text('0');
+              }
+            })
+            .catch(error => console.error('Error:', error));
+          });
+
+          // Refresh notification count periodically
+          setInterval(function() {
+            $.get('/Notification/GetNotificationCount', function(count) {
+              $('#notificationBadge').text(count);
+            });
+          }, 60000);
+        });
+
+            // Existing notification handling code
+            $(document).on('click', '.notification-item', function (e) {
+                e.preventDefault();
+                var $this = $(this);
+                var notificationId = $this.data('notification-id');
+                var redirectUrl = $this.attr('href');
+
+                $.post('/Notification/MarkAsRead', { id: notificationId }, function (res) {
+                    if (res.success) {
+                        $('#notificationBadge').text(res.unreadCount);
+                        $this.removeClass('unread');
+                        window.location.href = redirectUrl;
+                    }
+                });
+            });
+
+            // Existing mark all as read functionality
+            document.getElementById('markAllRead')?.addEventListener('click', function() {
+                fetch('/Notification/MarkAllAsRead', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        document.querySelectorAll('.notification-item').forEach(item => {
+                            item.classList.remove('new-notification');
+                        });
+                        document.getElementById('notificationBadge').textContent = '0';
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            });
+
+            // Existing notification count refresh
+            setInterval(function() {
+                $.get('/Notification/GetNotificationCount', function(count) {
+                    $('#notificationBadge').text(count);
+                });
+            }, 60000);
+        });
+               $(document).ready(function () {
+            // Mark as read when clicked
+            $(document).on('click', '.notification-item', function (e) {
+                e.preventDefault(); // Stop immediate navigation
+
+                var notificationId = $(this).data('notification-id');
+                var redirectUrl = $(this).attr('href'); // Save the destination URL
+
+                if (!notificationId) {
+                    window.location.href = redirectUrl;
+                    return;
+                }
+
+                $.post('/Notification/MarkAsRead', { id: notificationId }, function (res) {
+                    if (res.success) {
+                        $('#notificationBadge').text(res.unreadCount);
+                    }
+
+                    // Redirect after marking as read
+                    window.location.href = redirectUrl;
+                });
+            });
+
+            // Refresh notifications every 60 seconds
+            setInterval(function () {
+                $.get('/Notification/GetNotificationCount', function (count) {
+                    $('#notificationBadge').text(count);
+                });
+            }, 60000);
+        });
+                $(document).on('click', '.notification-item', function (e) {
+            e.preventDefault();
+            var $this = $(this);
+            var notificationId = $this.data('notification-id');
+            var redirectUrl = $this.attr('href');
+
+            $.post('/Notification/MarkAsRead', { id: notificationId }, function (res) {
+                if (res.success) {
+                    $('#notificationBadge').text(res.unreadCount);
+                    $this.removeClass('unread'); // Remove visual highlight
+                    window.location.href = redirectUrl;
+                }
+            });
+        });
+                document.getElementById('markAllRead').addEventListener('click', function() {
+            // Make an AJAX call to your backend endpoint that marks all notifications as read
+            fetch('/Notification/MarkAllAsRead', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Update the UI
+                    document.querySelectorAll('.notification-item').forEach(item => {
+                        item.classList.remove('new-notification');
+                    });
+                    document.getElementById('notificationBadge').textContent = '0';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+        $(document).ready(function () {
+            $.get('/Notification/GetNotificationCount', function (count) {
+                $('#notificationBadge').text(count);
+            });
+        });
+                // Add this to your existing JavaScript
+        $(document).ready(function() {
+            // Pulse animation when new notifications arrive
+            function pulseBell() {
+                $('.bell-icon').addClass('pulse-once');
+                setTimeout(() => {
+                    $('.bell-icon').removeClass('pulse-once');
+                }, 1000);
+            }
+
+            // Example of how to trigger when new notification comes
+            // You would call this from your notification update logic
+            window.triggerNewNotification = function() {
+                pulseBell();
+            };
+        });
+
+       
+                    // Time display
+                    function updateTime() {
+                        const now = new Date();
+                        const options = {
+                            weekday: "short",
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                        };
+                        document.getElementById('dateTimeDisplay').textContent = now.toLocaleString("en-US", options);
+                    }
+
+                    updateTime();
+                    setInterval(updateTime, 1000);
+                });
+
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
-</html>
+</html> 

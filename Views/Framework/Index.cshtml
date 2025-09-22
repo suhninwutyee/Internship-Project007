@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Framework List";
+    Layout = "~/Views/Student/_Layout.cshtml";
     int count = (Model.PageNumber - 1) * Model.PageSize + 1;
     var total = Model.TotalItemCount;
 }
