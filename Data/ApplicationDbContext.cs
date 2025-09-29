@@ -33,9 +33,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<Notification> Notifications { get; set; }
     public DbSet<Email> Emails { get; set; }
-
     public DbSet<OTP> OTPs { get; set; }
-
     public DbSet<AcademicYear> AcademicYears { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -81,11 +79,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
         // Project - SubmittedByStudent (one-to-one)
         modelBuilder.Entity<Project>()
-            .HasOne(p => p.SubmittedByStudent)
-            .WithOne(s => s.SubmittedProject)
-            .HasForeignKey<Project>(p => p.SubmittedByStudent_pkId)
-            .OnDelete(DeleteBehavior.Restrict);
-
+    .HasOne(p => p.SubmittedByStudent)
+    .WithOne(s => s.SubmittedProject)
+    .HasForeignKey<Project>(p => p.SubmittedByStudent_pkId)
+    .OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<AcademicYear>().HasData(years);
 
         modelBuilder.Entity<Student>()
@@ -145,6 +142,19 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .OnDelete(DeleteBehavior.Restrict);
 
 
+        // Composite key for ProjectMember
+        modelBuilder.Entity<ProjectMember>()
+            .HasKey(pm => new { pm.Project_pkId, pm.Student_pkId });
+
+        // Project - ProjectMembers (one to many)
+        modelBuilder.Entity<ProjectMember>()
+            .HasOne(pm => pm.Project)
+            .WithMany(p => p.ProjectMembers)
+            .HasForeignKey(pm => pm.Project_pkId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+
+        // ProjectMember - Student (many-to-one)
         modelBuilder.Entity<ProjectMember>()
            .HasOne(pm => pm.Student)
            .WithMany(s => s.ProjectMembers)
@@ -158,7 +168,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
           .HasForeignKey(pm => pm.Project_pkId)
           .OnDelete(DeleteBehavior.Cascade);
 
-        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Student>()
+    .HasOne(e => e.Email)
+    .WithMany(e => e.Students)
+    .HasForeignKey(e => e.Email_PkId)
+    .OnDelete(DeleteBehavior.Restrict); 
+
 
     }
 }

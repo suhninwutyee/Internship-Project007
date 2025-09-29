@@ -20,7 +20,7 @@ public class NotificationViewComponent : ViewComponent
             .Take(5)
             .Select(n => new NotificationViewModel
             {
-                Id = n.NotificationId,
+                Id = n.Notification_pkId,
                 Message = n.Message,
                 CreatedAt = n.CreatedAt,
                 ProjectId = n.Project_pkId,
@@ -38,7 +38,7 @@ public class NotificationViewModel
     public int Id { get; set; }
     public string Message { get; set; }
     public DateTime CreatedAt { get; set; }
-    public int ProjectId { get; set; }
+    public int? ProjectId { get; set; }
     public string ProjectName { get; set; }
     public bool IsRead { get; set; }
 }

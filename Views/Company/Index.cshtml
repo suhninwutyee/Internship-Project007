@@ -316,7 +316,11 @@
                         <td>
                             <span id="name-@item.Company_pkId">@item.CompanyName</span>
                             <div id="edit-form-@item.Company_pkId" style="display:none;">
-                                <form class="edit-form edit-company-form" data-id="@item.Company_pkId">
+                                <form class="edit-form edit-company-form"
+                                      data-id="@item.Company_pkId"
+                                      asp-action="Edit"
+                                      asp-controller="Company"
+                                      method="post">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="Company_pkId" value="@item.Company_pkId" />
                                     <input type="text" name="CompanyName" value="@item.CompanyName" required maxlength="100" />
@@ -353,178 +357,155 @@
 
 @section Scripts {
     <script>
-        // Function to show edit form
-        function showEditForm(id) {
-            document.getElementById('name-' + id).style.display = 'none';
-            document.getElementById('edit-form-' + id).style.display = 'block';
-            document.getElementById('edit-btn-' + id).style.display = 'none';
+        // Document ready handler
+        $(function() {
+            initCompanyForms();
+        });
+
+        function initCompanyForms() {
+            // Create
+            $('#createCompanyForm').on('submit', function(e) {
+                e.preventDefault();
+                submitCreateForm($(this));
+            });
+
+            // Edit (delegated)
+            $(document).on('submit', '.edit-company-form', function(e) {
+                e.preventDefault();
+                submitEditForm($(this));
+            });
         }
 
-        // Function to hide edit form
-        function hideEditForm(id) {
-            document.getElementById('name-' + id).style.display = 'inline';
-            document.getElementById('edit-form-' + id).style.display = 'none';
-            document.getElementById('edit-btn-' + id).style.display = 'inline-block';
+        // AJAX error
+        function handleAjaxError(xhr) {
+            let errorMsg = 'An unexpected error occurred';
+            try {
+                if (xhr.responseJSON) {
+                    errorMsg = xhr.responseJSON.message || errorMsg;
+                    if (xhr.responseJSON.errors) {
+                        const errorList = Object.values(xhr.responseJSON.errors).flat();
+                        errorMsg += ': ' + errorList.join(', ');
+                    }
+                } else if (xhr.responseText) {
+                    errorMsg = xhr.responseText;
+                }
+            } catch (e) {}
+            Swal.fire({ icon: 'error', title: 'Error', text: errorMsg, confirmButtonColor: '#8C5DD1' });
         }
 
-        // Function to confirm delete
-        function confirmDelete(id, companyName) {
+        // Create
+        function submitCreateForm(form) {
+            Swal.fire({ title: 'Creating Company', text: 'Please wait...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: form.serialize(),
+                success: function(response) {
+                    Swal.close();
+                    if (response && response.success) {
+                        if (response.data) addCompanyRow(response.data);
+                        form.trigger('reset');
+                        showSuccess('Company created successfully');
+                    } else {
+                        showError(response?.message || 'Failed to create company');
+                    }
+                },
+                error: function(xhr) { Swal.close(); handleAjaxError(xhr); }
+            });
+        }
+
+        // Edit
+        function submitEditForm(form) {
+            const companyId = form.data('id');
+            Swal.fire({ title: 'Updating Company', text: 'Please wait...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: form.serialize(),
+                success: function(response) {
+                    Swal.close();
+                    if (response && response.success) {
+                        const newName = response.data?.companyName || form.find('input[name="CompanyName"]').val();
+                        $('#name-' + companyId).text(newName);
+                        hideEditForm(companyId);
+                        showSuccess('Company updated successfully');
+                    } else {
+                        showError(response?.message || 'Failed to update company');
+                    }
+                },
+                error: function(xhr) { Swal.close(); handleAjaxError(xhr); }
+            });
+        }
+
+        // Delete
+        function confirmDelete(id, name) {
             Swal.fire({
-                title: 'Delete Company',
-                html: `Are you sure you want to delete <strong>${companyName}</strong>?`,
+                title: 'Confirm Delete',
+                html: `Are you sure you want to delete <strong>${escapeHtml(name)}</strong>?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#8C5DD1',
                 cancelButtonColor: '#dc3545',
                 confirmButtonText: 'Delete'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    deleteCompany(id);
-                }
-            });
+            }).then((result) => { if (result.isConfirmed) deleteCompany(id); });
         }
 
-        // AJAX function to delete company
         function deleteCompany(id) {
+            Swal.fire({ title: 'Deleting Company', text: 'Please wait...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             $.ajax({
-                url: '/Company/Delete',
+                url: '@Url.Action("Delete", "Company")',
                 type: 'POST',
-                data: {
-                    id: id,
-                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                },
+                data: { id: id, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
                 success: function(response) {
-                    if (response.success) {
-                        $('#row-' + id).fadeOut(300, function() {
-                            $(this).remove();
-                        });
-                        showSuccessMessage(response.message || 'Company deleted successfully');
+                    Swal.close();
+                    if (response && response.success) {
+                        $('#row-' + id).fadeOut(300, function() { $(this).remove(); });
+                        showSuccess('Company deleted successfully');
                     } else {
-                        showErrorMessage(response.message || 'Error deleting company');
+                        showError(response?.message || 'Failed to delete company');
                     }
                 },
-                error: function(xhr) {
-                    showErrorMessage(xhr.responseJSON?.message || 'An error occurred');
-                }
+                error: function(xhr) { Swal.close(); handleAjaxError(xhr); }
             });
         }
 
-        // AJAX form submission for create
-        $('#createCompanyForm').on('submit', function(e) {
-            e.preventDefault();
-            var form = $(this);
-            var formData = form.serialize();
-
-            $.ajax({
-                url: form.attr('action'),
-                type: 'POST',
-                data: formData,
-                success: function(response) {
-                    if (response.success) {
-                        // Add new row to table
-                        addCompanyRow(response.company);
-                        // Reset form
-                        form.trigger('reset');
-                        // Show success message
-                        showSuccessMessage(response.message || 'Company added successfully');
-                    } else {
-                        showErrorMessage(response.message || 'Error adding company');
-                    }
-                },
-                error: function(xhr) {
-                    showErrorMessage(xhr.responseJSON?.message || 'An error occurred');
-                }
-            });
-        });
-
-        // AJAX form submission for edit
-        $(document).on('submit', '.edit-company-form', function(e) {
-            e.preventDefault();
-            var form = $(this);
-            var formData = form.serialize();
-            var id = form.data('id');
-
-            $.ajax({
-                url: '/Company/Edit',
-                type: 'POST',
-                data: formData,
-                success: function(response) {
-                    if (response.success) {
-                        // Update the displayed name
-                        $('#name-' + id).text(response.company.companyName);
-                        // Hide the edit form
-                        hideEditForm(id);
-                        // Show success message
-                        showSuccessMessage(response.message || 'Company updated successfully');
-                    } else {
-                        showErrorMessage(response.message || 'Error updating company');
-                    }
-                },
-                error: function(xhr) {
-                    showErrorMessage(xhr.responseJSON?.message || 'An error occurred');
-                }
-            });
-        });
-
-        // Function to add new company row
+        // Add new row dynamically
         function addCompanyRow(company) {
-            var newRow = `
+            const newRow = `
                 <tr id="row-${company.company_pkId}">
                     <td>
-                        <span id="name-${company.company_pkId}">${company.companyName}</span>
+                        <span id="name-${company.company_pkId}">${escapeHtml(company.companyName)}</span>
                         <div id="edit-form-${company.company_pkId}" style="display:none;">
-                            <form class="edit-form edit-company-form" data-id="${company.company_pkId}">
-                                <input name="__RequestVerificationToken" type="hidden" value="${$('input[name="__RequestVerificationToken"]').val()}" />
+                            <form class="edit-form edit-company-form"
+                                  data-id="${company.company_pkId}"
+                                  action="@Url.Action("Edit", "Company")"
+                                  method="post">
+                                @Html.AntiForgeryToken()
                                 <input type="hidden" name="Company_pkId" value="${company.company_pkId}" />
-                                <input type="text" name="CompanyName" value="${company.companyName}" required maxlength="100" />
+                                <input type="text" name="CompanyName" value="${escapeHtml(company.companyName)}" required maxlength="100" />
                                 <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary btn-sm">
-                                        <i class="fas fa-save"></i> Save
-                                    </button>
-                                    <button type="button" class="btn btn-secondary btn-sm"
-                                            onclick="hideEditForm(${company.company_pkId})">
-                                        <i class="fas fa-times"></i> Cancel
-                                    </button>
+                                    <button type="submit" class="btn btn-primary btn-sm"><i class="fas fa-save"></i> Save</button>
+                                    <button type="button" class="btn btn-secondary btn-sm" onclick="hideEditForm(${company.company_pkId})"><i class="fas fa-times"></i> Cancel</button>
                                 </div>
                             </form>
                         </div>
                     </td>
                     <td>
                         <div class="action-buttons">
-                            <button id="edit-btn-${company.company_pkId}" class="btn btn-primary btn-sm"
-                                    onclick="showEditForm(${company.company_pkId})">
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-                            <button type="button" class="btn btn-danger btn-sm"
-                                    onclick="confirmDelete(${company.company_pkId}, '${company.companyName}')">
-                                <i class="fas fa-trash-alt"></i> Delete
-                            </button>
+                            <button id="edit-btn-${company.company_pkId}" class="btn btn-primary btn-sm" onclick="showEditForm(${company.company_pkId})"><i class="fas fa-edit"></i> Edit</button>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="confirmDelete(${company.company_pkId}, '${escapeHtml(company.companyName).replace(/'/g, "\\'")}')"><i class="fas fa-trash-alt"></i> Delete</button>
                         </div>
                     </td>
                 </tr>
             `;
-
             $('#companiesTableBody').append(newRow);
         }
 
-        // Helper functions for showing messages
-        function showSuccessMessage(message) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: message,
-                confirmButtonColor: '#8C5DD1',
-                timer: 3000
-            });
-        }
-
-        function showErrorMessage(message) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: message,
-                confirmButtonColor: '#8C5DD1'
-            });
-        }
+        // Helpers
+        function showEditForm(id) { $(`#name-${id}`).hide(); $(`#edit-form-${id}`).show(); $(`#edit-btn-${id}`).hide(); }
+        function hideEditForm(id) { $(`#name-${id}`).show(); $(`#edit-form-${id}`).hide(); $(`#edit-btn-${id}`).show(); }
+        function showSuccess(message) { Swal.fire({ icon: 'success', title: 'Success', text: message, confirmButtonColor: '#8C5DD1', timer: 3000 }); }
+        function showError(message) { Swal.fire({ icon: 'error', title: 'Error', text: message, confirmButtonColor: '#8C5DD1' }); }
+        function escapeHtml(unsafe) { return unsafe?.toString().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;") || ''; }
     </script>
 }

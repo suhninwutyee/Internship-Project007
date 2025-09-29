@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿// Controllers/TeacherController.cs
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjectManagementSystem.Data;
 using ProjectManagementSystem.Models;
 using ProjectManagementSystem.ViewModels;
-using Microsoft.AspNetCore.Diagnostics;
+using System.Diagnostics;
 
 namespace ProjectManagementSystem.Controllers
 {
@@ -31,7 +33,7 @@ namespace ProjectManagementSystem.Controllers
                         .Where(p => p.Status == "Pending" && (p.IsDeleted == null || !p.IsDeleted.Value))
                         .CountAsync(),
 
-                    //Announcements = await GetRecentAnnouncementsAsync(),
+                    Announcements = await GetRecentAnnouncementsAsync(),
 
                     RecentSubmitters = await GetRecentSubmittersAsync(),
 
@@ -39,7 +41,7 @@ namespace ProjectManagementSystem.Controllers
                         .Where(p => p.IsDeleted == null || !p.IsDeleted.Value)
                         .CountAsync(),
 
-                    SubmissionStats = submissionStats ?? new List<SubmissionStat>()
+                    SubmissionStats = submissionStats
                 };
 
                 return View(model);
@@ -52,22 +54,18 @@ namespace ProjectManagementSystem.Controllers
             }
         }
 
-        private async Task<List<SubmissionStat>> GetSubmissionStatsAsync(DateTime currentDate)
+        private async Task<List<ViewModels.SubmissionStat>> GetSubmissionStatsAsync(DateTime currentDate)
         {
             try
             {
-                var stats = Enumerable.Range(0, 7)
-                    .Reverse()
-                    .Select(i => new
-                    {
-                        Date = currentDate.AddDays(-i),
-                        Count = 0
-                    })
+                var stats = new List<ViewModels.SubmissionStat>();
+                var dateRange = Enumerable.Range(0, 7)
+                    .Select(i => currentDate.AddDays(-i).Date)
                     .ToList();
 
                 var actualCounts = await _context.Projects
                     .Where(p => p.ProjectSubmittedDate.HasValue &&
-                           p.ProjectSubmittedDate.Value.Date >= currentDate.AddDays(-6))
+                           dateRange.Contains(p.ProjectSubmittedDate.Value.Date))
                     .GroupBy(p => p.ProjectSubmittedDate.Value.Date)
                     .Select(g => new
                     {
@@ -76,34 +74,45 @@ namespace ProjectManagementSystem.Controllers
                     })
                     .ToListAsync();
 
-                return stats.Select(s => new SubmissionStat
+                foreach (var date in dateRange.OrderBy(d => d))
                 {
-                    Date = s.Date.ToString("MMM dd"),
-                    Count = actualCounts.FirstOrDefault(a => a.Date == s.Date)?.Count ?? 0
-                }).ToList();
+                    stats.Add(new ViewModels.SubmissionStat
+                    {
+                        Date = date.ToString("yyyy-MM-dd"),
+                        Count = actualCounts.FirstOrDefault(a => a.Date == date)?.Count ?? 0
+                    });
+                }
+                return stats;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting submission stats");
-                return new List<SubmissionStat>();
+                return Enumerable.Range(0, 7)
+                    .Select(i => new ViewModels.SubmissionStat
+                    {
+                        Date = currentDate.AddDays(-i).ToString("yyyy-MM-dd"),
+                        Count = 0
+                    })
+                    .ToList();
             }
         }
 
-        //private async Task<List<Announcement>> GetRecentAnnouncementsAsync()
-        //{
-        //    try
-        //    {
-        //        return await _context.Announcements
-        //            .OrderByDescending(a => a.CreatedDate)
-        //            .Take(3)
-        //            .ToListAsync() ?? new List<Announcement>();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Error getting recent announcements");
-        //        return new List<Announcement>();
-        //    }
-        //}
+        private async Task<List<Announcement>> GetRecentAnnouncementsAsync()
+        {
+            try
+            {
+                return await _context.Announcements
+                    .Where(a => a.IsActive) // Only get manually activated announcements
+                    .OrderByDescending(a => a.CreatedDate)
+                    .Take(1) // Only get the most recent active announcement
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting recent announcements");
+                return new List<Announcement>();
+            }
+        }
 
         private async Task<List<StudentSubmission>> GetRecentSubmittersAsync()
         {
@@ -122,7 +131,7 @@ namespace ProjectManagementSystem.Controllers
                         ProjectName = p.ProjectName,
                         SubmissionDate = p.ProjectSubmittedDate.Value
                     })
-                    .ToListAsync() ?? new List<StudentSubmission>();
+                    .ToListAsync();
             }
             catch (Exception ex)
             {
@@ -133,93 +142,15 @@ namespace ProjectManagementSystem.Controllers
 
         public async Task<IActionResult> AllProjects()
         {
-            try
-            {
-                var projects = await _context.Projects
-                    .Include(p => p.Company)
-                    .Include(p => p.ProjectType)
-                    .Where(p => p.IsDeleted == null || !p.IsDeleted.Value)
-                    .OrderByDescending(p => p.ProjectSubmittedDate)
-                    .ToListAsync();
-
-                return View("~/Views/ProjectApproval/Index.cshtml", new ProjectApprovalViewModel
-                {
-                    Projects = projects ?? new List<Project>(),
-                    StatusFilter = "all",
-                    PageTitle = "All Projects"
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting all projects");
-                TempData["ErrorMessage"] = "Error loading projects";
-                return RedirectToAction("Dashboard");
-            }
+            return RedirectToAction("Index", "ProjectApproval", new { statusFilter = "all" });
         }
 
         public async Task<IActionResult> PendingProjects()
         {
-            try
-            {
-                var projects = await _context.Projects
-                    .Include(p => p.Company)
-                    .Include(p => p.ProjectType)
-                    .Where(p => p.Status == "Pending" && (p.IsDeleted == null || !p.IsDeleted.Value))
-                    .OrderByDescending(p => p.ProjectSubmittedDate)
-                    .ToListAsync();
-
-                return View("~/Views/ProjectApproval/Index.cshtml", new ProjectApprovalViewModel
-                {
-                    Projects = projects ?? new List<Project>(),
-                    StatusFilter = "Pending",
-                    PageTitle = "Pending Projects"
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting pending projects");
-                TempData["ErrorMessage"] = "Error loading pending projects";
-                return RedirectToAction("Dashboard");
-            }
+            return RedirectToAction("Index", "ProjectApproval", new { statusFilter = "Pending" });
         }
 
-        public async Task<IActionResult> ProjectsByDate(DateTime? date, string dateString = null)
-        {
-            try
-            {
-                DateTime filterDate = DateTime.Today;
-
-                if (date.HasValue)
-                {
-                    filterDate = date.Value;
-                }
-                else if (!string.IsNullOrEmpty(dateString) && DateTime.TryParse(dateString, out var parsedDate))
-                {
-                    filterDate = parsedDate;
-                }
-
-                var projects = await _context.Projects
-                    .Include(p => p.Company)
-                    .Include(p => p.ProjectType)
-                    .Where(p => p.ProjectSubmittedDate.HasValue &&
-                           p.ProjectSubmittedDate.Value.Date == filterDate.Date &&
-                           (p.IsDeleted == null || !p.IsDeleted.Value))
-                    .OrderByDescending(p => p.ProjectSubmittedDate)
-                    .ToListAsync();
-
-                return View("~/Views/ProjectApproval/Index.cshtml", new ProjectApprovalViewModel
-                {
-                    Projects = projects ?? new List<Project>(),
-                    PageTitle = $"Projects Submitted on {filterDate.ToString("MMM dd, yyyy")}"
-                });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting projects by date");
-                TempData["ErrorMessage"] = "Error loading projects by date";
-                return RedirectToAction("Dashboard");
-            }
-        }
+        
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
@@ -229,8 +160,42 @@ namespace ProjectManagementSystem.Controllers
 
             return View(new ErrorViewModel
             {
-                RequestId = System.Diagnostics.Activity.Current?.Id ?? HttpContext.TraceIdentifier
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
             });
+        }
+        public async Task<IActionResult> ProjectsByDate(string date)
+        {
+            try
+            {
+                if (!DateTime.TryParse(date, out var filterDate))
+                {
+                    TempData["ErrorMessage"] = "Invalid date format";
+                    return RedirectToAction("Dashboard");
+                }
+
+                var projects = await _context.Projects
+                    .Include(p => p.Company)
+                    .Include(p => p.ProjectType)
+                    .Include(p => p.ProjectMembers)
+                        .ThenInclude(pm => pm.Student)
+                    .Where(p => p.ProjectSubmittedDate.HasValue &&
+                           p.ProjectSubmittedDate.Value.Date == filterDate.Date &&
+                           (p.IsDeleted == null || !p.IsDeleted.Value))
+                    .OrderByDescending(p => p.ProjectSubmittedDate)
+                    .ToListAsync();
+
+                return View("~/Views/ProjectApproval/Index.cshtml", new ProjectApprovalViewModel
+                {
+                    Projects = projects,
+                    PageTitle = $"Projects Submitted on {filterDate.ToString("MMM dd, yyyy")}"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting projects by date");
+                TempData["ErrorMessage"] = "Error loading projects by date";
+                return RedirectToAction("Dashboard");
+            }
         }
     }
 }

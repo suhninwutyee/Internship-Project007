@@ -1,44 +1,229 @@
 ﻿@model Announcement
 
-<h2>Manage Submission Status</h2>
+@{
+    ViewData["Title"] = "Edit Announcement";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+}
 
-<form asp-action="Edit">
-    <div class="form-group">
-        <label asp-for="Title" class="control-label"></label>
-        <input asp-for="Title" class="form-control" />
-        <span asp-validation-for="Title" class="text-danger"></span>
-    </div>
+<div class="container edit-announcement-container">
+    <div class="edit-announcement-card">
+        <h2 class="edit-announcement-title">@ViewData["Title"]</h2>
+        <div class="divider"></div>
 
-    <div class="form-group">
-        <label asp-for="Message" class="control-label"></label>
-        <textarea asp-for="Message" class="form-control" rows="5"></textarea>
-        <span asp-validation-for="Message" class="text-danger"></span>
-    </div>
+        <form asp-action="Edit" class="edit-announcement-form">
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+            <input type="hidden" asp-for="AnnouncementId" />
 
-    <div class="row">
-        <div class="col-md-6">
             <div class="form-group">
-                <label asp-for="StartDate" class="control-label"></label>
-                <input asp-for="StartDate" class="form-control" />
-                <span asp-validation-for="StartDate" class="text-danger"></span>
+                <label asp-for="Title" class="control-label form-label"></label>
+                <input asp-for="Title" class="form-control input-field" placeholder="Announcement title" />
+                <span asp-validation-for="Title" class="validation-message"></span>
             </div>
-        </div>
-        @* <div class="col-md-6">
+
             <div class="form-group">
-                <label asp-for="EndDate" class="control-label"></label>
-                <input asp-for="EndDate" class="form-control" />
-                <span asp-validation-for="EndDate" class="text-danger"></span>
+                <label asp-for="Message" class="control-label form-label"></label>
+                <textarea asp-for="Message" class="form-control input-field textarea-field" rows="5" placeholder="Type your message here..."></textarea>
+                <span asp-validation-for="Message" class="validation-message"></span>
             </div>
-        </div> *@
-    </div>
 
-    @* <div class="form-group form-check">
-        <input asp-for="BlockSubmissions" class="form-check-input" />
-        <label asp-for="BlockSubmissions" class="form-check-label"></label>
-    </div> *@
+            <div class="form-group form-check">
+                <input class="form-check-input checkbox-input" asp-for="BlocksSubmissions" />
+                <label class="form-check-label checkbox-label" asp-for="BlocksSubmissions"></label>
+            </div>
 
-    <div class="form-group">
-        <input type="submit" value="Save" class="btn btn-primary" />
-        <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Cancel</a>
+            <div class="date-fields">
+                <div class="form-group">
+                    <label asp-for="StartDate" class="control-label form-label"></label>
+                    <input asp-for="StartDate" class="form-control input-field" />
+                    <span asp-validation-for="StartDate" class="validation-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ExpiryDate" class="control-label form-label"></label>
+                    <input asp-for="ExpiryDate" class="form-control input-field" />
+                    <span asp-validation-for="ExpiryDate" class="validation-message"></span>
+                </div>
+            </div>
+
+            <div class="form-group button-group">
+                <button type="submit" class="btn save-button">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <a asp-action="Dashboard" asp-controller="Teacher" class="btn cancel-button">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
     </div>
-</form>
+</div>
+
+@section Styles {
+    <style>
+        .edit-announcement-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 15px;
+        }
+
+        .edit-announcement-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(140, 93, 209, 0.1);
+            padding: 2.5rem;
+            transition: transform 0.3s ease;
+        }
+
+            .edit-announcement-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 24px rgba(140, 93, 209, 0.15);
+            }
+
+        .edit-announcement-title {
+            color: #8C5DD1;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(to right, transparent, #C8C6C1, transparent);
+            margin: 1.5rem 0;
+        }
+
+        .form-label {
+            color: #555;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .input-field {
+            border: 1px solid #C8C6C1;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: #f9f9f9;
+        }
+
+            .input-field:focus {
+                border-color: #8C5DD1;
+                box-shadow: 0 0 0 3px rgba(140, 93, 209, 0.2);
+                background-color: #fff;
+                outline: none;
+            }
+
+        .textarea-field {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .checkbox-input {
+            width: 18px;
+            height: 18px;
+            margin-right: 0.5rem;
+            border: 1px solid #C8C6C1;
+            cursor: pointer;
+        }
+
+            .checkbox-input:checked {
+                background-color: #8C5DD1;
+                border-color: #8C5DD1;
+            }
+
+        .checkbox-label {
+            color: #555;
+            font-weight: 400;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .date-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        @@media (max-width: 768px) {
+            .date-fields {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: flex-end;
+        }
+
+        .save-button {
+            background-color: #8C5DD1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            .save-button:hover {
+                background-color: #7a4bc2;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(140, 93, 209, 0.3);
+            }
+
+        .cancel-button {
+            background-color: #C8C6C1;
+            color: #333;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            .cancel-button:hover {
+                background-color: #b5b3af;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(200, 198, 193, 0.3);
+            }
+
+        .validation-summary {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            list-style: none;
+        }
+
+        .validation-message {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Font Awesome icons */
+        .fas {
+            font-size: 0.9rem;
+        }
+    </style>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+}

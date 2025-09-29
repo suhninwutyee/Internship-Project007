@@ -27,6 +27,7 @@ namespace ProjectManagementSystem.ViewModels
     public class SubmissionStat
     {
         public string Date { get; set; }
+        public string DisplayDate { get; set; } // Add this line
         public int Count { get; set; }
     }
 }

@@ -37,7 +37,7 @@ namespace ProjectManagementSystem.Controllers
 
             var notifications = await _context.Notifications
                 .Where(n => n.UserId == student.Student_pkId)
-                .OrderByDescending(n => n.CreatedDate)
+                .OrderByDescending(n => n.CreatedAt)
                 .ToListAsync();
 
             return View(notifications);

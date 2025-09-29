@@ -1,23 +1,29 @@
 ﻿@model ProjectManagementSystem.ViewModels.TeacherDashboardViewModel
-@using ProjectManagementSystem.Extensions                           
+@using System.Text.Json
+@using System.Text.Json.Serialization
 
 @{
     Layout = "~/Views/Shared/_TeacherLayout.cshtml";
     ViewData["Title"] = "Teacher Dashboard";
 
-    // Time-based greeting
     var currentHour = DateTime.Now.Hour;
     var greeting = currentHour < 12 ? "Good Morning" :
                   currentHour < 17 ? "Good Afternoon" : "Good Evening";
 
+    // Serialize chart data with proper JSON handling
+    var chartData = new
+    {
+        dates = Model.SubmissionStats?.Select(s => s.Date) ?? Enumerable.Empty<string>(),
+        counts = Model.SubmissionStats?.Select(s => s.Count) ?? Enumerable.Empty<int>()
+    };
+    var serializedChartData = JsonSerializer.Serialize(chartData);
 }
-<!DOCTYPE html>
 
+<!DOCTYPE html>
+<html>
 <head>
-  
     <title>Teacher Dashboard</title>
- 
-    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <style>
         :root {
             --primary-color: #8C5DD1;
@@ -29,7 +35,6 @@
             font-family: 'Inter', sans-serif;
             background-color: var(--light-bg);
             color: #333;
-            
         }
 
         .dashboard-header {
@@ -49,6 +54,7 @@
             transition: all 0.3s ease;
             border: none;
             height: 100%;
+            cursor: pointer;
         }
 
             .stat-card:hover {
@@ -100,6 +106,7 @@
             border-bottom: 1px solid rgba(0,0,0,0.1);
             font-weight: 600;
             color: var(--primary-color);
+            padding: 15px 20px;
         }
 
         .table th {
@@ -111,33 +118,32 @@
         .badge-custom {
             background-color: rgba(140, 93, 209, 0.1);
             color: var(--primary-color);
+            padding: 5px 10px;
+            border-radius: 4px;
         }
 
-        .stat-card {
-            cursor: pointer;
-            transition: all 0.2s ease;
+        .announcement-card {
+            height: 100%;
+            transition: all 0.3s ease;
         }
 
-            .stat-card:hover {
+            .announcement-card:hover {
                 transform: translateY(-3px);
-                box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-                background-color: rgba(140, 93, 209, 0.05);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             }
 
-        .bg-light-danger {
-            background-color: rgba(220, 53, 69, 0.1);
-            border-left: 3px solid #dc3545;
+            .announcement-card.border-danger {
+                border-left: 4px solid #dc3545;
+            }
+
+        .announcement-message {
+            max-height: 100px;
+            overflow-y: auto;
+            padding: 10px 0;
         }
 
-        .bg-light-info {
-            background-color: rgba(23, 162, 184, 0.1);
-            border-left: 3px solid #17a2b8;
-        }
-
-        .announcement-preview {
-            border-top: 1px solid #eee;
-            padding-top: 10px;
-            margin-top: 10px;
+        .chart-clickable {
+            cursor: pointer;
         }
     </style>
 </head>
@@ -147,82 +153,108 @@
         <div class="dashboard-header d-flex justify-content-between align-items-center">
             <div>
                 <h1>Dashboard Overview</h1>
-                <p class="text-muted mb-0">@greeting! ></p>
+                <p class="text-muted mb-0">@greeting! Today is @DateTime.Now.ToString("MMMM dd, yyyy")</p>
             </div>
         </div>
 
-        <!-- Stats Cards -->
+        <!-- Stats Cards and Announcement -->
         <div class="row mb-4 g-4">
+            <!-- Total Projects Card -->
             <div class="col-md-4">
-                <a asp-action="AllProjects" asp-controller="Teacher" class="text-decoration-none">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="bi bi-folder"></i>
-                        </div>
-                        <h3 class="stat-title">Total Projects</h3>
-                        <div class="stat-value">@Model.TotalProjects</div>
-                    </div>
-                </a>
-            </div>
-            <div class="col-md-4">
-                <a asp-action="PendingProjects" asp-controller="Teacher" class="text-decoration-none">
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="bi bi-list-task"></i>
-                        </div>
-                        <h3 class="stat-title">Pending Tasks</h3>
-                        <div class="stat-value">@Model.PendingProjectsCount</div>
-                    </div>
-                </a>
-            </div>
-            <!-- In your Dashboard.cshtml -->
-            <div class="col-md-4">
-                @* <div class="stat-card @(Model.Announcements.Any(a => a.IsActive && a.BlockSubmissions) ? "border-danger" : "")">
+                <div class="stat-card" onclick="window.location.href='@Url.Action("AllProjects", "Teacher")'">
                     <div class="stat-icon">
-                        <i class="bi bi-megaphone @(Model.Announcements.Any(a => a.IsActive && a.BlockSubmissions) ? "text-danger" : "text-primary")"></i>
+                        <i class="bi bi-folder"></i>
                     </div>
-                    <h3 class="stat-title">Announcements</h3>
+                    <h3 class="stat-title">Total Projects</h3>
+                    <div class="stat-value">@Model.TotalProjects</div>
+                </div>
+            </div>
 
-                    <!-- Current Status Badge -->
-                    @if (Model.Announcements.Any(a => a.IsActive))
+            <!-- Pending Projects Card -->
+            <div class="col-md-4">
+                <div class="stat-card" onclick="window.location.href='@Url.Action("PendingProjects", "Teacher")'">
+                    <div class="stat-icon">
+                        <i class="bi bi-list-task"></i>
+                    </div>
+                    <h3 class="stat-title">Pending Tasks</h3>
+                    <div class="stat-value">@Model.PendingProjectsCount</div>
+                </div>
+            </div>
+
+            <!-- Announcement Card -->
+            <div class="col-md-4">
+                @{
+                    var activeAnnouncement = Model.Announcements?.FirstOrDefault();
+                    var isEffective = activeAnnouncement?.IsCurrentlyEffective ?? false;
+                }
+                <div class="stat-card announcement-card @(isEffective && activeAnnouncement?.BlocksSubmissions == true ? "border-danger" : "")">
+                    <div class="stat-icon @(isEffective && activeAnnouncement?.BlocksSubmissions == true ? "bg-danger" : "")">
+                        <i class="bi bi-megaphone"></i>
+                    </div>
+                    <h3 class="stat-title">Announcement</h3>
+
+                    @if (activeAnnouncement != null)
                     {
                         <div class="mb-2">
-                            <span class="badge @(Model.Announcements.Any(a => a.IsActive && a.BlockSubmissions) ? "bg-danger" : "bg-success")">
-                                @(Model.Announcements.Any(a => a.IsActive && a.BlockSubmissions) ? "Submissions Blocked" : "Submissions Open")
+                            <span class="badge @(activeAnnouncement.BlocksSubmissions ? "bg-danger" : "bg-success")">
+                                @if (isEffective)
+                                {
+                                    @(activeAnnouncement.BlocksSubmissions ? "Submissions Blocked" : "Submissions Open")
+                                }
+                                else
+                                {
+                                    <text>Not Active</text>
+                                }
                             </span>
+                            @if (!activeAnnouncement.IsActive)
+                            {
+                                <span class="badge bg-secondary ms-1">Disabled</span>
+                            }
+                            else if (!isEffective)
+                            {
+                                <span class="badge bg-warning ms-1">Outside Date Range</span>
+                            }
+                        </div>
+
+                        <div class="announcement-message mb-2">
+                            <strong>@activeAnnouncement.Title</strong>
+                            <p class="mb-1 small">@activeAnnouncement.Message</p>
+                        </div>
+
+                        <small class="text-muted">
+                            <i class="bi bi-calendar"></i>
+                            @activeAnnouncement.StartDate.ToString("MMM dd")
+                            @if (activeAnnouncement.ExpiryDate.HasValue)
+                            {
+                                <text>- @activeAnnouncement.ExpiryDate.Value.ToString("MMM dd")</text>
+                            }
+                        </small>
+                    }
+                    else
+                    {
+                        <div class="text-muted mb-2">
+                            No active announcements
                         </div>
                     }
 
-                    <div class="stat-value">@Model.Announcements.Count(a => a.IsActive)</div>
-                    <div class="stat-subtext">Active Announcements</div>
-
-                    <!-- Quick Actions for Teachers -->
                     @if (User.IsInRole("Teacher") || User.IsInRole("Admin"))
                     {
-                        <div class="mt-2">
-                            <a asp-action="Edit" asp-controller="Announcement" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-pencil"></i> Manage Announcement
+                        <div class="mt-3">
+                            @if (activeAnnouncement != null)
+                            {
+                                <a asp-controller="Announcement" asp-action="Edit"
+                                   asp-route-id="@activeAnnouncement.AnnouncementId"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i> Manage
+                                </a>
+                            }
+                            <a asp-controller="Announcement" asp-action="Create"
+                               class="btn btn-sm btn-outline-success ms-2">
+                                <i class="bi bi-plus"></i> Create New
                             </a>
                         </div>
                     }
-
-                    <!-- Active Announcement Preview -->
-                    @if (Model.Announcements.FirstOrDefault(a => a.IsActive) is Announcement activeAnnouncement)
-                    {
-                        <div class="announcement-preview mt-3">
-                            <h6 class="fw-bold">@activeAnnouncement.Title</h6>
-                            <p class="small text-muted mb-1">@activeAnnouncement.Message.Truncate(50)</p>
-                            <p class="small">
-                                <i class="bi bi-calendar"></i>
-                                @activeAnnouncement.StartDate.ToString("MMM dd")
-                                @if (activeAnnouncement.EndDate.HasValue)
-                                {
-                                    <text>- @activeAnnouncement.EndDate.Value.ToString("MMM dd")</text>
-                                }
-                            </p>
-                        </div>
-                    }
-                </div> *@
+                </div>
             </div>
         </div>
 
@@ -232,58 +264,13 @@
                 <div class="chart-container">
                     <h5>Project Submissions (Last 7 Days)</h5>
                     <div style="height: 300px;">
-                        <canvas id="submissionsChart"
-                                data-dates='@Json.Serialize(Model.SubmissionStats.Select(s => s.Date))'
-                                data-counts='@Json.Serialize(Model.SubmissionStats.Select(s => s.Count))'></canvas>
+                        <canvas id="submissionsChart"></canvas>
                     </div>
                 </div>
             </div>
-            <!-- Below your charts row -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5>Current Announcements</h5>
-                            <a asp-action="Edit" asp-controller="Announcement" class="btn btn-sm btn-primary">
-                                <i class="bi bi-plus"></i> Edit Announcement
-                            </a>
-                        </div>
-                        @* <div class="card-body">
-                            @if (Model.Announcements.Any(a => a.IsActive))
-                            {
-                                foreach (var announcement in Model.Announcements.Where(a => a.IsActive).OrderByDescending(a => a.StartDate))
-                                {
-                                    <div class="mb-4 p-3 @(announcement.BlockSubmissions ? "bg-light-danger" : "bg-light-info") rounded">
-                                        <div class="d-flex justify-content-between">
-                                            <h5>@announcement.Title</h5>
-                                            @if (announcement.BlockSubmissions)
-                                            {
-                                                <span class="badge bg-danger">Submissions Blocked</span>
-                                            }
-                                        </div>
-                                        <p>@announcement.Message</p>
-                                        <small class="text-muted">
-                                            Active from @announcement.StartDate.ToString("MMM dd, yyyy")
-                                            @if (announcement.EndDate.HasValue)
-                                            {
-                                                <text>until @announcement.EndDate.Value.ToString("MMM dd, yyyy")</text>
-                                            }
-                                        </small>
-                                    </div>
-                                }
-                            }
-                            else
-                            {
-                                <div class="alert alert-info">
-                                    No active announcements currently.
-                                </div>
-                            }
-                        </div> *@
-                    </div>
-                </div>
-            </div>
+        </div>
 
-        <!-- Recent Submissions -->
+       @*  <!-- Recent Submissions -->
         <div class="row">
             <div class="col-12">
                 <div class="activity-card">
@@ -300,7 +287,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @if (Model.RecentSubmitters.Any())
+                                    @if (Model.RecentSubmitters?.Any() == true)
                                     {
                                         @foreach (var submission in Model.RecentSubmitters)
                                         {
@@ -324,168 +311,97 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> *@ 
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-             // Dashboard JavaScript - teacher-dashboard.js
         document.addEventListener('DOMContentLoaded', function() {
-            // 1. Set up time-based greeting and current date
-            setGreetingAndDate();
+            // Parse the chart data
+            const chartData = @Html.Raw(serializedChartData);
 
-            // 2. Initialize the submissions chart with clickable points
-            initSubmissionsChart();
-
-            // 3. Add hover effects to clickable cards
-            setupClickableCards();
-        });
-
-        function setGreetingAndDate() {
-            const now = new Date();
-            const hour = now.getHours();
-            let greeting;
-
-            // Set time-based greeting
-            if (hour < 12) {
-                greeting = "Good Morning";
-            } else if (hour < 17) {
-                greeting = "Good Afternoon";
-            } else {
-                greeting = "Good Evening";
-            }
-
-            // Format current date
-            const options = {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            };
-            const dateString = now.toLocaleDateString('en-US', options);
-
-            // Update the DOM
-            document.querySelector('.dashboard-header p').innerHTML =
-                `${greeting}! Today is <span id="currentDate">${dateString}</span>`;
-        }
-
-        function initSubmissionsChart() {
+            // Get chart canvas
             const ctx = document.getElementById('submissionsChart').getContext('2d');
-            const chartData = {
-                labels: JSON.parse(document.getElementById('submissionsChart').dataset.dates),
-                datasets: [{
-                    label: 'Submissions',
-                    data: JSON.parse(document.getElementById('submissionsChart').dataset.counts),
-                    borderColor: '#8C5DD1',
-                    backgroundColor: 'rgba(140, 93, 209, 0.1)',
-                    tension: 0.3,
-                    fill: true,
-                    pointBackgroundColor: '#8C5DD1',
-                    pointBorderColor: '#fff',
-                    pointRadius: 5,
-                    pointHoverRadius: 7
-                }]
-            };
 
-            const chartOptions = {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return `${context.parsed.y} submission${context.parsed.y !== 1 ? 's' : ''}`;
+            // Create the chart
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.dates.map(date => {
+                        // Convert yyyy-MM-dd to MMM dd for display
+                        const [year, month, day] = date.split('-');
+                        const dateObj = new Date(year, month-1, day);
+                        return dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    }),
+                    datasets: [{
+                        label: 'Submissions',
+                        data: chartData.counts,
+                        borderColor: '#8C5DD1',
+                        backgroundColor: 'rgba(140, 93, 209, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                        pointBackgroundColor: '#8C5DD1',
+                        pointBorderColor: '#fff',
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.parsed.y} submission${context.parsed.y !== 1 ? 's' : ''}`;
+                                },
+                                title: function(context) {
+                                    // Format the date nicely in tooltip
+                                    const dateStr = chartData.dates[context[0].dataIndex];
+                                    const [year, month, day] = dateStr.split('-');
+                                    const dateObj = new Date(year, month-1, day);
+                                    return dateObj.toLocaleDateString('en-US', {
+                                        weekday: 'long',
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                    });
+                                }
                             }
                         }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            display: true,
-                            drawBorder: false,
-                            color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                display: true,
+                                drawBorder: false,
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                stepSize: 1,
+                                precision: 0
+                            }
                         },
-                        ticks: {
-                            stepSize: 1,
-                            precision: 0
+                        x: {
+                            grid: { display: false }
                         }
                     },
-                    x: {
-                        grid: { display: false }
-                    }
-                },
-                onClick: handleChartClick
-            };
-
-            new Chart(ctx, {
-                type: 'line',
-                data: chartData,
-                options: chartOptions
-            });
-
-            function handleChartClick(event, elements) {
-                if (elements.length > 0) {
-                    const index = elements[0].index;
-                    const dateStr = chartData.labels[index];
-
-                    // Convert the displayed date (like "Jul 28") to a format the server can parse
-                    const dateObj = new Date(dateStr + ' ' + new Date().getFullYear());
-                    if (!isNaN(dateObj.getTime())) {
-                        const formattedDate = dateObj.toISOString().split('T')[0];
-                        window.location.href = `/ProjectApproval/ProjectsByDate?date=${formattedDate}`;
-                    }
-                }
-            }
-        }
-
-        function setupClickableCards() {
-            // Add hover effects and confirm they're clickable
-            const cards = document.querySelectorAll('.stat-card');
-
-            cards.forEach(card => {
-                // Add hover effects
-                card.style.cursor = 'pointer';
-                card.style.transition = 'all 0.2s ease';
-
-                card.addEventListener('mouseenter', () => {
-                    card.style.transform = 'translateY(-3px)';
-                    card.style.boxShadow = '0 6px 12px rgba(0,0,0,0.1)';
-                });
-
-                card.addEventListener('mouseleave', () => {
-                    card.style.transform = '';
-                    card.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)';
-                });
-
-                // Make the entire card clickable (not just the link)
-                card.addEventListener('click', (e) => {
-                    // Don't trigger if clicking on a link inside the card
-                    if (e.target.tagName !== 'A') {
-                        const link = card.querySelector('a');
-                        if (link) {
-                            window.location.href = link.href;
+                    onClick: function(event, elements) {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const dateStr = chartData.dates[index];
+                            // Navigate to the filtered view
+                            window.location.href = `@Url.Action("ProjectsByDate", "Teacher")?date=${dateStr}`;
                         }
                     }
-                });
+                }
             });
 
-            // Add click handler for the announcements "Create New" button
-            const createNewBtn = document.querySelector('.announcements-section .btn-primary');
-            if (createNewBtn) {
-                createNewBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    window.location.href = this.href;
-                });
-            }
-        }
-
-        // Utility function to format dates consistently
-        function formatDateForDisplay(dateString) {
-            const options = { month: 'short', day: 'numeric' };
-            return new Date(dateString).toLocaleDateString('en-US', options);
-        }
+            // Make chart canvas clickable
+            document.getElementById('submissionsChart').style.cursor = 'pointer';
+        });
     </script>
 </body>
 </html>

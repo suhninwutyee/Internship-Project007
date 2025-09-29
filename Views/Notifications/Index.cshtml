@@ -81,15 +81,9 @@
             <div class="list-group-item @(notification.IsRead ? "" : "list-group-item-info")">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <div class="d-flex align-items-center mb-1">
-                            @if (!string.IsNullOrEmpty(notification.NotificationType))
-                            {
-                                <span class="notification-type-badge">@notification.NotificationType</span>
-                            }
-                            <h5 class="mb-0">@notification.Title</h5>
-                        </div>
-                        <p class="mb-2">@notification.Message</p>
-                        <small class="text-muted"><i class="far fa-clock mr-1"></i> @notification.CreatedDate.ToString("g")</small>
+                        <h5>@notification.Title</h5>
+                        <p>@notification.Message</p>
+                        <small class="text-muted">@notification.CreatedAt.ToString("g")</small>
                     </div>
                     @if (!notification.IsRead)
                     {

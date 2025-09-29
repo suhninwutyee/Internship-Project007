@@ -1,5 +1,4 @@
 ﻿// Controllers/AdminController.cs
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +7,8 @@ using ProjectManagementSystem.Data;
 using ProjectManagementSystem.Models;
 using ProjectManagementSystem.Services.Interface;
 using ProjectManagementSystem.ViewModels;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 
 namespace ProjectManagementSystem.Controllers
@@ -60,12 +61,25 @@ namespace ProjectManagementSystem.Controllers
 
                 if (result.Succeeded)
                 {
+                    // Add custom claims
+                    var claims = new List<Claim>
+            {
+                new Claim("FullName", user.FullName),
+                new Claim("Initial", user.FullName.Substring(0, 1).ToUpper())
+            };
+
+                    await _userManager.AddClaimsAsync(user, claims);
+
                     await _activityLogger.LogActivityAsync(
                         user.Id,
                         "Login",
                         user.Email,
                         HttpContext);
 
+                    if (await _userManager.IsInRoleAsync(user, "Admin"))
+                    {
+                        return RedirectToAction("Dashboard", "Teacher");
+                    }
                     return RedirectToAction("Dashboard", "Teacher");
                 }
 
@@ -76,21 +90,31 @@ namespace ProjectManagementSystem.Controllers
         }
 
 
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
+            Console.WriteLine("Logout action called"); // Debug output
+
             var user = await _userManager.GetUserAsync(User);
             if (user != null)
             {
+                Console.WriteLine($"Logging out user: {user.UserName}"); // Debug output
                 await _activityLogger.LogActivityAsync(
                     user.Id,
                     "Logout",
                     user.FullName,
                     HttpContext);
             }
+            else
+            {
+                Console.WriteLine("No user found to log out"); // Debug output
+            }
 
             await _signInManager.SignOutAsync();
+            Console.WriteLine("SignOutAsync completed"); // Debug output
+
             return RedirectToAction("Login");
         }
 
@@ -169,59 +193,67 @@ namespace ProjectManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MyProfile(MyProfileViewModel model)
         {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return NotFound();
+
             if (!ModelState.IsValid)
             {
                 model.IsEditMode = true;
                 return View(model);
             }
 
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            // Update profile information
             if (user.FullName != model.FullName)
             {
+                // Update full name
                 user.FullName = model.FullName;
-                var updateResult = await _userManager.UpdateAsync(user);
-                if (!updateResult.Succeeded)
+                await _userManager.UpdateAsync(user);
+
+                // Update claims
+                var existingClaims = await _userManager.GetClaimsAsync(user);
+                var fullNameClaim = existingClaims.FirstOrDefault(c => c.Type == "FullName");
+                var initialClaim = existingClaims.FirstOrDefault(c => c.Type == "Initial");
+
+                if (fullNameClaim != null)
                 {
-                    foreach (var error in updateResult.Errors)
-                    {
-                        ModelState.AddModelError("", error.Description);
-                    }
-                    model.IsEditMode = true;
-                    return View(model);
+                    await _userManager.RemoveClaimAsync(user, fullNameClaim);
                 }
-            }
-
-            // Change password if provided
-            if (!string.IsNullOrEmpty(model.OldPassword) &&
-                !string.IsNullOrEmpty(model.NewPassword))
-            {
-                var changePasswordResult = await _userManager.ChangePasswordAsync(
-                    user,
-                    model.OldPassword,
-                    model.NewPassword);
-
-                if (!changePasswordResult.Succeeded)
+                if (initialClaim != null)
                 {
-                    foreach (var error in changePasswordResult.Errors)
-                    {
-                        ModelState.AddModelError("", error.Description);
-                    }
-                    model.IsEditMode = true;
-                    return View(model);
+                    await _userManager.RemoveClaimAsync(user, initialClaim);
                 }
 
+                await _userManager.AddClaimsAsync(user, new List<Claim>
+        {
+            new Claim("FullName", model.FullName),
+            new Claim("Initial", model.FullName.Substring(0, 1).ToUpper())
+        });
+
+                // Refresh the sign-in to update claims
                 await _signInManager.RefreshSignInAsync(user);
             }
 
-            model.IsEditMode = false;
-            TempData["SuccessMessage"] = "Profile updated successfully!";
-            return View(model);
+            // Handle password change if needed
+            if (!string.IsNullOrWhiteSpace(model.OldPassword) &&
+                !string.IsNullOrWhiteSpace(model.NewPassword))
+            {
+                var result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+                if (!result.Succeeded)
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    model.IsEditMode = true;
+                    return View(model);
+                }
+
+                user.IsUsingDefaultPassword = false;
+                await _userManager.UpdateAsync(user);
+                await _signInManager.RefreshSignInAsync(user);
+            }
+
+            TempData["SuccessMessage"] = "Profile updated successfully";
+            return RedirectToAction(nameof(MyProfile));
         }
 
         [HttpPost]
@@ -231,6 +263,7 @@ namespace ProjectManagementSystem.Controllers
         {
             return RedirectToAction(nameof(MyProfile), new { isEditMode = true });
         }
+
 
 
     }

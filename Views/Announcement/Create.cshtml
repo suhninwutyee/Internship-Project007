@@ -1,0 +1,212 @@
+﻿@model Announcement
+
+@{
+    ViewData["Title"] = "Create Announcement";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+}
+
+<div class="container announcement-container">
+    <div class="announcement-card">
+        <h2 class="announcement-title">@ViewData["Title"]</h2>
+
+        <form asp-action="Create" class="announcement-form">
+            <div asp-validation-summary="ModelOnly" class="text-danger validation-summary"></div>
+
+            <div class="form-group mb-4">
+                <label asp-for="Title" class="control-label form-label"></label>
+                <input asp-for="Title" class="form-control input-field" placeholder="Enter announcement title" />
+                <span asp-validation-for="Title" class="text-danger validation-message"></span>
+            </div>
+
+            <div class="form-group mb-4">
+                <label asp-for="Message" class="control-label form-label"></label>
+                <textarea asp-for="Message" class="form-control input-field textarea-field" rows="5" placeholder="Type your message here..."></textarea>
+                <span asp-validation-for="Message" class="text-danger validation-message"></span>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="StartDate" class="control-label form-label"></label>
+                        <input asp-for="StartDate" class="form-control input-field" />
+                        <span asp-validation-for="StartDate" class="text-danger validation-message"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="ExpiryDate" class="control-label form-label"></label>
+                        <input asp-for="ExpiryDate" class="form-control input-field" />
+                        <span asp-validation-for="ExpiryDate" class="text-danger validation-message"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-check mb-4">
+                <input class="form-check-input checkbox-input" type="checkbox" asp-for="IsActive" />
+                <label class="form-check-label checkbox-label" asp-for="IsActive"></label>
+            </div>
+
+            <div class="form-check mb-4">
+                <input class="form-check-input checkbox-input" type="checkbox" asp-for="BlocksSubmissions" />
+                <label class="form-check-label checkbox-label" asp-for="BlocksSubmissions"></label>
+            </div>
+
+            <div class="form-group button-group">
+                <button type="submit" class="btn btn-primary submit-button">Create Announcement</button>
+                <a asp-action="Dashboard" asp-controller="Teacher" class="btn btn-secondary cancel-button">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .announcement-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 15px;
+        }
+
+        .announcement-card {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 2.5rem;
+            transition: transform 0.3s ease;
+        }
+
+            .announcement-card:hover {
+                transform: translateY(-2px);
+            }
+
+        .announcement-title {
+            color: #8C5DD1;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            font-size: 1.8rem;
+        }
+
+        .announcement-form {
+            margin-top: 1.5rem;
+        }
+
+        .form-label {
+            color: #5a5a5a;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .input-field {
+            border: 1px solid #C8C6C1;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: #f9f9f9;
+        }
+
+            .input-field:focus {
+                border-color: #8C5DD1;
+                box-shadow: 0 0 0 3px rgba(140, 93, 209, 0.2);
+                background-color: #fff;
+                outline: none;
+            }
+
+        .textarea-field {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .checkbox-input {
+            width: 18px;
+            height: 18px;
+            margin-right: 0.5rem;
+            border: 1px solid #C8C6C1;
+        }
+
+            .checkbox-input:checked {
+                background-color: #8C5DD1;
+                border-color: #8C5DD1;
+            }
+
+        .checkbox-label {
+            color: #5a5a5a;
+            font-weight: 400;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: flex-end;
+        }
+
+        .submit-button {
+            background-color: #8C5DD1;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+            .submit-button:hover {
+                background-color: #7a4bc2;
+                transform: translateY(-1px);
+            }
+
+        .cancel-button {
+            background-color: #C8C6C1;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            color: #333;
+        }
+
+            .cancel-button:hover {
+                background-color: #b5b3af;
+                transform: translateY(-1px);
+            }
+
+        .validation-summary {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .validation-message {
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .announcement-card {
+                padding: 1.5rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .submit-button, .cancel-button {
+                width: 100%;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
