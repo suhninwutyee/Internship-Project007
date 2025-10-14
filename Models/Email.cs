@@ -50,7 +50,6 @@ namespace ProjectManagementSystem.Models
         [Required(ErrorMessage = "Roll number is required")]
         [MaxLength(50)]
         public string RollNumber { get; set; } = "";        
-        public DateTime CreatedDate { get; set; } 
 
         [Required(ErrorMessage = "Class is required")]
         [MaxLength(50)]
