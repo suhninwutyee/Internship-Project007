@@ -469,30 +469,7 @@
 
     <script>
         $(function () {
-            // On Project Type change: load Languages
-            $('#ProjectTypeDropdown').change(function () {
-                var projectTypeId = $(this).val();
-                var $languageDropdown = $('#LanguageDropdown');
-
-                $languageDropdown.empty().append($('<option>').val('').text('-- Loading Languages --'));
-
-                if (projectTypeId) {
-                    $.getJSON('@Url.Action("GetLanguagesByProjectType", "Project")', { projectTypeId: projectTypeId })
-                        .done(function (data) {
-                            $languageDropdown.empty().append($('<option>').val('').text('-- Select Language --'));
-                            $.each(data, function (i, lang) {
-                                $languageDropdown.append($('<option>').val(lang.language_pkId).text(lang.languageName));
-                            });
-                        })
-                        .fail(function () {
-                            $languageDropdown.empty().append($('<option>').val('').text('-- Error loading languages --'));
-                        });
-                } else {
-                    $languageDropdown.empty().append($('<option>').val('').text('-- Select Language --'));
-                }
-            });
-
-            // On Language change: load Frameworks
+            // Framework dropdown population based on language
             $('#LanguageDropdown').change(function () {
                 var languageId = $(this).val();
                 var $frameworkDropdown = $('#FrameworkDropdown');
@@ -513,7 +490,7 @@
                 }
             });
 
-            // On Company change: load company info and show/hide company info card
+            // Company information toggle
             $('#CompanyDropdown').change(function () {
                 var companyId = $(this).val();
                 if (companyId == "0") {
@@ -595,9 +572,46 @@
                 }
             });
 
-            // Initially hide company info if no company selected
-            if (!$('#CompanyDropdown').val()) {
-                $('#companyInfo').hide();
+            // Set minimum date for submission date
+            var today = new Date().toISOString().split('T')[0];
+            $('#ProjectSubmittedDate').attr('min', today);
+        });
+
+        ///Date???
+             document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.querySelector('.date-picker-input');
+            const daysRemainingBadge = document.getElementById('daysRemainingBadge');
+            const daysRemainingCount = document.getElementById('daysRemainingCount');
+
+            // Calculate days remaining when date changes
+            dateInput.addEventListener('change', function() {
+                if (this.value) {
+                    const targetDate = new Date(this.value);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    const diffTime = targetDate - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    daysRemainingCount.textContent = diffDays;
+
+                    // Visual feedback based on days remaining
+                    if (diffDays < 7) {
+                        daysRemainingBadge.style.backgroundColor = '#ffebee';
+                        daysRemainingBadge.style.color = '#d32f2f';
+                    } else if (diffDays < 14) {
+                        daysRemainingBadge.style.backgroundColor = '#fff8e1';
+                        daysRemainingBadge.style.color = '#ff8f00';
+                    } else {
+                        daysRemainingBadge.style.backgroundColor = '#e8f5e9';
+                        daysRemainingBadge.style.color = '#388e3c';
+                    }
+                }
+            });
+
+            // Initialize if there's a default value
+            if (dateInput.value) {
+                dateInput.dispatchEvent(new Event('change'));
             }
         });
 

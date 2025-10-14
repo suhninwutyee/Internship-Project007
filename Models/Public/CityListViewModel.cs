@@ -13,5 +13,6 @@ namespace ProjectManagementSystem.ViewModels
         public int TotalCities { get; set; }
         public int CurrentPage { get; set; }
         public int TotalPages => Cities?.PageCount ?? 1;
+        
     }
 }

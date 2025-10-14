@@ -334,9 +334,10 @@
                         <td>@(counter++)</td>
                         <td class="project-name">@project.ProjectName</td>
                         @{
-                            var leader = project.ProjectMembers.FirstOrDefault(m => m.Role == "Leader");
+                            var leader = project.ProjectMembers?.FirstOrDefault(m => m.Role == "Leader");
+                            var leaderName = leader?.Student?.StudentName ?? "No Leader";
                         }
-                        <td>@(leader != null ? leader.Student.StudentName : "No Leader")</td>
+                        <td>@leaderName</td>
 
                         <td>@(project.ProjectSubmittedDate.HasValue? project.ProjectSubmittedDate.Value.ToString("dd-MMM-yyyy") : "Not submitted")</td>
                         <td><span class="status-badge status-@project.Status.ToLower()">@project.Status</span></td>
@@ -419,7 +420,7 @@
             }
             @foreach (var project in Model.Projects)
             {
-                var leader = project.ProjectMembers.FirstOrDefault(m => m.Role == "Leader");
+                var leader = project.ProjectMembers?.FirstOrDefault(m => m.Role == "Leader");
                 <tr>
                     <td>@(++count)</td>
                     <td>@project.ProjectName</td>

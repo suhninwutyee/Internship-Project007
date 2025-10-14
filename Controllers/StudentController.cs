@@ -50,6 +50,7 @@ namespace ProjectManagementSystem.Controllers
                 if (viewModel.Student.Email == null)
                 {
                     viewModel.Student.Email = new Email();
+                   
                 }
 
                 viewModel.Student.Email.RollNumber = roll;
@@ -490,22 +491,21 @@ namespace ProjectManagementSystem.Controllers
                 return RedirectToAction("Login", "StudentLogin");
             }
 
-            // 3. Load Projects (both as leader and member)
             var projects = await _context.Projects
                 .Where(p => p.SubmittedByStudent_pkId == studentId ||
                            p.ProjectMembers.Any(pm => pm.Student_pkId == studentId && !pm.IsDeleted))
-                .Include(p => p.ProjectType)
+                //.Include(p => p.ProjectType)
                 .Include(p => p.Language)
                 .Include(p => p.Framework)
                 .Include(p => p.Company)
                     .ThenInclude(c => c.City)
                 .Include(p => p.Files)
-                .Include(p => p.ProjectMembers)
-                    .ThenInclude(pm => pm.Student)
-                        .ThenInclude(s => s.Email)
-                .Include(p => p.ProjectMembers)
-                    .ThenInclude(pm => pm.Student)
-                        .ThenInclude(s => s.StudentDepartment)
+                //.Include(p => p.ProjectMembers)
+                    //.ThenInclude(pm => pm.Student)
+                        //.ThenInclude(s => s.Email)
+                //.Include(p => p.ProjectMembers)
+                //    .ThenInclude(pm => pm.Student)
+                //        .ThenInclude(s => s.StudentDepartment)
                 .OrderByDescending(p => p.ProjectSubmittedDate)
                 .AsNoTracking()
                 .ToListAsync();

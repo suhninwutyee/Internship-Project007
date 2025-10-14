@@ -18,7 +18,7 @@
     }
 
     .custom-card-header {
-        background-color: #8c5dd1; /* Change this to your project color */
+        background-color: #8c5dd1;
         color: white;
         border-top-left-radius: 16px;
         border-top-right-radius: 16px;
@@ -27,11 +27,25 @@
 
     .custom-table th {
         width: 30%;
-        background-color: #f1f1f1;
+        background-color: #f8f9fa;
+        vertical-align: middle;
     }
 
     .custom-table td {
         background-color: #fff;
+    }
+
+    .company-card {
+        border: 1px solid #dee2e6;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-top: 20px;
+    }
+
+    .company-image {
+        width: 100%;
+        max-height: 200px;
+        object-fit: cover;
     }
 
     .back-button {
@@ -41,7 +55,7 @@
 
 <div class="card custom-details-card shadow">
     <div class="custom-card-header">
-        <h4 class="mb-0">Project Details</h4>
+        <h4 class="mb-0">📘 Project Details</h4>
     </div>
     <div class="card-body p-4">
         <table class="table table-bordered custom-table">
@@ -52,6 +66,10 @@
             <tr>
                 <th>Supervisor</th>
                 <td>@Model.SupervisorName</td>
+            </tr>
+            <tr>
+                <th>Description</th>
+                <td>@Model.Description</td>
             </tr>
             <tr>
                 <th>Project Type</th>
@@ -112,10 +130,15 @@
 
 
             <tr>
+                <th>Status</th>
+                <td>@Model.Status</td>
+            </tr>
+            <tr>
                 <th>Submitted Date</th>
                 <td> @(Model.ProjectSubmittedDate.HasValue ? Model.ProjectSubmittedDate.Value.ToShortDateString() : "Not submitted")
                 </td>
             </tr>
+
             <tr>
                 <th>Created By</th>
                 <td>@Model.CreatedBy</td>
@@ -151,8 +174,39 @@
             </div>
         }
 
+        @if (Model.Company != null)
+        {
+            <div class="company-card mt-4">
+                @if (!string.IsNullOrEmpty(Model.Company.ImageFileName))
+                {
+                    <img class="company-image" src="~/images/companies/@Model.Company.ImageFileName" alt="Company Image" />
+                }
+                <div class="p-3">
+                    <h5>@Model.Company.CompanyName</h5>
+                    <p><strong>Address:</strong> @Model.Company.Address</p>
+                    <p><strong>Contact:</strong> @Model.Company.Contact</p>
+                    <p><strong>Description:</strong> @Model.Company.Description</p>
+                    <p><strong>City:</strong> @Model.Company.City?.CityName</p>
+                </div>
+            </div>
+        }
+
+        @if (Model.Files != null && Model.Files.Any())
+        {
+            <hr />
+            <h5 class="mt-4">📎 Project Files</h5>
+            <ul class="list-group">
+                @foreach (var file in Model.Files)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <a href="@file.FilePath" target="_blank">Download @file.FileType file</a>
+                    </li>
+                }
+            </ul>
+        }
+
         <div class="back-button text-end">
-            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            <a asp-action="Index" class="btn btn-secondary">⬅ Back to List</a>
         </div>
     </div>
 </div>

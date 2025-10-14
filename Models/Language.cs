@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿  using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProjectManagementSystem.Models
@@ -16,6 +16,6 @@ namespace ProjectManagementSystem.Models
         public int? ProjectType_pkId { get; set; }
         public ProjectType? ProjectType { get; set; }
         public virtual ICollection<Project>? Projects { get; set; }
-        public virtual ICollection<Framework>? Frameworks { get; set; }
+        public virtual ICollection<Framework>? Frameworks{ get; set; }
     }
 }

@@ -76,11 +76,10 @@ namespace ProjectManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("EmailAddress,RollNumber,AcademicYear_pkId")] Email email)
         {
-            if (ModelState.IsValid)
-            {
                 try
                 {
                     email.Class = "Final Year";
+                    email.CreatedDate = DateTime.Now;
                     _context.Add(email);
                     await _context.SaveChangesAsync();
 
@@ -110,7 +109,7 @@ namespace ProjectManagementSystem.Controllers
 
                     ModelState.AddModelError("", "Error creating email: " + ex.Message);
                 }
-            }
+            
 
             // Handle errors for AJAX
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -187,6 +186,7 @@ namespace ProjectManagementSystem.Controllers
                         RollNumber = rollNumber,
                         Class = "Final Year",
                         AcademicYear_pkId = academicYear_pkId,
+                        CreatedDate= DateTime.Now,
                     });
                 }
             }
@@ -210,73 +210,61 @@ namespace ProjectManagementSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<JsonResult> EditInline(int id, [FromBody] Email email)
+        public async Task<IActionResult> EditInline(int id, [FromForm] Email model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Validation failed",
+                    errors = ModelState.ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                    )
+                });
+            }
+
             try
             {
-                if (ModelState.IsValid)
+                var existingEmail = await _context.Emails.FindAsync(id);
+                if (existingEmail == null)
                 {
-                    var existingEmail = await _context.Emails.FindAsync(id);
-                    if (existingEmail == null)
-                    {
-                        return Json(new { success = false, message = "Email not found" });
-                    }
-
-                    existingEmail.EmailAddress = email.EmailAddress;
-                    existingEmail.RollNumber = email.RollNumber;
-                    existingEmail.Class = email.Class;
-
-                    _context.Update(existingEmail);
-                    await _context.SaveChangesAsync();
-
-                    return Json(new { success = true });
+                    return NotFound(new { success = false, message = "Email not found" });
                 }
 
-                var errors = ModelState.ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
-                );
-                return Json(new { success = false, errors });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
-        }
+                    existingEmail.EmailAddress = model.EmailAddress;
+                    existingEmail.RollNumber = model.RollNumber;
+                    existingEmail.Class = model.Class;
 
-
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteInline(int id)
-        {
-            try
-            {
-                var email = await _context.Emails.FindAsync(id);
-                if (email == null)
-                {
-                    return Json(new { success = false, message = "Email not found" });
-                }
-
-                // Soft delete approach (recommended)
-                email.IsDeleted = true;
                 await _context.SaveChangesAsync();
-
-                // OR for hard delete:
-                // _context.Emails.Remove(email);
-                // await _context.SaveChangesAsync();
 
                 return Json(new { success = true });
             }
             catch (Exception ex)
             {
-                return Json(new
+                return StatusCode(500, new
                 {
                     success = false,
-                    message = "Delete failed: " + ex.Message
+                    message = ex.InnerException?.Message ?? ex.Message
                 });
             }
+        }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteInline(int id)
+        {
+            var email = await _context.Emails.FindAsync(id);
+            if (email == null)
+            {
+                return NotFound(new { success = false, message = "Email not found" });
+            }
+
+            email.IsDeleted = true;
+            await _context.SaveChangesAsync();
+
+            return Json(new { success = true });
         }
     }
 }

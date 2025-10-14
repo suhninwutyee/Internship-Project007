@@ -68,14 +68,14 @@
                         <span class="menu-text">Submitted Projects</span>
                     </a>
                 </li>
-                <li class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "ActivityLog" ? "active" : "")">
+               @*  <li class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "ActivityLog" ? "active" : "")">
                     <a asp-area="" asp-controller="Admin" asp-action="ActivityLogs">
                         <i class="bx bx-list-ul"></i>
                         <span class="menu-text">Activity Log</span>
                     </a>
-                </li>
+                </li> *@
                 <li class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "Profile" ? "active" : "")">
-                    <a asp-area="" asp-controller="Admin" asp-action="Profile">
+                    <a asp-area="" asp-controller="Admin" asp-action="MyProfile">
                         <i class="bx bx-user"></i>
                         <span class="menu-text">My Profile</span>
                     </a>
@@ -87,10 +87,11 @@
                     </a>
                 </li> *@
                 <li class="menu-item">
-                    <a asp-area="" asp-controller="Admin" asp-action="Logout">
+                    <a href="#" onclick="document.getElementById('logoutForm').submit(); return false;">
                         <i class="bx bx-log-out"></i>
                         <span class="menu-text">Logout</span>
                     </a>
+                    <form id="logoutForm" asp-controller="Admin" asp-action="Logout" method="post" style="display: none;"></form>
                 </li>
             </ul>
             <div class="toggle-collapse" id="collapseBtn">
@@ -123,26 +124,22 @@
                             <div class="notification-header">
                                 <div class="header-left">
                                     <h6 class="cute-title">My Notifications</h6>
-                                    
+
                                 </div>
-                                <button class="mark-all-read" id="markAllRead">Mark all as read</button>
+                                 <button class="mark-all-read" id="markAllRead"></button> 
                             </div>
 
                             <div class="notification-list">
                                 @await Component.InvokeAsync("Notification")
                             </div>
-                            <div class="notification-footer">
-                                <a asp-controller="Notification" asp-action="Inbox" class="cute-view-all">
-                                    View All Notifications <i class="fas fa-arrow-right"></i>
-                                </a>
-                            </div>
+                            
                         </div>
                     </div>
 
                     <div class="profile-container">
-                        <span class="avatar">@User.Identity.Name.Substring(0, 1).ToUpper()</span>
-                        <span class="profile-name">@User.Identity.Name</span>
-                    </div> 
+                        <span class="avatar">@User.FindFirst("Initial")?.Value</span>
+                        <span class="profile-name">@User.FindFirst("FullName")?.Value</span>
+                    </div>
                 </div>
             </header>
 
@@ -369,7 +366,7 @@
             };
         });
 
-       
+
                     // Time display
                     function updateTime() {
                         const now = new Date();
@@ -387,6 +384,17 @@
                     updateTime();
                     setInterval(updateTime, 1000);
                 });
+                        // Handle logout form submission
+        $(document).on('submit', '#logoutForm', function(e) {
+            e.preventDefault();
+            $.post({
+                url: $(this).attr('action'),
+                data: $(this).serialize(),
+                success: function() {
+                    window.location.href = '/Admin/Login'; // Redirect to login page after logout
+                }
+            });
+        });
 
     </script>
 

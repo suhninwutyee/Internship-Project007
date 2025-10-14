@@ -49,7 +49,8 @@ namespace ProjectManagementSystem.Models
 
         [Required(ErrorMessage = "Roll number is required")]
         [MaxLength(50)]
-        public string RollNumber { get; set; } = "";
+        public string RollNumber { get; set; } = "";        
+        public DateTime CreatedDate { get; set; } 
 
         [Required(ErrorMessage = "Class is required")]
         [MaxLength(50)]
@@ -60,6 +61,8 @@ namespace ProjectManagementSystem.Models
         public virtual AcademicYear? AcademicYear { get; set; }
 
         public bool IsDeleted { get; set; } = false;
+
+       // public DateTimeOffset CreatedDate { get; set; } = DateTimeOffset.Now; // Auto-set
 
 
         public virtual ICollection<Student>? Students { get; set; }

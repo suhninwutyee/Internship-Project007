@@ -3,30 +3,34 @@
 @{
     Layout = "_Layout";
 }
-<h2>Create Framework</h2>
 
-<form asp-action="Create" method="post">
-    @Html.AntiForgeryToken()
-    <div class="mb-3">
-        <label asp-for="SelectedLanguageId" class="form-label">Language</label>
-        <select asp-for="SelectedLanguageId" asp-items="Model.Languages" class="form-select">
-            <option value="">-- Select Language --</option>
-        </select>
-        <span asp-validation-for="SelectedLanguageId" class="text-danger"></span>
-    </div>
+<div class="container mt-4" style="max-width: 600px;">
+    <h3 class="mb-4">➕ Create New Framework</h3>
 
-    <div class="mb-3">
-        <label asp-for="FrameworkName" class="form-label">Framework Name</label>
-        <input asp-for="FrameworkName" class="form-control" />
-        <span asp-validation-for="FrameworkName" class="text-danger"></span>
-    </div>
+    <form asp-action="Create" method="post" class="shadow p-4 rounded bg-white">
+        @Html.AntiForgeryToken()
 
-    <button type="submit" class="btn btn-primary">Create</button>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-</form>
+        <div class="mb-3">
+            <label asp-for="SelectedLanguageId" class="form-label fw-semibold">Language</label>
+            <select asp-for="SelectedLanguageId" asp-items="Model.Languages" class="form-select">
+                <option value="">-- Select Language --</option>
+            </select>
+            <span asp-validation-for="SelectedLanguageId" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="FrameworkName" class="form-label fw-semibold">Framework Name</label>
+            <input asp-for="FrameworkName" class="form-control" placeholder="Enter framework name" />
+            <span asp-validation-for="FrameworkName" class="text-danger small"></span>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-success px-4">Create</button>
+            <a asp-action="Index" class="btn btn-secondary px-4">Cancel</a>
+        </div>
+    </form>
+</div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
 }

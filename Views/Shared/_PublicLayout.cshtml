@@ -2,16 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>@ViewData["Title"] - Final Year Portal</title>
+    <title>@ViewData["Title"] - Public Portal</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
 
     <style>
         html, body {
             height: 100%;
             margin: 0;
-            background-color: #e4eefd; /* soft pastel blue */
+            background-color: #e4eefd;
             color: #212529;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -20,9 +21,8 @@
             min-height: 100vh;
         }
 
-        /* Navbar with purple to light gray gradient */
         .navbar {
-            background: linear-gradient(90deg, #8c5dd1, #c8c6c1);
+            background-color: #8c5dd1 !important;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
@@ -33,84 +33,117 @@
         }
 
         .navbar-nav .nav-link {
-            color: rgba(255, 255, 255, 0.85);
+            color: rgba(255, 255, 255, 0.9);
             font-weight: 600;
-            transition: color 0.3s ease;
+            transition: color 0.3s ease, background-color 0.3s ease;
+            border-radius: 0.375rem;
+            padding: 0.5rem 1rem;
         }
 
-            .navbar-nav .nav-link:hover,
-            .navbar-nav .nav-link.active {
-                color: #ffe600 !important;
-                text-shadow: 0 0 4px #ffe600;
+            .navbar-nav .nav-link:hover {
+                color: #ffffff !important;
+                background-color: rgba(255, 255, 255, 0.15);
             }
 
-        /* Login button with purple accent */
+            .navbar-nav .nav-link.active {
+                background-color: #6d3db8 !important;
+                color: #ffffff !important;
+            }
+
         .btn-outline-light {
-            color: #8c5dd1 !important;
-            border-color: #8c5dd1 !important;
+            color: #ffffff !important;
+            border-color: #ffffff !important;
             font-weight: 700;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
             .btn-outline-light:hover {
-                background-color: #8c5dd1 !important;
-                color: #ffffff !important;
+                background-color: #ffffff !important;
+                color: #8c5dd1 !important;
             }
 
-        /* Content container */
         .container.full-height.py-4 {
             background-color: #ffffff;
             border-radius: 8px;
             padding: 2rem;
-            box-shadow: 0 0 12px rgba(140, 93, 209, 0.2);
+            box-shadow: 0 0 12px rgba(140, 93, 209, 0.3);
         }
+
+        body {
+            padding-top: 70px;
+        }
+
     </style>
 </head>
 <body>
-    <!-- Top Navbar -->
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
-            <a class="navbar-brand" asp-controller="Public" asp-action="Index">Final Year Portal</a>
+          
+            <a class="navbar-brand" asp-controller="Public" asp-action="Index">
+                <img src="~/images/logo.png" alt="Your Logo" style="height: 40px; margin-right: 8px;" />PUBLIC PORTAL</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" asp-controller="Public" asp-action="Index">Dashboard</a>
+
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+
+
+                    <li class="nav-item mx-2">
+                        <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" asp-controller="Public" asp-action="Index">
+                            <i class="fas fa-tachometer-alt me-1"></i> <!-- Dashboard icon -->
+                            Dashboard
+                        </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "ProjectIdeas" ? "active" : "")" asp-controller="Public" asp-action="ProjectIdeas">Project Ideas</a>
+                    <li class="nav-item mx-2">
+                        <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "ProjectIdeas" ? "active" : "")" asp-controller="Public" asp-action="ProjectIdeas">
+                            <i class="fas fa-lightbulb me-1"></i> <!-- Project Ideas icon -->
+                            Project Ideas
+                        </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "InternshipCompanies" ? "active" : "")" asp-controller="Public" asp-action="InternshipCompanies">Internship Companies</a>
+                    <li class="nav-item mx-2">
+                        <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "InternshipCompanies" ? "active" : "")" asp-controller="Public" asp-action="InternshipCompanies">
+                            <i class="fas fa-building me-1"></i> <!-- Internship Companies icon -->
+                            Internship Companies
+                        </a>
                     </li>
-                    @* <li class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "SuccessStories" ? "active" : "")" asp-controller="Public" asp-action="SuccessStories">Success Stories</a>
+                    <li class="nav-item mx-2">
+                        <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Help" ? "active" : "")" asp-controller="Public" asp-action="Help">
+                            <i class="fas fa-question-circle me-1"></i> <!-- FAQ / Help icon -->
+                            FAQ / Help
+                        </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Announcements" ? "active" : "")" asp-controller="Public" asp-action="Announcements">Announcements</a>
-                    </li> *@
-                    <li class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["Action"]?.ToString() == "Help" ? "active" : "")" asp-controller="Public" asp-action="Help">FAQ / Help</a>
-                    </li>                    
+
+
+                    <li class="nav-item mx-2">
+                        <a class="nav-link" href="/Welcome/Index">
+                            Back To Home
+                        </a>
+                    </li>
+
+
                 </ul>
 
-                <div class="d-flex">
+               @*  <div class="d-flex">
                     <a class="btn btn-outline-light" asp-controller="Admin" asp-action="Login">
                         <i class="bi bi-box-arrow-in-right me-1"></i> Login
                     </a>
-                </div>
+                </div> *@
             </div>
         </div>
     </nav>
 
-    <!-- Main content -->
     <div class="container full-height py-4">
+        <span class="text-muted small">
+            You are here: <strong>@($"{ViewContext.RouteData.Values["controller"]}/{ViewContext.RouteData.Values["action"]}")</strong>
+        </span>
+
+
         @RenderBody()
     </div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @RenderSection("Scripts", required: false)

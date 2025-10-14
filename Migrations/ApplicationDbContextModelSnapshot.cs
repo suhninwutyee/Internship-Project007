@@ -416,7 +416,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AdminActivityLogs");
+                    b.ToTable("AdminActivityLog");
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.ApplicationUser", b =>
@@ -442,6 +442,9 @@ namespace ProjectManagementSystem.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsUsingDefaultPassword")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -604,6 +607,9 @@ namespace ProjectManagementSystem.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("EmailAddress")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -662,12 +668,9 @@ namespace ProjectManagementSystem.Migrations
                     b.Property<int?>("ProjectType_pkId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ProjectType_pkId1")
-                        .HasColumnType("int");
-
                     b.HasKey("Language_pkId");
 
-                    b.HasIndex("ProjectType_pkId1");
+                    b.HasIndex("ProjectType_pkId");
 
                     b.ToTable("Languages");
                 });
@@ -731,6 +734,9 @@ namespace ProjectManagementSystem.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Notification_pkId"));
 
+                    b.Property<int?>("AdminActivityLogId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -764,6 +770,8 @@ namespace ProjectManagementSystem.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Notification_pkId");
+
+                    b.HasIndex("AdminActivityLogId");
 
                     b.HasIndex("Project_pkId");
 
@@ -832,6 +840,9 @@ namespace ProjectManagementSystem.Migrations
 
                     b.Property<int?>("Framework_pkId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsApprovedByTeacher")
+                        .HasColumnType("bit");
 
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("bit");
@@ -1185,13 +1196,18 @@ namespace ProjectManagementSystem.Migrations
                 {
                     b.HasOne("ProjectManagementSystem.Models.ProjectType", "ProjectType")
                         .WithMany("Languages")
-                        .HasForeignKey("ProjectType_pkId1");
+                        .HasForeignKey("ProjectType_pkId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("ProjectType");
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.Notification", b =>
                 {
+                    b.HasOne("ProjectManagementSystem.Models.AdminActivityLog", "Admin")
+                        .WithMany()
+                        .HasForeignKey("AdminActivityLogId");
+
                     b.HasOne("ProjectManagementSystem.Models.Project", "Project")
                         .WithMany()
                         .HasForeignKey("Project_pkId");
@@ -1201,6 +1217,8 @@ namespace ProjectManagementSystem.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Admin");
 
                     b.Navigation("Project");
 

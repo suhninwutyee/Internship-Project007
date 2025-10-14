@@ -1,0 +1,14 @@
+my project is like  admin(teacher) and user(student) for the final year student only and the admin's process are dashboard student management, Internship companies, project submissions and progress Reports ,Support and help in the nav bar and user(student) process are dashboard, internship companies, project submissions and settings and out website also want to show the user do not have to login they can see the information about internship companies and related to their project file and the most popular company for internship
+
+Public Site Navbar:
+Home
+
+Project Ideas
+
+Internship Companies
+
+Success Stories
+
+FAQ / Help
+
+Contact

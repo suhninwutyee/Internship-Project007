@@ -1,0 +1,14 @@
+| #  | Menu Item            | Purpose                                         |
+| -- | -------------------- | ----------------------------------------------- |
+| 1  | Home                 | Landing page summary                            |
+| 2  | Project Ideas        | Browse ideas by category, popularity            |
+| 3  | Internship Companies | Company listings, filter by field/location      |
+| 4  | Project Templates    | Download standard documents                     |
+| 5  | Browse by Department | Filter projects/companies by department         |
+| 6  | Guidelines           | Submission rules, formatting, supervisor info   |
+| 7  | Success Stories      | Previous student journeys                       |
+| 8  | Popular Technologies | Highlight technologies/tools used in projects   |
+| 9  | Announcements        | Admin-posted news or alerts                     |
+| 10 | Ask a Mentor         | Submit general questions                        |
+| 11 | FAQ / Help           | Common questions and contact support            |
+| 12 | Contact              | Contact form or details for university or admin |

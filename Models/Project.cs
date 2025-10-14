@@ -115,6 +115,7 @@ namespace ProjectManagementSystem.Models
         public virtual Company? Company { get; set; }
 
         public DateTime? ProjectSubmittedDate { get; set; } = DateTime.Now;
+        public bool IsApprovedByTeacher { get; set; }
 
         [Required]
         [StringLength(50)]

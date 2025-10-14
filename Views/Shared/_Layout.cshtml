@@ -15,7 +15,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>@ViewData["Title"] - Internship Project System</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-  @*   <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" /> *@
+    @*   <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" /> *@
     <link rel="stylesheet" href="~/ProjectManagementSystem.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -455,8 +455,8 @@
             background-color: var(--accent-color);
             color: white;
             border-radius: 50%;
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -543,7 +543,7 @@
         }
 
             .notification-icon:hover {
-                transform: scale(1.4);
+                transform: scale(1.1);
             }
 
         .top-bar {
@@ -594,13 +594,13 @@
                 </a>
             </li>
 
-           
+
             <li>
                 <a asp-area="" asp-controller="Project" asp-action="Index">
                     <i class="fas fa-project-diagram"></i> <span>Projects</span>
                 </a>
             </li>
-      
+
             <!-- Manage Dropdown Menu -->
             <li>
                 <a class="dropdown-toggle" data-bs-toggle="collapse" href="#manageDropdown" role="button" aria-expanded="false">
@@ -650,13 +650,7 @@
             </div>
            
 
-            <!-- Current Date -->
-            <p class="text-muted mb-0 me-auto">
-                <i class="fas fa-calendar-day me-2"></i>
-                @DateTime.Now.ToString("dddd, MMMM dd, yyyy")
-            </p>
 
-            <!-- User Profile -->
             @if (!string.IsNullOrEmpty(email))
             {
                 <div class="user-profile d-flex align-items-center">

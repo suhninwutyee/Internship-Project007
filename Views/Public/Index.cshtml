@@ -1,123 +1,449 @@
 ﻿@model ProjectManagementSystem.ViewModels.DashboardViewModel
 
 @{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Student Dashboard";
     Layout = "~/Views/Shared/_PublicLayout.cshtml";
 }
 
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-    .dashboard-card {
-        transition: transform 0.2s ease, box-shadow 0.3s ease;
-        border-radius: 0.5rem;
-        background-color: #fff;
-        box-shadow: 0 0.125rem 0.25rem rgb(0 0 0 / 0.05);
-        cursor: default;
+    .desc-wrapper {
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+    
+
+    .section-title {
+        font-weight: 600;
+        color: #8c5dd1;
+        margin-bottom: 1.5rem;
+        text-align: left; /* Align heading to left */
     }
 
-        .dashboard-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.12);
+    .hidden-section {
+        display: none;
+    }
+
+    @@media (max-width: 768px) {
+        canvas
+
+    {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+
+    }
+
+
+    body {
+        background-color: #e4eefd;
+    }
+
+    .dashboard-stats .stat-box {
+        background-color: #f0eaff;
+        border-left: 6px solid #8c5dd1;
+        padding: 15px 20px;
+        border-radius: 1rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        color: #3a2e5f;
+    }
+
+        .dashboard-stats .stat-box:hover {
+            background-color: #e0d4f5;
+            transform: translateY(-3px);
         }
 
-    .dashboard-icon {
-        font-size: 2.4rem;
-        opacity: 0.75;
-        transition: opacity 0.3s ease;
+    .dashboard-stats .icon {
+        font-size: 1.8rem;
+        color: #8c5dd1;
     }
 
-    .dashboard-card:hover .dashboard-icon {
-        opacity: 1;
+    .project-card {
+        border-radius: 0.75rem;
+        background: #f9f6ff;
+        box-shadow: 0 4px 10px rgba(140, 93, 209, 0.2);
+        padding: 1.2rem;
+        height: 100%;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        color: #3a2e5f;
     }
 
-    h6 {
-        font-size: 0.9rem;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        margin-bottom: 0.25rem;
-        color: #6c757d;
-    }
+        .project-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 18px rgba(140, 93, 209, 0.4);
+        }
 
-    h3 {
-        font-weight: 700;
-        font-size: 2rem;
-        margin: 0;
-        color: #212529;
-    }
-
-    .table thead th {
+    .section-title {
         font-weight: 600;
+        margin-bottom: 1.5rem;
+        color: #8c5dd1;
     }
 
-    .table-hover tbody tr:hover {
-        background-color: #f8f9fa;
+    .hidden-section {
+        display: none;
     }
+
 </style>
 
-<div class="container py-4">
-    <h2 class="mb-4 fw-bold">📊 Dashboard Overview</h2>
+<section id="welcome" class="py-4" style="background-color: #f5f7ff;">
+    <div class="container">
+        <div class="card shadow-sm border-0 rounded-4 text-center p-4" style="background-color: #ffffff;">
+            <h2 class="fw-bold mb-2" style="color: #8c5dd1;">👋 Welcome to the Portal</h2>
+            <p class="text-muted mb-3" style="font-size: 1rem;">
+                Learn how to start your project and explore references from previous students.
+            </p>
+            <div class="d-flex justify-content-center align-items-center">
+                <span class="badge bg-light text-dark fs-6 shadow-sm px-3 py-2 rounded-pill">
+                    🕒 @DateTime.Now.ToString("dddd, dd MMMM yyyy • hh:mm tt")
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
 
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card dashboard-card border-0 shadow-sm">
-                <div class="card-body d-flex align-items-center justify-content-between">
+<div class="container-fluid px-5">
+
+    <!-- Dashboard Cards -->
+    <div class="row dashboard-stats mb-5" id="dashboardCards">
+        <!-- Total Projects -->
+        <div class="col-md-4 mb-4">
+            <div class="stat-box" onclick="showProjectIdeas()">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-folder-fill icon me-3"></i>
                     <div>
-                        <h6>Total Projects</h6>
-                        <h3>@Model.ProjectCount</h3>
+                        <h6 class="mb-1">Total Projects</h6>
+                        <h4 class="fw-bold">@Model.ProjectCount+</h4>
                     </div>
-                    <i class="bi bi-journal-code dashboard-icon text-primary"></i>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card dashboard-card border-0 shadow-sm">
-                <div class="card-body d-flex align-items-center justify-content-between">
+        <!-- Project Types -->
+        <div class="col-md-4 mb-4">
+            <div class="stat-box" onclick="showProjectTypes()">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-diagram-3-fill icon me-3"></i>
                     <div>
-                        <h6>Total Companies</h6>
-                        <h3>@Model.CompanyCount</h3>
+                        <h6 class="mb-1">Project Types</h6>
+                        <h4 class="fw-bold">@Model.ProjectTypeCount+</h4>
                     </div>
-                    <i class="bi bi-buildings dashboard-icon text-success"></i>
                 </div>
             </div>
         </div>
-       
+
+        <!-- Languages Used -->
+        <div class="col-md-4 mb-4">
+            <div class="stat-box" onclick="showChart()">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-bar-chart-line-fill icon me-3"></i>
+                    <div>
+                        <h6 class="mb-1">Languages Used</h6>
+                        <h4 class="fw-bold">@Model.LanguageCount+</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="ideasSection" class="mb-5" style="max-width: 1000px; margin: auto;">
+        <h4 class="section-title mb-5">💡Some Project Idea</h4>
+        <div class="d-flex flex-wrap gap-4 justify-content-center">
+            @foreach (var idea in Model.PopularProjects)
+            {
+                var ideaId = Guid.NewGuid().ToString();
+                var shortDesc = idea.FullDescription.Length > 100
+                ? idea.FullDescription.Substring(0, 100) + "..."
+                : idea.FullDescription;
+                <div style="width: 300px;">
+                    <div class="card p-3 shadow-sm" id="card-@ideaId">
+                        <h6 class="fw-bold">@idea.Title</h6>
+                        <p id="desc-@ideaId" class="text-muted small mb-2 m-0">
+                            @shortDesc
+                        </p>
+                        <a href="javascript:void(0);" class="text-primary toggle-desc"
+                           data-id="@ideaId"
+                           data-full="@idea.FullDescription"
+                           data-short="@shortDesc"
+                           style="font-size: 0.85rem;">
+                            See More
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
     </div>
 
-    <div class="mt-5">
-        <h4 class="fw-semibold">🏢 Recent Companies</h4>
-        <div class="table-responsive mt-3">
-            <table class="table table-hover align-middle shadow-sm">
-                <thead class="table-primary">
-                    <tr>
-                        <th scope="col" style="width:5%;">#</th>
-                        <th scope="col">Company Name</th>
-                        <th scope="col">Address</th>
-                        <th scope="col">Contact</th>
-                        <th scope="col" style="width:20%;">Date Registered</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model.RecentCompanies != null && Model.RecentCompanies.Count > 0)
-                    {
-                        for (int i = 0; i < Model.RecentCompanies.Count; i++)
-                        {
-                            <tr>
-                                <td>@(i + 1)</td>
-                                <td>@Model.RecentCompanies[i].CompanyName</td>
-                                <td>@Model.RecentCompanies[i].Address</td>
-                                <td>@Model.RecentCompanies[i].Contact</td>
-                                <td>@Model.RecentCompanies[i].CreatedDate.ToString("yyyy-MM-dd")</td>
-                            </tr>
+
+
+
+    <!-- Project Types Chart Section -->
+    <div id="projectTypesSection" class="hidden-section mb-3" style="max-width: 1000px; margin: auto;">
+        <h4 class="section-title mb-5" style="color: #8c5dd1;">📊 Project Types Overview</h4>
+
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <!-- Left: Pie Chart -->
+            <figure style="width: 360px; text-align: center;">
+                <canvas id="projectTypesChart" width="360" height="360" style="width: 100%; height: auto;"></canvas>
+                <figcaption class="mt-2 text-muted">Figure 1: Project Types Pie Chart</figcaption>
+            </figure>
+
+            <!-- Right: Bar Chart -->
+            <figure style="width: 480px; text-align: center;">
+                <canvas id="projectTypesBarChart" width="480" height="360" style="width: 100%; height: auto;"></canvas>
+                <figcaption class="mt-2 text-muted">Figure 2: Project Types Bar Chart</figcaption>
+            </figure>
+        </div>
+    </div>
+    <!-- Language Chart Section -->
+    <div id="chartSection" class="hidden-section mb-3" style="max-width: 1000px; margin: auto;">
+        <h4 class="section-title mb-5" style="color:#8c5dd1;">📊 Languages Overview</h4>
+
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <!-- Left: Pie Chart -->
+            <figure style="width: 360px; text-align: center;">
+                <canvas id="languagePieChart" width="360" height="360" style="width: 100%; height: auto;"></canvas>
+                <figcaption class="mt-2 text-muted">Figure 3: Language Pie Chart</figcaption>
+            </figure>
+
+            <!-- Right: Bar Chart -->
+            <figure style="width: 480px; text-align: center;">
+                <canvas id="languageBarChart" width="480" height="360" style="width: 100%; height: auto;"></canvas>
+                <figcaption class="mt-2 text-muted">Figure 4: Language Bar Chart</figcaption>
+            </figure>
+        </div>
+    </div>
+
+    <!-- Roadmap Section -->
+    <section id="roadmapSection" class="section fade-up mt-5">
+        <div class="container">
+            <h4 class="section-title text-center mb-3" style="color: #8c5dd1;">🎓 Student Project Roadmap</h4>
+            <div class="row info-cards">
+                <div class="col-md-4 mb-4">
+                    <div class="card p-3 shadow-sm rounded-3 h-100">
+                        <h5 class="fw-semibold" style="color:#8c5dd1;">1. Explore Ideas</h5>
+                        <p>Discover project ideas that match your interests and academic goals.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card p-3 shadow-sm rounded-3 h-100">
+                        <h5 class="fw-semibold" style="color:#8c5dd1;">2. Proposal Submission</h5>
+                        <p>Write and submit a clear project proposal with defined objectives.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card p-3 shadow-sm rounded-3 h-100">
+                        <h5 class="fw-semibold" style="color:#8c5dd1;">3. Research & Planning</h5>
+                        <p>Study related works, select tools, and create a timeline for execution.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card p-3 shadow-sm rounded-3 h-100">
+                        <h5 class="fw-semibold" style="color:#8c5dd1;">4. Development</h5>
+                        <p>Start building your project — focus on clean code and collaboration.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card p-3 shadow-sm rounded-3 h-100">
+                        <h5 class="fw-semibold" style="color:#8c5dd1;">5. Testing & Review</h5>
+                        <p>Debug, improve performance, and get feedback from your supervisor.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card p-3 shadow-sm rounded-3 h-100">
+                        <h5 class="fw-semibold" style="color:#8c5dd1;">6. Final Presentation</h5>
+                        <p>Present your project confidently with reports, slides, and demos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+             document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.toggle-desc').forEach(link => {
+                link.addEventListener('click', function () {
+                    const clickedId = this.getAttribute('data-id');
+                    const full = this.getAttribute('data-full');
+                    const short = this.getAttribute('data-short');
+                    const targetDesc = document.getElementById('desc-' + clickedId);
+
+                    const isExpanded = this.textContent === 'See Less';
+
+                    // Collapse all cards
+                    document.querySelectorAll('.toggle-desc').forEach(other => {
+                        const otherId = other.getAttribute('data-id');
+                        const otherDesc = document.getElementById('desc-' + otherId);
+                        otherDesc.textContent = other.getAttribute('data-short');
+                        other.textContent = 'See More';
+                    });
+
+                    // Expand this card
+                    if (!isExpanded) {
+                        targetDesc.textContent = full;
+                        this.textContent = 'See Less';
+                    }
+                });
+            });
+        });
+    
+        function showProjectTypes() {
+            document.getElementById("ideasSection").style.display = "none";
+            document.getElementById("chartSection").style.display = "none";
+            document.getElementById("projectTypesSection").style.display = "block";
+
+            const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ProjectTypeChartLabels));
+            const values = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ProjectTypeChartValues));
+
+            // Destroy if exists
+            if (window.projectTypeChartInstance) window.projectTypeChartInstance.destroy();
+            if (window.projectTypeBarChartInstance) window.projectTypeBarChartInstance.destroy();
+
+            // Pie Chart
+            const pieCtx = document.getElementById('projectTypesChart').getContext('2d');
+            window.projectTypeChartInstance = new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: ['#8c5dd1', '#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#FFB6B9', '#A5DEE5']
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { font: { size: 10 } }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Project Types Distribution',
+                            font: { size: 14 }
                         }
                     }
-                    else
-                    {
-                        <tr>
-                            <td colspan="5" class="text-center text-muted">No recent companies found.</td>
-                        </tr>
+                }
+            });
+
+            // Bar Chart
+            const barCtx = document.getElementById('projectTypesBarChart').getContext('2d');
+            window.projectTypeBarChartInstance = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Count',
+                        data: values,
+                        backgroundColor: '#8c5dd1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Project Types Count'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
                     }
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+                }
+            });
+        }
+
+        function showProjectIdeas() {
+            document.getElementById("chartSection").style.display = "none";
+            document.getElementById("projectTypesSection").style.display = "none";
+            document.getElementById("ideasSection").style.display = "block";
+        }
+
+        function showChart() {
+            document.getElementById("ideasSection").style.display = "none";
+            document.getElementById("projectTypesSection").style.display = "none";
+            document.getElementById("chartSection").style.display = "block";
+
+            const languageLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.LanguageNames));
+            const languageData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.LanguageCounts));
+
+            if (window.languageBarChartInstance) window.languageBarChartInstance.destroy();
+            if (window.languagePieChartInstance) window.languagePieChartInstance.destroy();
+
+            // Pie Chart
+            const pieCtx = document.getElementById('languagePieChart').getContext('2d');
+            window.languagePieChartInstance = new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: languageLabels,
+                    datasets: [{
+                        data: languageData,
+                        backgroundColor: ['#8c5dd1', '#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#FFB6B9', '#A5DEE5']
+                    }]
+                },
+                options: {
+                    responsive: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { font: { size: 10 } }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Language Usage Distribution',
+                            font: { size: 14 }
+                        }
+                    }
+                }
+            });
+
+            // Bar Chart
+            const barCtx = document.getElementById('languageBarChart').getContext('2d');
+            window.languageBarChartInstance = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: languageLabels,
+                    datasets: [{
+                        label: 'Count',
+                        data: languageData,
+                        backgroundColor: '#8c5dd1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        title: {
+                            display: true,
+                            text: 'Languages Count'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
+                }
+            });
+        }
+
+        window.onload = () => {
+            document.getElementById("ideasSection").style.display = "none";
+            document.getElementById("chartSection").style.display = "none";
+            document.getElementById("projectTypesSection").style.display = "none";
+        };
+
+    </script>
+}
