@@ -1,59 +1,103 @@
 ﻿@model List<NotificationViewModel>
 
-@if (Model.Any())
-{
-    foreach (var notification in Model)
+<div class="notification-dropdown">
+    @if (Model.Any())
     {
-        <a class="notification-item @(notification.IsRead ? "" : "unread")"
-           asp-controller="ProjectApproval"
-           asp-action="Details"
-           asp-route-id="@notification.ProjectId"
-           data-notification-id="@notification.Id">
-            <div class="notification-content">
-                @Html.Raw(notification.Message)
-            </div>
-            <div class="notification-time">
-                @notification.CreatedAt.ToString("M/d/yyyy h:mm tt")
-            </div>
-        </a>
+        foreach (var notification in Model)
+        {
+            <a class="notification-item @(notification.IsRead ? "" : "unread")"
+               href="@Url.Action("Details", "ProjectApproval", new { id = notification.ProjectId })"
+               data-notification-id="@notification.Id">
+                <div class="notification-message">@Html.Raw(notification.Message)</div>
+                <div class="notification-meta">
+                    <span class="notification-time">@notification.CreatedAt.ToString("g")</span>
+                </div>
+            </a>
+        }
     }
-}
-else
-{
-    <div class="empty-notifications">
-        <i class="far fa-bell-slash"></i>
-        <p>No new notifications</p>
-    </div>
-}
-
-<!-- Antiforgery token (hidden) -->
-<form id="notificationAntiforgeryForm" style="display:none;">
-    @Html.AntiForgeryToken()
-</form>
+    else
+    {
+        <div class="notification-empty">
+            <i class="far fa-bell"></i>
+            <span>No new notifications</span>
+        </div>
+    }
+</div>
 
 <style>
+    .notification-dropdown {
+        width: 320px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
     .notification-item {
-        padding: 10px 15px;
-        border-bottom: 1px solid #f5f5f5;
         display: block;
+        padding: 12px 16px;
         color: #333;
         text-decoration: none;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background 0.2s;
     }
 
-    .notification-item:hover {
-        background-color: #f8f9fa;
+        .notification-item:hover {
+            background: #f8f9fa;
+        }
+
+        .notification-item.unread {
+            background: #f8f5ff;
+        }
+
+    .notification-message {
+        margin-bottom: 4px;
+        line-height: 1.4;
     }
 
-    .notification-item.unread {
-        background-color: #f5f3ff;
-        font-weight: 500;
-        border-left: 4px solid #8C5DD1;
+    .notification-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
-    #notificationBadge {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        font-size: 0.6rem;
+    .notification-time {
+        font-size: 0.75rem;
+        color: #6c757d;
     }
+
+    .notification-empty {
+        padding: 16px;
+        text-align: center;
+        color: #6c757d;
+    }
+
+        .notification-empty i {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 8px;
+            color: #adb5bd;
+        }
 </style>
+
+<script>
+    document.querySelectorAll('.notification-item').forEach(item => {
+        item.addEventListener('click', function(e) {
+            if (!this.classList.contains('unread')) return;
+
+            e.preventDefault();
+            const url = this.href;
+            const notificationId = this.dataset.notificationId;
+
+            fetch('/Notifications/MarkAsRead', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify({ id: notificationId })
+            }).then(() => {
+                this.classList.remove('unread');
+                window.location.href = url;
+            });
+        });
+    });
+</script>

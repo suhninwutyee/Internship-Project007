@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using ProjectManagementSystem.Data;
 using ProjectManagementSystem.Models;
 using System;
@@ -26,7 +27,32 @@ namespace ProjectManagementSystem.Controllers
             _logger = logger;           
         }
 
-        public async Task<IActionResult> Index(string searchTerm, int page = 1)
+        //   public async Task<IActionResult> Index(int page = 1)
+        //   {
+        //       var rollNumber = HttpContext.Session.GetString("RollNumber");
+        //       if (string.IsNullOrEmpty(rollNumber))
+        //       {
+        //           return RedirectToAction("Login", "StudentLogin");
+        //       }
+
+        //       int pageSize = 3;
+        //       var projects = _context.Projects
+        //.Include(p => p.ProjectType)
+        //.Include(p => p.Language)
+        //.Include(p => p.Framework)
+        //.Include(p => p.Company)
+        //.Include(p => p.Files)
+        //.Include(p => p.ProjectMembers)
+        //    .ThenInclude(pm => pm.Student)
+        //.OrderByDescending(p => p.ProjectSubmittedDate);
+
+
+        //       var pagedProjects = await projects.ToPagedListAsync(page, pageSize);
+
+        //       return View(pagedProjects);
+        //   }
+
+        public async Task<IActionResult> Index(int page = 1)
         {
             var rollNumber = HttpContext.Session.GetString("RollNumber");
             if (string.IsNullOrEmpty(rollNumber))
@@ -34,21 +60,21 @@ namespace ProjectManagementSystem.Controllers
                 return RedirectToAction("Login", "StudentLogin");
             }
 
-            int pageSize = 3;
+            int pageSize = 1; // Show only one project per page
             var projects = _context.Projects
-               
-     .Include(p => p.ProjectType)
-     .Include(p => p.Language)
-     .Include(p => p.Framework)
-     .Include(p => p.Company)
-     .Include(p => p.Files)
-     .Include(p => p.ProjectMembers)
-         .ThenInclude(pm => pm.Student)
-     .OrderByDescending(p => p.ProjectSubmittedDate);
-
+                .Include(p => p.ProjectType)
+                .Include(p => p.Language)
+                .Include(p => p.Framework)
+                .Include(p => p.Company)
+                .Include(p => p.Files)
+                .Include(p => p.ProjectMembers)
+                    .ThenInclude(pm => pm.Student)
+                .Where(p => p.ProjectMembers.Any(pm => pm.Student.Email.RollNumber == rollNumber)) // Filter by current student
+                .OrderByDescending(p => p.ProjectSubmittedDate);
 
             var pagedProjects = await projects.ToPagedListAsync(page, pageSize);
 
+            
             return View(pagedProjects);
         }
 
@@ -121,45 +147,21 @@ namespace ProjectManagementSystem.Controllers
         }
 
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Upload(Project project)
-        //{
-        //    var existingProject = await _context.Projects
-        //        .Include(p => p.Language)
-        //        .Include(p => p.ProjectType)
-        //        .Include(p => p.Framework)
-        //        .Include(p => p.Company)
-        //        .Include(p => p.ProjectMembers)
-        //            .ThenInclude(pm => pm.Student)
-        //        .FirstOrDefaultAsync(p => p.Project_pkId == project.Project_pkId);
 
-        //    if (existingProject == null)
-        //        return NotFound();
-
-        //    // Prevent multiple uploads
-        //    if (existingProject.Status == "Pending" || existingProject.Status == "Approved")
-        //    {
-        //        TempData["Error"] = "You cannot upload again. Wait for teacher feedback.";
-        //        return RedirectToAction(nameof(Index));
-        //    }
-
-        //    // Mark project as submitted
-        //    existingProject.Status = "Pending";
-        //    existingProject.ProjectSubmittedDate = DateTime.Now;
-
-        //    await _context.SaveChangesAsync();
-
-        //    TempData["UploadSuccess"] = "Project successfully uploaded and sent to teacher.";
-        //    return RedirectToAction(nameof(Index));
-        //}
-
-        // In your ProjectController.cs
-
+        [HttpPost]
         [ValidateAntiForgeryToken]
         [HttpPost]
         public async Task<IActionResult> UploadProj(int Project_pkId)
         {
+            if (await IsSubmissionBlocked())
+            {
+                var blockingAnnouncement = await _context.Announcements
+                    .FirstOrDefaultAsync(a => a.IsActive && a.BlocksSubmissions);
+
+                TempData["Error"] = $"Project submissions are currently blocked: {blockingAnnouncement?.Title}";
+                return RedirectToAction(nameof(Index));
+            }
+
             var existingProject = await _context.Projects
                 .Include(p => p.Language)
                 .Include(p => p.ProjectType)
@@ -183,6 +185,9 @@ namespace ProjectManagementSystem.Controllers
             existingProject.Status = "Pending";
             existingProject.ProjectSubmittedDate = DateTime.Now;
 
+            var leader = existingProject.ProjectMembers.FirstOrDefault(pm => pm.Role == "Leader")?.Student;
+            var leaderName = leader?.StudentName ?? "Unknown Student";
+
             // Create notification for each team member
             foreach (var member in existingProject.ProjectMembers)
             {
@@ -190,11 +195,11 @@ namespace ProjectManagementSystem.Controllers
                 {
                     UserId = member.Student.Student_pkId,
                     Title = "Project Submitted",
-                    Message = $"Your project '{existingProject.ProjectName}' has been submitted and is pending approval.",
-                    CreatedDate = DateTime.Now,
+                    Message = $"{leaderName} submitted the project '{existingProject.ProjectName}'",
+                    CreatedAt = DateTime.Now,
                     IsRead = false,
                     NotificationType = "ProjectStatus",
-                    Project_pkId = existingProject.Project_pkId,
+                    Project_pkId = existingProject.Project_pkId
                 };
                 _context.Notifications.Add(notification);
             }
@@ -226,7 +231,7 @@ namespace ProjectManagementSystem.Controllers
                     UserId = member.Student.Student_pkId,
                     Title = "Project Approved",
                     Message = $"Congratulations! Your project '{project.ProjectName}' has been approved.",
-                    CreatedDate = DateTime.Now,
+                    CreatedAt = DateTime.Now,
                     IsRead = false,
                     NotificationType = "ProjectStatus"
                 };
@@ -261,23 +266,9 @@ namespace ProjectManagementSystem.Controllers
             return View(project);
         }
 
-        // GET: Project/AddMember/5
-        //[HttpGet]
-        //public IActionResult AddMember(int projectId)
-        //{
-        //    var rollNumber = HttpContext.Session.GetString("RollNumber");
-        //    if (string.IsNullOrEmpty(rollNumber))
-        //    {
-        //        return RedirectToAction("Login", "StudentLogin");
-        //    }
+    
 
-        //    var model = new AddMemberViewModel
-        //    {
-        //        ProjectId = projectId
-        //    };
-
-        //    return View(model);
-        //}
+   
         [HttpGet]
         public IActionResult AddMember(int projectId)
         {
@@ -478,10 +469,9 @@ namespace ProjectManagementSystem.Controllers
         public async Task<IActionResult> Create(Project project, string CompanyAddress, string CompanyContact, string CompanyDescription, int? CompanyCity_pkId, IFormFile CompanyPhoto, List<IFormFile> projectFiles)
         {
 
-            if (ModelState.IsValid)  // <-- FIXED: Run only if model is valid
-            {
+            
                 project.Status = "Draft";
-                project.ProjectSubmittedDate = null;
+                project.ProjectSubmittedDate= null;
 
                 if (project.Company_pkId != null && project.Company_pkId != 0)
                 {
@@ -528,6 +518,7 @@ namespace ProjectManagementSystem.Controllers
                         {
                             Student_pkId = student.Student_pkId,
                             Project_pkId = project.Project_pkId,
+
                             Role = "Leader",
                             IsDeleted = false
                         };
@@ -565,12 +556,7 @@ namespace ProjectManagementSystem.Controllers
                 }
 
                 return RedirectToAction("Dashboard", "Student");
-            }
-            else
-            {
-                LoadDropdownData(project);
-                return View(project);
-            }
+            
         }
 
 
@@ -586,8 +572,12 @@ namespace ProjectManagementSystem.Controllers
 
             var project = await _context.Projects
                 .Include(p => p.ProjectType)
+                .Include(p => p.Language)
+                .Include(p => p.Framework)
                 .Include(p => p.Company)
                 .Include(p => p.Files)
+                .Include(p => p.ProjectMembers)
+                    .ThenInclude(pm => pm.Student)
                 .FirstOrDefaultAsync(p => p.Project_pkId == id);
 
             if (project == null) return NotFound();
@@ -728,22 +718,57 @@ namespace ProjectManagementSystem.Controllers
             }
         }
 
+
+
+
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Delete(int id)
+        //{
+        //    var project = await _context.Projects.FindAsync(id);
+        //    if (project == null)
+        //        return NotFound();
+
+        //    if (project.Status == "Pending" || project.Status == "Approved")
+        //    {
+        //        TempData["Error"] = "You cannot delete a project that is pending or approved. Wait for teacher feedback.";
+        //        return RedirectToAction(nameof(Index));
+        //    }
+
+        //    _context.Projects.Remove(project);
+        //    await _context.SaveChangesAsync();
+
+        //    return RedirectToAction(nameof(Index));
+        //}
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var project = await _context.Projects.FindAsync(id);
-            if (project == null) return NotFound();
+            var project = await _context.Projects
+                .Include(p => p.ProjectMembers)
+                .FirstOrDefaultAsync(p => p.Project_pkId == id);
+
+            if (project == null)
+                return NotFound();
+
             if (project.Status == "Pending" || project.Status == "Approved")
             {
                 TempData["Error"] = "You cannot delete a project that is pending or approved. Wait for teacher feedback.";
                 return RedirectToAction(nameof(Index));
             }
 
+            // First remove project members
+            if (project.ProjectMembers.Any())
+            {
+                _context.ProjectMembers.RemoveRange(project.ProjectMembers);
+            }
 
+            // Then remove the project
             _context.Projects.Remove(project);
             await _context.SaveChangesAsync();
 
+            TempData["Success"] = "Project deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -868,8 +893,15 @@ namespace ProjectManagementSystem.Controllers
                 "CityName"
             );
         }
-        // GET: Project/Details/5
-        
+
+        private async Task<bool> IsSubmissionBlocked()
+        {
+            return await _context.Announcements
+                .AnyAsync(a => a.IsActive &&
+                       a.BlocksSubmissions &&
+                       DateTime.Now >= a.StartDate &&
+                       (a.ExpiryDate == null || DateTime.Now <= a.ExpiryDate));
+        }
 
     }
 }

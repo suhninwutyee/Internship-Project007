@@ -133,7 +133,7 @@ namespace ProjectManagementSystem.Controllers
             }
         }
 
-
+       
 
         public IActionResult VerifyOtp()
         {
@@ -210,7 +210,7 @@ namespace ProjectManagementSystem.Controllers
             return View(model);
         }
 
-
+    
 
         [HttpPost]
         [ValidateAntiForgeryToken]

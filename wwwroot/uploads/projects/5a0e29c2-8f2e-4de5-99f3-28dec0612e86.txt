@@ -1,0 +1,179 @@
+   public async Task<IActionResult> Index(int page = 1)
+   {
+       int pageSize = 3;
+
+       var projects = _context.Projects
+.Include(p => p.ProjectType)
+.Include(p => p.Language)
+.Include(p => p.Framework)
+.Include(p => p.Company)
+.Include(p => p.Files)
+.Include(p => p.ProjectMembers)
+    .ThenInclude(pm => pm.Student)
+.OrderByDescending(p => p.ProjectSubmittedDate);
+
+
+       var pagedProjects = await projects.ToPagedListAsync(page, pageSize);
+
+       return View(pagedProjects);
+   }
+
+
+   // GET: Project/Upload/5
+   public async Task<IActionResult> Upload(int id)
+   {
+       var project = await _context.Projects
+           .Include(p => p.ProjectType)
+           .Include(p => p.Language)
+           .Include(p => p.Framework)
+           .Include(p => p.Company)
+           .Include(p => p.Files)
+           .Include(p => p.ProjectMembers)
+               .ThenInclude(pm => pm.Student)
+           .FirstOrDefaultAsync(p => p.Project_pkId == id);
+
+       if (project == null)
+           return NotFound();
+
+       if (project.Status == "Pending" || project.Status == "Approved")
+       {
+           TempData["UploadError"] = "You cannot upload again because the project is already submitted or approved.";
+           return RedirectToAction(nameof(Index));
+       }
+
+       return View(project);
+   }
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Upload(Project project)
+{
+    var existingProject = await _context.Projects
+        .Include(p => p.Language)
+        .Include(p => p.ProjectType)
+        .Include(p => p.Framework)
+        .Include(p => p.Company)
+        .Include(p => p.ProjectMembers)
+            .ThenInclude(pm => pm.Student)
+        .FirstOrDefaultAsync(p => p.Project_pkId == project.Project_pkId);
+
+    if (existingProject == null)
+        return NotFound();
+
+    // Prevent multiple uploads
+    if (existingProject.Status == "Pending" || existingProject.Status == "Approved")
+    {
+        TempData["Error"] = "You cannot upload again. Wait for teacher feedback.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    // Mark project as submitted
+    existingProject.Status = "Pending";
+    existingProject.ProjectSubmittedDate = DateTime.Now;
+
+    await _context.SaveChangesAsync();
+
+    TempData["UploadSuccess"] = "Project successfully uploaded and sent to teacher.";
+    return RedirectToAction(nameof(Index));
+}
+
+
+ public async Task<IActionResult> Details(int? id)
+ {
+     if (id == null) return NotFound();
+
+     var project = await _context.Projects
+         .Include(p => p.ProjectType)
+         .Include(p => p.Language)
+         .Include(p => p.Framework)
+         .Include(p => p.Company)
+         .Include(p => p.ProjectMembers)
+             .ThenInclude(pm => pm.Student) // ✅ Include Student data for each ProjectMember
+         .FirstOrDefaultAsync(m => m.Project_pkId == id);
+
+     if (project == null) return NotFound();
+
+     return View(project);
+ }
+
+
+
+
+Index
+
+ <p class="card-text mb-1"><strong>Company:</strong> @project.Company?.CompanyName</p>
+ <p class="card-text mb-1">
+     <strong>Leader:</strong>
+     @{
+         var leader = project.ProjectMembers?
+         .FirstOrDefault(m => m.Role == "Leader" && !m.IsDeleted && m.Student != null);
+
+         if (leader != null)
+         {
+             <span class="d-block">
+                 @leader.Student?.StudentName (@leader.Student?.Student_pkId)
+             </span>
+         }
+         else
+         {
+             <span class="text-muted">No leader assigned</span>
+         }
+     }
+ </p>
+
+ <p class="card-text mb-1">
+     <strong>Members:</strong>
+     @{
+         var members = project.ProjectMembers?
+         .Where(m => m.Role == "Member" && !m.IsDeleted && m.Student != null)
+         .ToList();
+
+         if (members != null && members.Any())
+         {
+             foreach (var member in members)
+             {
+                 <span class="d-block">
+                     @member.Student?.StudentName (@member.Student?.Student_pkId)
+                 </span>
+             }
+         }
+         else
+         {
+             <span class="text-muted">No members</span>
+         }
+     }
+ </p>
+
+
+
+
+Detail
+ <tr>
+     <th>Company</th>
+     <td>@Model.Company?.CompanyName</td>
+ </tr>
+
+ <tr>
+     <th>Leader</th>
+     <td>
+         @{
+             var leader = Model.ProjectMembers?
+             .FirstOrDefault(pm => pm.Role == "Leader" && !pm.IsDeleted && pm.Student != null);
+             if (leader != null)
+             {
+                 <span>@leader.Student.StudentName (@leader.Student.Student_pkId)</span>
+             }
+             else
+             {
+                 <span class="text-muted">No leader assigned</span>
+             }
+         }
+     </td>
+ </tr>
+
+
+
+
+
+
+
+

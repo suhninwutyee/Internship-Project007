@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Intern Sync Dashboard</title>
+    <!-- Boxicons -->
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="sidebar">
+        <div class="brand">
+          <i class="bx bx-rocket"></i>
+          <span class="brand-name">Intern Sync</span>
+        </div>
+        <ul class="menu">
+          <li class="menu-item active">
+            <a href="index.html">
+              <i class="bx bx-grid-alt"></i>
+              <span class="menu-text">Dashboard</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="/approve/">
+              <i class="bx bx-check-square"></i>
+              <span class="menu-text">Project Approvals</span>
+            </a>
+          </li>
+          <li class="menu-item has-submenu" id="managementMenu">
+            <div class="submenu-header">
+              <i class="bx bx-briefcase"></i>
+              <span class="menu-text">Management</span>
+              <i class="bx bx-chevron-right submenu-toggle"></i>
+            </div>
+            <ul class="submenu">
+              <li class="submenu-item"><a href="users.html">Users</a></li>
+              <li class="submenu-item"><a href="projects.html">Projects</a></li>
+              <li class="submenu-item"><a href="tasks.html">Tasks</a></li>
+            </ul>
+          </li>
+          <li class="menu-item">
+            <a href="submitted.html">
+              <i class="bx bx-folder-open"></i>
+              <span class="menu-text">Submitted Projects</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="activity.html">
+              <i class="bx bx-list-ul"></i>
+              <span class="menu-text">Activity Log</span>
+            </a>
+          </li>
+          <li class="menu-item">
+            <a href="settings.html">
+              <i class="bx bx-cog"></i>
+              <span class="menu-text">Settings</span>
+            </a>
+          </li>
+        </ul>
+        <div class="toggle-collapse" id="collapseBtn">
+          <i class="bx bx-chevrons-left"></i>
+        </div>
+      </aside>
+
+      <!-- MAIN + NAVBAR -->
+      <div class="main">
+        <header class="navbar">
+          <i class="bx bx-menu toggle-btn" id="menuBtn"></i>
+          <div class="search">
+            <i class="bx bx-search"></i>
+            <input
+              type="text"
+              placeholder="Search protocols, tokens, addresses..."
+            />
+          </div>
+          <div class="nav-icons">
+            <div class="icon-btn notification">
+              <i class="bx bx-bell"></i>
+              <span class="badge">3</span>
+            </div>
+            <div class="icon-btn profile">
+              <span class="avatar">B</span>
+              <span class="profile-name">bugs</span>
+            </div>
+          </div>
+        </header>
+
+        <main class="content">
+          <h1>Welcome to Intern Sync Dashboard</h1>
+
+          <!-- Analytics cards -->
+          <div class="dashboard-analytics">
+            <div class="card">
+              <h3>Total Students</h3>
+              <p id="totalStudents">120</p>
+            </div>
+            <div class="card">
+              <h3>Submitted Assignments</h3>
+              <p id="submittedAssignments">95</p>
+            </div>
+            <div class="card">
+              <h3>Pending Submissions</h3>
+              <p id="pendingAssignments">25</p>
+            </div>
+            <div class="card">
+              <h3>Average Grade</h3>
+              <p id="averageGrade">88%</p>
+            </div>
+            <div class="card">
+              <h3>Avg. Submission Time</h3>
+              <p id="avgSubmissionTime">1.2d</p>
+            </div>
+            <div class="card">
+              <h3>Top Performers</h3>
+              <p id="topPerformers">5</p>
+            </div>
+          </div>
+
+          <!-- Recent submissions table -->
+          <section class="recent-submissions">
+            <h2>Recent Project Submissions</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Project Title</th>
+                  <th>Date Submitted</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>John Doe</td>
+                  <td>AI Research</td>
+                  <td>2025-07-15</td>
+                  <td>Submitted</td>
+                </tr>
+                <tr>
+                  <td>Jane Smith</td>
+                  <td>Web App</td>
+                  <td>2025-07-16</td>
+                  <td>Pending</td>
+                </tr>
+                <tr>
+                  <td>Bob Lee</td>
+                  <td>Data Analysis</td>
+                  <td>2025-07-17</td>
+                  <td>Submitted</td>
+                </tr>
+              </tbody>
+            </table>
+          </section>
+
+          <!-- Link to approvals -->
+          <div class="approve-link">
+            <a href="/approve/" class="btn-approve-page"
+              >Go to Project Approvals →</a
+            >
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

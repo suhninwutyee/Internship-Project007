@@ -252,7 +252,7 @@ namespace ProjectManagementSystem.Controllers
                 await _signInManager.RefreshSignInAsync(user);
             }
 
-            TempData["SuccessMessage"] = "Profile updated asuccessfully";
+            TempData["SuccessMessage"] = "Profile updated successfully";
             return RedirectToAction(nameof(MyProfile));
         }
 

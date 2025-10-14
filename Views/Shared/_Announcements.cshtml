@@ -1,0 +1,23 @@
+﻿@model List<Announcement>
+
+@if (Model.Any())
+{
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Announcements</h5>
+        </div>
+        <div class="card-body">
+            @foreach (var announcement in Model)
+            {
+                <div class="mb-3 p-3 border rounded @(announcement.BlocksSubmissions ? "bg-warning" : "")">
+                    <h6>@announcement.Title</h6>
+                    <p class="mb-2">@announcement.Message</p>
+                    <small class="text-muted">
+                        @announcement.CreatedDate.ToString("MMM dd, yyyy") |
+                        @(announcement.BlocksSubmissions ? "Submissions Blocked" : "")
+                    </small>
+                </div>
+            }
+        </div>
+    </div>
+}

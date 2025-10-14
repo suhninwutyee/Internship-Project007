@@ -407,7 +407,7 @@ namespace ProjectManagementSystem.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AdminActivityLog");
+                    b.ToTable("AdminActivityLogs");
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.ApplicationUser", b =>
@@ -659,9 +659,12 @@ namespace ProjectManagementSystem.Migrations
                     b.Property<int?>("ProjectType_pkId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ProjectType_pkId1")
+                        .HasColumnType("int");
+
                     b.HasKey("Language_pkId");
 
-                    b.HasIndex("ProjectType_pkId");
+                    b.HasIndex("ProjectType_pkId1");
 
                     b.ToTable("Languages");
                 });
@@ -1179,7 +1182,11 @@ namespace ProjectManagementSystem.Migrations
                 {
                     b.HasOne("ProjectManagementSystem.Models.Project", "Project")
                         .WithMany()
-                        .HasForeignKey("Project_pkId")
+                        .HasForeignKey("Project_pkId");
+
+                    b.HasOne("ProjectManagementSystem.Models.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

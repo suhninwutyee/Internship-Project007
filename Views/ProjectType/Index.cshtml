@@ -1,9 +1,8 @@
 ﻿@{
-    ViewData["Title"] = "Project Types";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = " ProjectType List";
+    Layout = "_Layout";
 }
-
-<section class="container py-5">
+<div class="project-dashboard">
     <!-- Header -->
     <div class="text-center mb-4">
         <h1 class="fw-bold" style="color: #8C5DD1;">📚 Project Types</h1>
@@ -37,6 +36,71 @@
         --neutral: #EFEFEF;
         --gray: #C8C6C1;
         --white: #FFFFFF;
+    }
+
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background-color: var(--neutral);
+        display: flex;
+        /* justify-content: center;
+        align-items: center; */
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+    }
+
+    .project-dashboard {
+        max-width: 800px;
+        width: 100%;
+        background: var(--white);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(140, 93, 209, 0.1);
+        /* text-align: center; */
+    }
+
+    .
+    -header {
+        margin-bottom: 30px;
+    }
+
+    .dashboard-title {
+        color: var(--primary);
+        font-size: 2.2rem;
+        margin: 0 0 10px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .dashboard-subtitle {
+        color: var(--gray);
+        margin: 0 0 20px 0;
+        font-size: 1rem;
+    }
+
+    .add-button {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 50px;
+        font-weight: bold;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+    }
+
+        .add-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(140, 93, 209, 0.3);
+        }
+
+    .project-types-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 20px;
     }
 
     .project-type-card {

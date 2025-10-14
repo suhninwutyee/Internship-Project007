@@ -23,7 +23,7 @@ public class AnnouncementController : Controller
         return View(new Announcement
         {
             Title = "New Announcement",
-
+            
             BlocksSubmissions = false,
             StartDate = DateTime.Now,
             ExpiryDate = DateTime.Now.AddDays(7)
@@ -130,7 +130,7 @@ public class AnnouncementController : Controller
 
         foreach (var ann in await activeAnnouncements.ToListAsync())
         {
-
+            
             _context.Update(ann);
         }
     }

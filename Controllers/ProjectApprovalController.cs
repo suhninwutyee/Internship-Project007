@@ -15,20 +15,20 @@ namespace ProjectManagementSystem.Controllers
             _context = context;
         }
 
-  public async Task<IActionResult> Index(
-    string statusFilter = "all",
-    string searchString = "",
-    DateTime? fromDate = null,
-    DateTime? toDate = null,
-    int pageNumber = 1)
+        public async Task<IActionResult> Index(
+          string statusFilter = "all",
+          string searchString = "",
+          DateTime? fromDate = null,
+          DateTime? toDate = null,
+          int pageNumber = 1)
         {
             const int pageSize = 15;
 
             var query = _context.Projects
                 .Include(p => p.Company)
                 .Include(p => p.ProjectType)
-                .Include(p => p.ProjectMembers)
-                    .ThenInclude(pm => pm.Student)
+                .Include(p => p.ProjectMembers) 
+                    .ThenInclude(pm => pm.Student) 
                 .Where(p => p.IsDeleted == null || p.IsDeleted == false);
 
             // Apply search filter

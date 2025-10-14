@@ -626,7 +626,7 @@
             <li>
                 <a asp-area="" asp-controller="Notifications" asp-action="Index">
                     <i class="fas fa-bell"></i> <span>Notifications</span>
-                    <span class="notification-badge">0</span>
+                    @* <span class="notification-badge">0</span> *@
                 </a>
             </li>
 
@@ -656,7 +656,8 @@
                         var notificationCount = await _context.Notifications
                         .CountAsync(n => n.UserId == student.Student_pkId && !n.IsRead);
 
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge">
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
+                              style="background-color: #8c5dd1;">
                             @notificationCount
                         </span>
                     }
@@ -688,11 +689,11 @@
 
             @if (!string.IsNullOrEmpty(email))
             {
-                <div class="user-profile">
-                    <div class="user-avatar" title="@studentName">@initials</div>
-                    <div class="user-info">
-                        <div class="user-name">@studentName</div>
-                        <div class="user-email">@email</div>
+                <div class="user-profile d-flex align-items-center">
+                    <div class="user-avatar me-2" title="@studentName">@initials</div>
+                    <div class="user-info me-3 text-end">
+                        <div class="user-name fw-bold">@studentName</div>
+                        <div class="user-email text-muted">@email</div>
                     </div>
                     <form asp-action="Logout" asp-controller="StudentLogin" method="post" class="d-inline">
                         @Html.AntiForgeryToken()
@@ -703,28 +704,6 @@
                 </div>
             }
         </div>
-
-        <!-- Announcement Banner -->
-        @* <div class="announcement-banner" id="announcementBanner">
-            <div class="announcement-content">
-                <div class="announcement-icon">
-                    <i class="fas fa-bullhorn"></i>
-                </div>
-                <div class="announcement-text">
-                    <div class="announcement-title">Project Submission Period</div>
-                    <div class="announcement-message">
-                        You can submit your project for evaluation during the Internship period from April to October.
-                        Please ensure all submissions are made before the deadline.
-                    </div>
-                    <div class="announcement-dates">
-                        Active from: April 1, 2023 to October 31, 2023
-                    </div>
-                </div>
-                <button class="announcement-close" id="announcementClose">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div> *@
 
         <main role="main">
             @RenderBody()

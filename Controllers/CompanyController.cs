@@ -35,50 +35,46 @@ namespace ProjectManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CompanyNameModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                return Json(new { success = false, message = string.Join(", ", errors) });
+            }
+
+            if (await _context.Companies.AnyAsync(c => c.CompanyName.ToLower() == model.CompanyName.Trim().ToLower()))
+            {
+                return Json(new { success = false, message = $"Company '{model.CompanyName}' already exists" });
+            }
+
+            var company = new Company
+            {
+                CompanyName = model.CompanyName.Trim(),
+                Address = "To be added",
+                Contact = "To be added",
+                Description = "",
+                ImageFileName = "default.png",
+                CreatedDate = DateTime.Now
+            };
+
             try
             {
-                if (ModelState.IsValid)
+                _context.Companies.Add(company);
+                await _context.SaveChangesAsync();
+
+                return Json(new
                 {
-                    if (await _context.Companies.AnyAsync(c => c.CompanyName.ToLower() == model.CompanyName.Trim().ToLower()))
+                    success = true,
+                    message = "Company created successfully",
+                    data = new
                     {
-                        TempData["ErrorMessage"] = $"Company '{model.CompanyName}' already exists";
-                        return RedirectToAction(nameof(Index));
+                        company.Company_pkId,
+                        company.CompanyName
                     }
-
-                    var company = new Company
-                    {
-                        CompanyName = model.CompanyName.Trim(),
-                        Address = "To be added",
-                        Contact = "To be added",
-                        Description = "",
-                        ImageFileName = "default.png",
-                        CreatedDate = DateTime.Now
-                    };
-
-                    try
-                    {
-                        _context.Companies.Add(company);
-                        await _context.SaveChangesAsync();
-                        TempData["SuccessMessage"] = "Company created successfully";
-                    }
-                    catch (DbUpdateException ex)
-                    {
-                        TempData["ErrorMessage"] = $"Error saving to database: {ex.InnerException?.Message ?? ex.Message}";
-                    }
-                }
-                else
-                {
-                    TempData["ErrorMessage"] = string.Join(", ",
-                        ModelState.Values.SelectMany(v => v.Errors)
-                                        .Select(e => e.ErrorMessage));
-                }
-
-                return RedirectToAction(nameof(Index));
+                });
             }
-            catch (Exception ex)
+            catch (DbUpdateException ex)
             {
-                Console.Write(ex);
-                throw;
+                return Json(new { success = false, message = $"Error saving to database: {ex.InnerException?.Message ?? ex.Message}" });
             }
         }
 
@@ -86,44 +82,47 @@ namespace ProjectManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(CompanyNameModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var company = await _context.Companies.FindAsync(model.Company_pkId);
-                if (company == null)
-                {
-                    TempData["ErrorMessage"] = "Company not found";
-                    return RedirectToAction(nameof(Index));
-                }
-
-                if (await _context.Companies.AnyAsync(c =>
-                    c.CompanyName.ToLower() == model.CompanyName.Trim().ToLower()
-                    && c.Company_pkId != model.Company_pkId))
-                {
-                    TempData["ErrorMessage"] = $"Company '{model.CompanyName}' already exists";
-                    return RedirectToAction(nameof(Index));
-                }
-
-                company.CompanyName = model.CompanyName.Trim();
-
-                try
-                {
-                    _context.Update(company);
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMessage"] = "Company updated successfully";
-                }
-                catch (DbUpdateException ex)
-                {
-                    TempData["ErrorMessage"] = $"Error saving to database: {ex.InnerException?.Message ?? ex.Message}";
-                }
-            }
-            else
-            {
-                TempData["ErrorMessage"] = string.Join(", ",
-                    ModelState.Values.SelectMany(v => v.Errors)
-                                    .Select(e => e.ErrorMessage));
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
+                return Json(new { success = false, message = string.Join(", ", errors) });
             }
 
-            return RedirectToAction(nameof(Index));
+            var company = await _context.Companies.FindAsync(model.Company_pkId);
+            if (company == null)
+            {
+                return Json(new { success = false, message = "Company not found" });
+            }
+
+            if (await _context.Companies.AnyAsync(c =>
+                c.CompanyName.ToLower() == model.CompanyName.Trim().ToLower()
+                && c.Company_pkId != model.Company_pkId))
+            {
+                return Json(new { success = false, message = $"Company '{model.CompanyName}' already exists" });
+            }
+
+            company.CompanyName = model.CompanyName.Trim();
+
+            try
+            {
+                _context.Update(company);
+                await _context.SaveChangesAsync();
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Company updated successfully",
+                    data = new
+                    {
+                        company.Company_pkId,
+                        company.CompanyName
+                    }
+                });
+            }
+            catch (DbUpdateException ex)
+            {
+                return Json(new { success = false, message = $"Error saving to database: {ex.InnerException?.Message ?? ex.Message}" });
+            }
         }
 
         [HttpPost]
@@ -133,11 +132,7 @@ namespace ProjectManagementSystem.Controllers
             var company = await _context.Companies.FindAsync(id);
             if (company == null)
             {
-                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                    return Json(new { success = false, message = "Company not found" });
-
-                TempData["ErrorMessage"] = "Company not found";
-                return RedirectToAction(nameof(Index));
+                return Json(new { success = false, message = "Company not found" });
             }
 
             try
@@ -145,73 +140,16 @@ namespace ProjectManagementSystem.Controllers
                 _context.Companies.Remove(company);
                 await _context.SaveChangesAsync();
 
-                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                    return Json(new { success = true, message = "Company deleted successfully" });
-
-                TempData["SuccessMessage"] = "Company deleted successfully";
+                return Json(new
+                {
+                    success = true,
+                    message = "Company deleted successfully",
+                    data = new { id }
+                });
             }
             catch (DbUpdateException ex)
             {
-                var err = $"Error deleting company: {ex.InnerException?.Message ?? ex.Message}";
-
-                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                    return Json(new { success = false, message = err });
-
-                TempData["ErrorMessage"] = err;
-            }
-
-            return RedirectToAction(nameof(Index));
-        }
-
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateCommpany(CompanyNameModel model)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    if (await _context.Companies.AnyAsync(c => c.CompanyName.ToLower() == model.CompanyName.Trim().ToLower()))
-                    {
-                        TempData["ErrorMessage"] = $"Company '{model.CompanyName}' already exists";
-                        return RedirectToAction(nameof(Index));
-                    }
-
-                    var company = new Company
-                    {
-                        CompanyName = model.CompanyName.Trim(),
-                        Address = "To be added",
-                        Contact = "To be added",
-                        Description = "",
-                        ImageFileName = "default.png",
-                        CreatedDate = DateTime.Now
-                    };
-
-                    try
-                    {
-                        _context.Companies.Add(company);
-                        await _context.SaveChangesAsync();
-                        return Json(company);
-                    }
-                    catch (DbUpdateException ex)
-                    {
-                        TempData["ErrorMessage"] = $"Error saving to database: {ex.InnerException?.Message ?? ex.Message}";
-                    }
-                }
-                else
-                {
-                    TempData["ErrorMessage"] = string.Join(", ",
-                        ModelState.Values.SelectMany(v => v.Errors)
-                                        .Select(e => e.ErrorMessage));
-                }
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                Console.Write(ex);
-                throw;
+                return Json(new { success = false, message = $"Error deleting company: {ex.InnerException?.Message ?? ex.Message}" });
             }
         }
     }

@@ -21,7 +21,7 @@
 <div class="container my-4" style="max-width: 1200px;">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="mb-0" style="color: @primaryColor; font-weight: 600;">
-            <i class="bi bi-folder2-open me-2"></i>Project List
+            <i class="bi bi-folder2-open me-2"></i>My Project
         </h3>
         <span class="badge rounded-pill" style="background-color: @lightPurple; color: @darkPurple; font-size: 0.9rem;">
             <i class="bi bi-collection me-1"></i> Total: @total
@@ -186,11 +186,11 @@
                                                 <i class="bi bi-info-circle me-2"></i>Details
                                             </a>
                                         </li>
-                                        <li>
+                                       @*  <li>
                                             <a class="dropdown-item" asp-action="Edit" asp-route-id="@project.Project_pkId">
                                                 <i class="bi bi-pencil me-2"></i>Edit
                                             </a>
-                                        </li>
+                                        </li> *@
                                         @if (project.Status == "Draft")
                                         {
                                             @*  <li>
@@ -238,7 +238,7 @@
             </a>
         </div>
     }
-
+@* 
     <div class="d-flex justify-content-center mt-5">
         @Html.PagedListPager(Model, page => Url.Action("Index", new { page }), new X.PagedList.Web.Common.PagedListRenderOptions
    {
@@ -251,7 +251,7 @@
        LinkToFirstPageFormat = "<i class='bi bi-chevron-double-left'></i>",
        LinkToLastPageFormat = "<i class='bi bi-chevron-double-right'></i>"
    })
-    </div>
+    </div> *@
 </div>
 
 @section Styles {
