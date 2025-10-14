@@ -1,6 +1,6 @@
 ﻿namespace ProjectManagementSystem.Models
 {
-    public class NotificationViewModel
+    public class NotificationViewModel_old
     {
         public int Notification_pkId { get; set; }
         public string Title { get; set; }

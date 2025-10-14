@@ -9,7 +9,9 @@ namespace ProjectManagementSystem.Models
         public List<ProjectMember> TeamMembers { get; set; }
         public ProjectSubmissionStatus SubmissionStatus { get; set; }
 
-        public List<Project> LeaderProjects { get; set; }  
+        public List<Project> LeaderProjects { get; set; }
+
+        public List<Notification> Notifications { get; set; } = new List<Notification>();
     }
 
 }

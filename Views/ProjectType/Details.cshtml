@@ -1,5 +1,7 @@
 ﻿@model ProjectType
-
+@{
+    Layout = "_Layout";
+}
 <div class="detail-container">
     <!-- Decorative header with animated elements -->
     <div class="detail-header">
@@ -74,12 +76,9 @@
     }
 
     body {
-        font-family: 'Georgia', 'Times New Roman', serif;
-        background-color: var(--parchment);
-        color: var(--oxford-blue);
-        margin: 0;
-        padding: 20px;
-        line-height: 1.6;
+        background: linear-gradient(135deg, #e4eefd);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     .detail-container {

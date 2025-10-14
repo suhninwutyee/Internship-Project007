@@ -10,8 +10,6 @@ namespace ProjectManagementSystem.Models
         [Key] // Explicitly define as primary key
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Auto-increment
         public int Notification_pkId { get; set; }
-        [Key]
-        public int NotificationId { get; set; }
 
         public int UserId { get; set; } // Student_pkId (foreign key)
 
@@ -23,11 +21,12 @@ namespace ProjectManagementSystem.Models
         [Required]
         public string Message { get; set; }
 
-        public DateTime CreatedDate { get; set; }
+        //public DateTime CreatedDate { get; set; }
 
         [StringLength(50)]
         public string NotificationType { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.Now; // Nullable DateTime?
+
         public bool IsDeleted { get; set; }
         public DateTime? DeletedDate { get; set; }
 
@@ -35,7 +34,12 @@ namespace ProjectManagementSystem.Models
         public Student Student { get; set; }
         // Link only to Project
         [ForeignKey("Project")]
-        public int Project_pkId { get; set; }
+        public int? Project_pkId { get; set; }
         public virtual Project Project { get; set; }
+
+        // Foreign key to AdminActivityLog
+        public int? AdminActivityLogId { get; set; }
+        [ForeignKey(nameof(AdminActivityLogId))]
+        public AdminActivityLog? Admin { get; set; }
     }
 }

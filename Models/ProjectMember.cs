@@ -13,6 +13,8 @@ namespace ProjectManagementSystem.Models
         [StringLength(150)]
         public string? Role { get; set; }
 
+        [StringLength(100)]
+        public string? RoleDescription { get; set; } // e.g. "Frontend", "Database"
         public int? Student_pkId { get; set; }
         public Student? Student { get; set; }
 

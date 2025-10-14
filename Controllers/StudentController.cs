@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProjectManagementSystem.Data;
@@ -12,10 +13,12 @@ namespace ProjectManagementSystem.Controllers
     public class StudentController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public StudentController(ApplicationDbContext context)
+        private readonly IWebHostEnvironment _env;
+        public StudentController(ApplicationDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
+
         }
 
         public IActionResult Create()
@@ -57,20 +60,120 @@ namespace ProjectManagementSystem.Controllers
             return View(viewModel);
         }
 
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Create(NRCFormViewModel model, IFormFile? ProfilePhoto, string? nextAction)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        // Reload dropdowns if validation fails
+        //        model.NRCTypeList = _context.NRCTypes.ToList();
+        //        model.RegionCodeMList = _context.NRCTownships.Select(t => t.RegionCode_M).Distinct().ToList();
+        //        model.TownshipList = _context.NRCTownships.ToList();
+        //        model.DepartmentList = _context.StudentDepartments.OrderBy(d => d.DepartmentName).ToList();
+        //        model.AcademicYearList = _context.AcademicYears.OrderByDescending(y => y.YearRange).ToList();
+        //        return View(model);
+        //    }
+
+        //    if (ProfilePhoto != null && ProfilePhoto.Length > 0)
+        //    {
+        //        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/students");
+
+        //        if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+        //        var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(ProfilePhoto.FileName);
+        //        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+        //        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        //        {
+        //            await ProfilePhoto.CopyToAsync(fileStream);
+        //        }
+
+        //        model.Student.ProfilePhotoUrl = "/uploads/students/" + uniqueFileName;
+        //    }
+
+        //    // Set additional fields
+        //    model.Student.CreatedDate = DateTime.Now;
+        //    model.Student.IsDeleted = false;
+
+        //    // Get RollNumber and Email from session
+        //    var roll = HttpContext.Session.GetString("RollNumber");
+        //    var email = HttpContext.Session.GetString("EmailAddress");
+
+        //    var emailEntry = _context.Emails.FirstOrDefault(e =>
+        //        e.RollNumber == roll && e.EmailAddress == email && !e.IsDeleted);
+
+        //    if (emailEntry == null)
+        //    {
+        //        TempData["Error"] = "Email record not found. Please log in again.";
+        //        return RedirectToAction("Login", "StudentLogin");
+        //    }
+
+        //    model.Student.Email_PkId = emailEntry.Email_PkId;
+        //    model.Student.CreatedBy = roll;
+
+        //    _context.Students.Add(model.Student);
+        //    await _context.SaveChangesAsync();
+
+        //    // Save student pkId in session if needed later
+        //    HttpContext.Session.SetInt32("Student_pkId", model.Student.Student_pkId);
+
+        //    // Redirect Leader to Project Creation page after Student creation
+        //    if (!string.IsNullOrEmpty(nextAction) && nextAction == "CreateProject")
+        //    {
+        //        return RedirectToAction("Create", "Project");
+        //    }
+
+        //    // For other roles, redirect to Student Dashboard or appropriate page
+        //    return RedirectToAction("Dashboard", "Student");
+        //}
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(NRCFormViewModel model, string? nextAction)
+        public async Task<IActionResult> Create(NRCFormViewModel model, IFormFile? ProfilePhoto, string? nextAction)
         {
             if (ModelState.IsValid)
             {
-                // Reload dropdowns if validation fails
                 model.NRCTypeList = _context.NRCTypes.ToList();
                 model.RegionCodeMList = _context.NRCTownships.Select(t => t.RegionCode_M).Distinct().ToList();
                 model.TownshipList = _context.NRCTownships.ToList();
                 model.DepartmentList = _context.StudentDepartments.OrderBy(d => d.DepartmentName).ToList();
                 model.AcademicYearList = _context.AcademicYears.OrderByDescending(y => y.YearRange).ToList();
+
                 return View(model);
             }
+
+            // ---------------------------
+            // 🖼️ Profile Photo Upload Start
+            // ---------------------------
+            if (ProfilePhoto != null && ProfilePhoto.Length > 0)
+            {
+                // Folder path
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "students");
+
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                // Unique filename
+                var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(ProfilePhoto.FileName);
+                var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                // Save file physically
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ProfilePhoto.CopyToAsync(fileStream);
+                }
+
+                // Save relative path to DB
+                model.Student.ProfilePhotoUrl = "/uploads/students/" + uniqueFileName;
+            }
+            else
+            {
+                // Default profile photo
+                model.Student.ProfilePhotoUrl = "/uploads/students/default-avatar.png";
+            }
+            // ---------------------------
+            // 🖼️ Profile Photo Upload End
+            // ---------------------------
 
             // Set additional fields
             model.Student.CreatedDate = DateTime.Now;
@@ -92,19 +195,20 @@ namespace ProjectManagementSystem.Controllers
             model.Student.Email_PkId = emailEntry.Email_PkId;
             model.Student.CreatedBy = roll;
 
+            // Save student to DB
             _context.Students.Add(model.Student);
             await _context.SaveChangesAsync();
 
-            // Save student pkId in session if needed later
+            // Save student id to session
             HttpContext.Session.SetInt32("Student_pkId", model.Student.Student_pkId);
 
-            // Redirect Leader to Project Creation page after Student creation
+            // Redirect by role or next action
             if (!string.IsNullOrEmpty(nextAction) && nextAction == "CreateProject")
             {
                 return RedirectToAction("Create", "Project");
             }
 
-            // For other roles, redirect to Student Dashboard or appropriate page
+            // Default redirect
             return RedirectToAction("Dashboard", "Student");
         }
 
@@ -160,23 +264,148 @@ namespace ProjectManagementSystem.Controllers
 
             return View(viewModel);
         }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Edit(int id, NRCFormViewModel model)
+        //{
+        //    if (id != model.Student.Student_pkId)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    if (ModelState.IsValid)
+        //    {
+        //        // Reload lists before returning view
+        //        model.NRCTypeList = _context.NRCTypes.ToList();
+        //        model.RegionCodeMList = _context.NRCTownships.Select(t => t.RegionCode_M).Distinct().ToList();
+        //        model.TownshipList = _context.NRCTownships.ToList();
+        //        model.DepartmentList = _context.StudentDepartments.OrderBy(d => d.DepartmentName).ToList();
+        //        model.AcademicYearList = _context.AcademicYears.OrderByDescending(a => a.YearRange).ToList();
+        //        return View(model);
+        //    }
+
+        //    try
+        //    {
+        //        var studentInDb = await _context.Students.FindAsync(id);
+        //        if (studentInDb == null)
+        //        {
+        //            return NotFound();
+        //        }
+
+        //        // Update fields
+        //        //studentInDb.StudentName = model.Student.StudentName;
+        //        //studentInDb.RollNumber = model.Student.RollNumber;
+        //        studentInDb.Email = model.Student.Email;
+        //        studentInDb.PhoneNumber = model.Student.PhoneNumber;
+        //        studentInDb.Department_pkID = model.Student.Department_pkID;
+        //        //studentInDb.AcademicYear_pkId = model.Student.AcademicYear_pkId;
+        //        studentInDb.NRCType_pkId = model.Student.NRCType_pkId;
+        //        studentInDb.NRC_pkId = model.Student.NRC_pkId;
+        //        studentInDb.NRCNumber = model.Student.NRCNumber;
+        //        studentInDb.CreatedBy = model.Student.CreatedBy;
+
+        //        await _context.SaveChangesAsync();
+
+        //        HttpContext.Session.SetString("SuccessMessage", "Student updated successfully!"); 
+        //        return RedirectToAction("Dashboard");
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        return BadRequest("Unable to update student.");
+        //    }
+        //}
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Edit(int id, NRCFormViewModel model)
+        //{
+        //    if (id != model.Student.Student_pkId)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    // Reload lists before returning view if ModelState is invalid
+        //    model.NRCTypeList = _context.NRCTypes.ToList();
+        //    model.RegionCodeMList = _context.NRCTownships.Select(t => t.RegionCode_M).Distinct().ToList();
+        //    model.TownshipList = _context.NRCTownships.ToList();
+        //    model.DepartmentList = _context.StudentDepartments.OrderBy(d => d.DepartmentName).ToList();
+        //    model.AcademicYearList = _context.AcademicYears.OrderByDescending(a => a.YearRange).ToList();
+
+        //    if (ModelState.IsValid)
+        //    {
+        //        return View(model);
+        //    }
+
+        //    try
+        //    {
+        //        var studentInDb = await _context.Students.FindAsync(id);
+        //        if (studentInDb == null)
+        //        {
+        //            return NotFound();
+        //        }
+
+        //        // Update fields
+        //        //studentInDb.StudentName = model.Student.StudentName;
+        //        //studentInDb.RollNumber = model.Student.RollNumber;
+        //        studentInDb.Email = model.Student.Email;
+        //        studentInDb.PhoneNumber = model.Student.PhoneNumber;
+        //        studentInDb.Department_pkID = model.Student.Department_pkID;
+        //        //studentInDb.AcademicYear_pkId = model.Student.AcademicYear_pkId;
+        //        studentInDb.NRCType_pkId = model.Student.NRCType_pkId;
+        //        studentInDb.NRC_pkId = model.Student.NRC_pkId;
+        //        studentInDb.NRCNumber = model.Student.NRCNumber;
+        //        studentInDb.CreatedBy = model.Student.CreatedBy;
+
+        //        // ---------------------------
+        //        // Profile Photo Upload Start
+        //        // ---------------------------
+        //        if (model.ProfilePhoto != null && model.ProfilePhoto.Length > 0)
+        //        {
+        //            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/students");
+        //            if (!Directory.Exists(uploadsFolder))
+        //                Directory.CreateDirectory(uploadsFolder);
+
+        //            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ProfilePhoto.FileName);
+        //            var filePath = Path.Combine(uploadsFolder, fileName);
+
+        //            using (var stream = new FileStream(filePath, FileMode.Create))
+        //            {
+        //                await model.ProfilePhoto.CopyToAsync(stream);
+        //            }
+
+        //            // Save relative path to DB
+        //            studentInDb.ProfilePhotoUrl = "/uploads/students/" + fileName;
+        //        }
+        //        // ---------------------------
+        //        // Profile Photo Upload End
+        //        // ---------------------------
+
+        //        await _context.SaveChangesAsync();
+
+        //        HttpContext.Session.SetString("SuccessMessage", "Student updated successfully!");
+        //        return RedirectToAction("Dashboard");
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        return BadRequest("Unable to update student.");
+        //    }
+        //}
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, NRCFormViewModel model)
         {
             if (id != model.Student.Student_pkId)
-            {
                 return NotFound();
-            }
+
+            // Reload dropdown lists regardless of ModelState
+            model.NRCTypeList = _context.NRCTypes.ToList();
+            model.RegionCodeMList = _context.NRCTownships.Select(t => t.RegionCode_M).Distinct().ToList();
+            model.TownshipList = _context.NRCTownships.ToList();
+            model.DepartmentList = _context.StudentDepartments.OrderBy(d => d.DepartmentName).ToList();
+            model.AcademicYearList = _context.AcademicYears.OrderByDescending(a => a.YearRange).ToList();
 
             if (ModelState.IsValid)
             {
-                // Reload lists before returning view
-                model.NRCTypeList = _context.NRCTypes.ToList();
-                model.RegionCodeMList = _context.NRCTownships.Select(t => t.RegionCode_M).Distinct().ToList();
-                model.TownshipList = _context.NRCTownships.ToList();
-                model.DepartmentList = _context.StudentDepartments.OrderBy(d => d.DepartmentName).ToList();
-                model.AcademicYearList = _context.AcademicYears.OrderByDescending(a => a.YearRange).ToList();
+                // Return view with validation errors and reloaded dropdowns
                 return View(model);
             }
 
@@ -184,32 +413,58 @@ namespace ProjectManagementSystem.Controllers
             {
                 var studentInDb = await _context.Students.FindAsync(id);
                 if (studentInDb == null)
-                {
                     return NotFound();
-                }
 
-                // Update fields
+                // Update student fields
                 //studentInDb.StudentName = model.Student.StudentName;
                 //studentInDb.RollNumber = model.Student.RollNumber;
                 studentInDb.Email = model.Student.Email;
                 studentInDb.PhoneNumber = model.Student.PhoneNumber;
                 studentInDb.Department_pkID = model.Student.Department_pkID;
-                //studentInDb.AcademicYear_pkId = model.Student.AcademicYear_pkId;
+                studentInDb.AcademicYear_pkId = model.Student.AcademicYear_pkId;
                 studentInDb.NRCType_pkId = model.Student.NRCType_pkId;
                 studentInDb.NRC_pkId = model.Student.NRC_pkId;
                 studentInDb.NRCNumber = model.Student.NRCNumber;
                 studentInDb.CreatedBy = model.Student.CreatedBy;
 
+                // ---------------------------
+                // Profile Photo Upload
+                // ---------------------------
+                if (model.ProfilePhoto != null && model.ProfilePhoto.Length > 0)
+                {
+                    var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "students");
+                    if (!Directory.Exists(uploadsFolder))
+                        Directory.CreateDirectory(uploadsFolder);
+
+                    var uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(model.ProfilePhoto.FileName)}";
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model.ProfilePhoto.CopyToAsync(stream);
+                    }
+
+                    // Save relative path to DB
+                    studentInDb.ProfilePhotoUrl = $"/uploads/students/{uniqueFileName}";
+                }
+
+                _context.Students.Update(studentInDb);
                 await _context.SaveChangesAsync();
 
-                HttpContext.Session.SetString("SuccessMessage", "Student updated successfully!"); 
+                HttpContext.Session.SetString("SuccessMessage", "Student updated successfully!");
                 return RedirectToAction("Dashboard");
             }
             catch (DbUpdateConcurrencyException)
             {
-                return BadRequest("Unable to update student.");
+                return BadRequest("Unable to update student due to concurrency issue.");
+            }
+            catch (Exception ex)
+            {
+                // General error handling
+                return BadRequest($"An error occurred: {ex.Message}");
             }
         }
+
         public async Task<IActionResult> Dashboard()
         {
             // 1. Authentication and Session Check
@@ -280,6 +535,7 @@ namespace ProjectManagementSystem.Controllers
                 if (leaderMember != null)
                 {
                     leaderMember.Role = "Leader";
+                    //leaderMember.RoleDescription = leaderMember.RoleDescription ?? "Manage project and assign members";
                 }
             }
 
@@ -294,6 +550,10 @@ namespace ProjectManagementSystem.Controllers
                 RevisionRequired = projects.Count(p => p.Status == "Revision Required")
             };
 
+            var notifications = await _context.Notifications
+              .Where(n => n.UserId == student.Student_pkId)
+              .OrderByDescending(n => n.CreatedAt)
+              .ToListAsync();
             // 7. Prepare View Model
             var dashboardViewModel = new StudentDashboardViewModel
             {
@@ -301,6 +561,7 @@ namespace ProjectManagementSystem.Controllers
                 Projects = projects,
                 TeamMembers = allTeamMembers,
                 SubmissionStatus = submissionStatus,
+                Notifications = notifications,
                 LeaderProjects = projects.Where(p => p.SubmittedByStudent_pkId == studentId).ToList()
             };
 

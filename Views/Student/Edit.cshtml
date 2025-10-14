@@ -192,6 +192,14 @@
         margin: 20px 0 15px;
     }
 
+    .profile-img-preview {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #dee2e6;
+    }
+
 </style>
 <div>
     <partial name="_ProgressBarPartial" />
@@ -209,7 +217,7 @@
                 </div>
 
                 <div class="card-body">
-                    <form asp-action="Edit" method="post">
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
                         @Html.HiddenFor(m => m.Student.Student_pkId)
 
@@ -259,6 +267,24 @@
                                     <span asp-validation-for="Student.PhoneNumber" class="text-danger"></span>
                                 </div>
                             </div>
+                            <div class="col-md-12">
+                                <div class="form-group mb-3">
+                                    <label class="form-label fw-semibold">Profile Photo</label>
+                                    <input type="file" class="form-control" id="ProfilePhoto" name="ProfilePhoto" accept="image/*" />
+                                    <small class="text-muted">Max size: 2MB | Allowed types: JPG, PNG</small>
+
+                                    <div class="mt-3 text-center">
+                                        <img id="ProfilePhotoPreview"
+                                             src="@(string.IsNullOrEmpty(Model.Student.ProfilePhotoUrl)
+                 ? Url.Content("~/uploads/students/default-avatar.png")
+                 : Url.Content(Model.Student.ProfilePhotoUrl))"
+                                             alt="Profile Preview"
+                                             class="rounded-circle shadow"
+                                             style="width:120px; height:120px; object-fit:cover; border:2px solid #ddd;" />
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
 
                         <h5 class="section-title mt-4"><i class="fas fa-book me-2"></i>Academic Information</h5>
@@ -361,6 +387,32 @@
     <partial name="_ValidationScriptsPartial" />
 
     <script>
+        //         $(document).ready(function() {
+        //     $('#ProfilePhoto').change(function(event) {
+        //         var input = event.target;
+        //         if (input.files && input.files[0]) {
+        //             var reader = new FileReader();
+        //             reader.onload = function(e) {
+        //                 $('#ProfilePhotoPreview').attr('src', e.target.result);
+        //             }
+        //             reader.readAsDataURL(input.files[0]);
+        //         }
+        //     });
+        // });
+         // 🖼️ Preview image when user selects file
+        document.getElementById("ProfilePhoto").addEventListener("change", function (event) {
+            const input = event.target;
+            const preview = document.getElementById("ProfilePhotoPreview");
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result; // Show selected image
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        });
+
         $(document).ready(function () {
             $('#stateNumber').change(function () {
                 var selectedRegionCode = $(this).val();

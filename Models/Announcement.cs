@@ -1,5 +1,7 @@
-﻿// In Models/Announcement.cs
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
+using System.ComponentModel.DataAnnotations.Schema;
+using ProjectManagementSystem.Models;
 
 public class Announcement
 {
@@ -8,10 +10,10 @@ public class Announcement
 
     [Required]
     [StringLength(200)]
-    public string Title { get; set; }  // Added title field
+    public string Title { get; set; }
 
     [Required]
-    [StringLength(1000)]  // Increased length
+    [StringLength(1000)]
     public string Message { get; set; }
 
     [Display(Name = "Created Date")]
@@ -26,7 +28,21 @@ public class Announcement
     [Display(Name = "Block Submissions?")]
     public bool BlocksSubmissions { get; set; }
 
-    // Calculated property to check if announcement is active
-    public bool IsActive => DateTime.Now >= StartDate &&
-                          (ExpiryDate == null || DateTime.Now <= ExpiryDate);
+    [StringLength(255)]
+    public string? FilePath { get; set; } // File URL or path
+
+    [NotMapped]
+    [Display(Name = "Attachment")]
+    public IFormFile? Attachment { get; set; }
+
+    //AdminActivityLog.Id
+    public int? AdminActivityLogId { get; set; }
+
+    [ForeignKey(nameof(AdminActivityLogId))]
+    public AdminActivityLog? Admin { get; set; }
+
+
+    public bool IsActive { get; set; }
+    //public bool IsActive => DateTime.Now >= StartDate &&
+    //                      (ExpiryDate == null || DateTime.Now <= ExpiryDate);
 }

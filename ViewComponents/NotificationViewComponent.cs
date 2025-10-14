@@ -11,6 +11,27 @@ public class NotificationViewComponent : ViewComponent
         _context = context;
     }
 
+    //public async Task<IViewComponentResult> InvokeAsync()
+    //{
+    //    var notifications = await _context.Notifications
+    //        .Include(n => n.Project)
+    //        .Where(n => !n.IsRead)
+    //        .OrderByDescending(n => n.CreatedAt)
+    //        .Take(5)
+    //        .Select(n => new NotificationViewModel
+    //        {
+    //            Id = n.Notification_pkId,
+    //            Message = n.Message,
+    //            CreatedAt = (DateTime)n.CreatedAt,
+    //            ProjectId = (int)n.Project_pkId,
+    //            ProjectName = n.Project.ProjectName,
+    //            IsRead = n.IsRead,
+    //        })
+    //        .ToListAsync();
+
+    //    return View(notifications);
+    //}
+
     public async Task<IViewComponentResult> InvokeAsync()
     {
         var notifications = await _context.Notifications
@@ -20,11 +41,11 @@ public class NotificationViewComponent : ViewComponent
             .Take(5)
             .Select(n => new NotificationViewModel
             {
-                Id = n.NotificationId,
+                Id = n.Notification_pkId,
                 Message = n.Message,
-                CreatedAt = n.CreatedAt,
-                ProjectId = n.Project_pkId,
-                ProjectName = n.Project.ProjectName,
+                CreatedAt = (DateTime)n.CreatedAt, // NULL safe
+                ProjectId = n.Project_pkId ?? 0,          // NULL safe
+                ProjectName = n.Project != null ? n.Project.ProjectName : "No Project",
                 IsRead = n.IsRead,
             })
             .ToListAsync();

@@ -1,0 +1,48 @@
+﻿@model IEnumerable<Announcement>
+
+<h4>📢 Announcements</h4>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info text-center">No active announcements</div>
+}
+else
+{
+    @foreach (var item in Model)
+    {
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <h5>@item.Title</h5>
+                <p>@item.Message</p>
+
+                @if (!string.IsNullOrEmpty(item.FilePath))
+                {
+                    <p>
+                        📎 <a href="@item.FilePath" target="_blank">View Attachment</a>
+                    </p>
+                }
+
+                <small class="text-muted">
+                    Posted: @item.CreatedDate.ToShortDateString()
+                    Valid: @item.StartDate.ToShortDateString() → @(item.ExpiryDate?.ToShortDateString() ?? "∞")
+                </small>
+            </div>
+        </div>
+    }
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        Swal.fire({
+            title: '📢 New Announcement!',
+            text: 'Check out the latest updates from your teacher.',
+            icon: 'info',
+            toast: true,
+            position: 'top-end',
+            timer: 4000,
+            timerProgressBar: true,
+            showConfirmButton: false
+        });
+    </script>
+}

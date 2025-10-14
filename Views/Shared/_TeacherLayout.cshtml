@@ -21,6 +21,8 @@
 
     <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="~/css/approve.css" />
+    @RenderSection("Styles", required: false)
+
 </head>
 <body>
     <div class="app">
@@ -78,12 +80,12 @@
                         <span class="menu-text">My Profile</span>
                     </a>
                 </li>
-                <li class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "ChangePassword" ? "active" : "")">
+              @*   <li class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "ChangePassword" ? "active" : "")">
                     <a asp-area="" asp-controller="Admin" asp-action="ChangePassword">
                         <i class="bx bx-lock"></i>
                         <span class="menu-text">Change Password</span>
                     </a>
-                </li>
+                </li> *@
                 <li class="menu-item">
                     <a asp-area="" asp-controller="Admin" asp-action="Logout">
                         <i class="bx bx-log-out"></i>

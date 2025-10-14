@@ -76,6 +76,18 @@
                             </div>
                             <span asp-validation-for="EmailAddress" class="text-danger small"></span>
                         </div>
+                        <!-- ✅ Responsibility (RoleDescription) -->
+                        <div class="mb-4">
+                            <label asp-for="RoleDescription" class="form-label fw-semibold text-purple">Responsibility</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="fas fa-tasks text-purple"></i>
+                                </span>
+                                <input asp-for="RoleDescription" class="form-control form-control-lg" placeholder="eg.Frontend,Documentation,Research & Analysis.." />
+                            </div>
+                            <span asp-validation-for="RoleDescription" class="text-danger small"></span>
+                        </div>
+
 
                         <div class="d-grid mt-5">
                             <button type="submit" class="btn btn-purple btn-lg py-3 fw-bold">

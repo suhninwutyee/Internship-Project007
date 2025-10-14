@@ -13,6 +13,8 @@
         public List<StudentDepartment> DepartmentList { get; set; }
         public List<ProjectMember> ProjectMembers { get; set; } = new();
 
+        public IFormFile? ProfilePhoto { get; set; }
+
     }
 
 }

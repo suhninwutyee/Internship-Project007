@@ -175,9 +175,10 @@
 <div class="progress-steps-container">
     <div class="progress-steps">
         <div class="progress-track">
-            <div class="progress-fill" style="width: @((ViewBag.CurrentStep-1)*33.33)%;"></div>
+            <div class="progress-fill" style="width: @((ViewBag.CurrentStep-1)*20)%"></div>
         </div>
 
+        <!-- Step 1: Login -->
         <div class="step-item @(ViewBag.CurrentStep >= 1 ? "completed" : "") @(ViewBag.CurrentStep == 1 ? "active" : "")">
             <a href="@Url.Action("Login", "StudentLogin")">
                 <div class="step-indicator">
@@ -196,6 +197,7 @@
             <div class="step-connector"></div>
         </div>
 
+        <!-- Step 2: Role -->
         <div class="step-item @(ViewBag.CurrentStep >= 2 ? "completed" : "") @(ViewBag.CurrentStep == 2 ? "active" : "")">
             <a href="@Url.Action("ChooseRole", "StudentLogin")">
                 <div class="step-indicator">
@@ -207,17 +209,56 @@
                     {
                         <i class="fas fa-user-edit step-icon"></i>
                     }
-                    <span class="step-tooltip">Student Role</span>
+                    <span class="step-tooltip">Choose Student Role</span>
                 </div>
             </a>
             <div class="step-label">Role</div>
             <div class="step-connector"></div>
         </div>
 
+        <!-- Step 3: Create Profile -->
+        <div class="step-item @(ViewBag.CurrentStep >= 3 ? "completed" : "") @(ViewBag.CurrentStep == 3 ? "active" : "")">
+            <a href="@Url.Action("Create", "Student")">
+                <div class="step-indicator">
+                    @if (ViewBag.CurrentStep > 3)
+                    {
+                        <i class="fas fa-check step-icon"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-id-card step-icon"></i>
+                    }
+                    <span class="step-tooltip">Create Student Profile</span>
+                </div>
+            </a>
+            <div class="step-label">Profile</div>
+            <div class="step-connector"></div>
+        </div>
+
+        <!-- Step 4: Create Project -->
         <div class="step-item @(ViewBag.CurrentStep >= 4 ? "completed" : "") @(ViewBag.CurrentStep == 4 ? "active" : "")">
-            <a href="@Url.Action("AddMember", "Project")">
+            <a href="@Url.Action("Create", "Project")">
                 <div class="step-indicator">
                     @if (ViewBag.CurrentStep > 4)
+                    {
+                        <i class="fas fa-check step-icon"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-tasks step-icon"></i>
+                    }
+                    <span class="step-tooltip">Create Project</span>
+                </div>
+            </a>
+            <div class="step-label">Project</div>
+            <div class="step-connector"></div>
+        </div>
+
+        <!-- Step 5: Add Members -->
+        <div class="step-item @(ViewBag.CurrentStep >= 5 ? "completed" : "") @(ViewBag.CurrentStep == 5 ? "active" : "")">
+            <a href="@Url.Action("AddMember", "Project")">
+                <div class="step-indicator">
+                    @if (ViewBag.CurrentStep > 5)
                     {
                         <i class="fas fa-check step-icon"></i>
                     }
@@ -232,10 +273,11 @@
             <div class="step-connector"></div>
         </div>
 
-        <div class="step-item @(ViewBag.CurrentStep >= 3 ? "completed" : "") @(ViewBag.CurrentStep == 3 ? "active" : "")">
+        <!-- Step 6: Submit Project -->
+        <div class="step-item @(ViewBag.CurrentStep >= 6 ? "completed" : "") @(ViewBag.CurrentStep == 6 ? "active" : "")">
             <a href="@Url.Action("Index", "Project")">
                 <div class="step-indicator">
-                    @if (ViewBag.CurrentStep > 3)
+                    @if (ViewBag.CurrentStep > 6)
                     {
                         <i class="fas fa-check step-icon"></i>
                     }

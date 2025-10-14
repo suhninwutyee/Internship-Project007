@@ -178,5 +178,7 @@ namespace ProjectManagementSystem.Models
 
         // One student can submit one project
         public virtual Project? SubmittedProject { get; set; }
+
+        public string? ProfilePhotoUrl { get; set; }
     }
 }

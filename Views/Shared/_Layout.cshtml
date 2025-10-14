@@ -460,7 +460,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.5rem;
+            font-size: 0.7rem;
             font-weight: bold;
         }
 
@@ -539,7 +539,7 @@
         .notification-icon {
             cursor: pointer;
             transition: transform 0.4s ease;
-            margin-right: 2rem;
+            margin-right: 3rem;
         }
 
             .notification-icon:hover {
@@ -607,7 +607,11 @@
                     <i class="fas fa-cog"></i> <span>Manage</span>
                 </a>
                 <div class="sidebar-dropdown collapse" id="manageDropdown">
-                  
+
+                    <a asp-area="" asp-controller="ProjectType" asp-action="Index">
+                        <i class="fas fa-file"></i> <span>ProjectTypes</span>
+                    </a>
+
                     <a asp-area="" asp-controller="Language" asp-action="Index">
                         <i class="fas fa-code"></i> <span>Languages</span>
                     </a>
@@ -615,9 +619,7 @@
                     <a asp-area="" asp-controller="Framework" asp-action="Index">
                         <i class="fas fa-cubes"></i> <span>Frameworks</span>
                     </a>
-                    <a asp-area="" asp-controller="ProjectType" asp-action="Index">
-                       <i class="fas fa-file"></i> <span>ProjectTypes</span>
-                    </a>
+                   
                   
                 </div>
             </li>
@@ -643,28 +645,10 @@
         <!-- Top Bar -->
         <div class="top-bar d-flex justify-content-between align-items-center px-3 py-2">
             <!-- Notification Icon -->
-            <div class="notification-icon position-relative me-3">
-                <i class="fas fa-bell fa-lg" style="color: #8c5dd1;"></i>
-                <span class="notification-badge">0</span>
-                @if (User.Identity.IsAuthenticated)
-                {
-                    var rollNumber = Context.Session.GetString("RollNumber");
-                    var student = await _context.Students
-                    .Include(s => s.Email)
-                    .FirstOrDefaultAsync(s => s.Email.RollNumber == rollNumber);
-
-                    if (student != null)
-                    {
-                        var notificationCount = await _context.Notifications
-                        .CountAsync(n => n.UserId == student.Student_pkId && !n.IsRead);
-
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
-                              style="background-color: #8c5dd1;">
-                            @notificationCount
-                        </span>
-                    }
-                }
+            <div class="position-relative me-3">
+                @await Component.InvokeAsync("NotificationBell")
             </div>
+           
 
             <!-- Current Date -->
             <p class="text-muted mb-0 me-auto">
@@ -700,6 +684,14 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script>
+
+              setInterval(() => {
+            $.get('@Url.Action("GetUnreadCount", "Notifications")', function (count) {
+                $('#unreadCount').text(count);
+            });
+        }, 30000);
+
+
             $(document).ready(function() {
             // Load initial notification count
             $.get('@Url.Action("GetUnreadCount", "Notifications")', function(count) {

@@ -1,0 +1,36 @@
+﻿@model IEnumerable<Announcement>
+@{
+    ViewData["Title"] = "Manage Announcements";
+}
+
+<h2>📢 Announcements</h2>
+<a asp-action="Create" class="btn btn-primary mb-3">+ New Announcement</a>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Start</th>
+            <th>Expiry</th>
+            <th>Blocks</th>
+            <th>Active</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Title</td>
+                <td>@item.StartDate.ToShortDateString()</td>
+                <td>@(item.ExpiryDate?.ToShortDateString() ?? "-")</td>
+                <td>@(item.BlocksSubmissions ? "✅" : "❌")</td>
+                <td>@(item.IsActive ? "🟢 Active" : "🔴 Inactive")</td>
+                <td>
+                    <a asp-action="Delete" asp-route-id="@item.AnnouncementId" class="btn btn-sm btn-danger"
+                       onclick="return confirm('Are you sure to delete this?');">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

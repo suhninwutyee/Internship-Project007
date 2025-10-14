@@ -33,4 +33,8 @@
     <TypeScriptCompile Include="wwwroot\js\approve.js" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\uploads\students\" />
+  </ItemGroup>
+
 </Project>

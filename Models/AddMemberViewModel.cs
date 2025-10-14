@@ -19,5 +19,8 @@ namespace ProjectManagementSystem.Models
         public Language Language { get; set; }
         public Framework Framework { get; set; }
 
+        [Required]
+        [Display(Name = "Member Responsibility")]
+        public string RoleDescription { get; set; } // e.g. Database / Frontend / Backend
     }
 }
