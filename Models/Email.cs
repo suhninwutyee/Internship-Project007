@@ -61,7 +61,7 @@ namespace ProjectManagementSystem.Models
 
         public bool IsDeleted { get; set; } = false;
 
-       // public DateTimeOffset CreatedDate { get; set; } = DateTimeOffset.Now; // Auto-set
+        public DateTimeOffset CreatedDate { get; set; } = DateTimeOffset.Now; // Auto-set
 
 
         public virtual ICollection<Student>? Students { get; set; }
