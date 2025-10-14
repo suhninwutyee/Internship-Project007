@@ -76,11 +76,12 @@ namespace ProjectManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("EmailAddress,RollNumber,AcademicYear_pkId")] Email email)
         {
-            if (ModelState.IsValid)
-            {
                 try
                 {
                     email.Class = "Final Year";
+                email.IsDeleted = false;
+                email.CreatedDate = DateTime.Now;
+
                     _context.Add(email);
                     await _context.SaveChangesAsync();
 
@@ -110,7 +111,7 @@ namespace ProjectManagementSystem.Controllers
 
                     ModelState.AddModelError("", "Error creating email: " + ex.Message);
                 }
-            }
+            
 
             // Handle errors for AJAX
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -214,8 +215,6 @@ namespace ProjectManagementSystem.Controllers
         {
             try
             {
-                if (ModelState.IsValid)
-                {
                     var existingEmail = await _context.Emails.FindAsync(id);
                     if (existingEmail == null)
                     {
@@ -230,13 +229,7 @@ namespace ProjectManagementSystem.Controllers
                     await _context.SaveChangesAsync();
 
                     return Json(new { success = true });
-                }
-
-                var errors = ModelState.ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
-                );
-                return Json(new { success = false, errors });
+                
             }
             catch (Exception ex)
             {

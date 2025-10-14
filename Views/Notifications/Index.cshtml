@@ -4,14 +4,76 @@
     ViewData["Title"] = "Notifications";
 }
 <style>
+
     body {
         background: linear-gradient(135deg, #e4eefd);
         min-height: 100vh;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
+
+    .list-group-item-info {
+        background-color: rgba(140, 93, 209, 0.1);
+        border-left: 4px solid #8c5dd1;
+    }
+
+    .btn-outline-primary {
+        color: #8c5dd1;
+        border-color: #8c5dd1;
+    }
+
+        .btn-outline-primary:hover {
+            background-color: #8c5dd1;
+            color: white;
+        }
+
+    .btn-purple {
+        background-color: #8c5dd1;
+        color: white;
+    }
+
+        .btn-purple:hover {
+            background-color: #7a4cbf;
+            color: white;
+        }
+
+    h2 {
+        color: #8c5dd1;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+    }
+
+    .container {
+        padding-top: 2rem;
+        max-width: 800px;
+    }
+
+    .list-group-item {
+        margin-bottom: 0.75rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+        .list-group-item:hover {
+            box-shadow: 0 4px 12px rgba(140, 93, 209, 0.15);
+        }
+
+    .notification-type-badge {
+        background-color: #8c5dd1;
+        color: white;
+        font-size: 0.7rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 10px;
+        margin-right: 0.5rem;
+    }
 </style>
+
 <div class="container">
-    <h2>Your Notifications</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2><i class="fas fa-bell mr-2"></i>Your Notifications</h2>
+        @*   <button id="markAllAsRead" class="btn btn-purple btn-sm">
+            <i class="fas fa-check-double mr-1"></i>Mark All as Read
+        </button> *@
+    </div>
 
     <div class="list-group">
         @foreach (var notification in Model)
@@ -19,13 +81,19 @@
             <div class="list-group-item @(notification.IsRead ? "" : "list-group-item-info")">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h5>@notification.Title</h5>
-                        <p>@notification.Message</p>
-                        <small class="text-muted">@notification.CreatedDate.ToString("g")</small>
+                        <div class="d-flex align-items-center mb-1">
+                            @if (!string.IsNullOrEmpty(notification.NotificationType))
+                            {
+                                <span class="notification-type-badge">@notification.NotificationType</span>
+                            }
+                            <h5 class="mb-0">@notification.Title</h5>
+                        </div>
+                        <p class="mb-2">@notification.Message</p>
+                        <small class="text-muted"><i class="far fa-clock mr-1"></i> @notification.CreatedDate.ToString("g")</small>
                     </div>
                     @if (!notification.IsRead)
                     {
-                        <button class="btn btn-sm btn-outline-primary mark-as-read" data-id="@notification.Notification_pkId">
+                        <button class="btn btn-sm btn-outline-primary mark-as-read align-self-center" data-id="@notification.Notification_pkId">
                             Mark as read
                         </button>
                     }
@@ -38,6 +106,7 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
+            // Mark single notification as read
             $('.mark-as-read').click(function() {
                 var button = $(this);
                 var id = button.data('id');
@@ -47,13 +116,41 @@
                         button.closest('.list-group-item').removeClass('list-group-item-info');
                         button.remove();
                         updateNotificationCount();
+                        toastr.success('Notification marked as read');
+                    })
+                    .fail(function() {
+                        toastr.error('Failed to mark notification as read');
                     });
             });
 
+            // Mark all notifications as read
+            $('#markAllAsRead').click(function() {
+                var button = $(this);
+                button.prop('disabled', true);
+
+                $.post('@Url.Action("MarkAllAsRead", "Notifications")')
+                    .done(function(data) {
+                        if (data.success) {
+                            $('.list-group-item').removeClass('list-group-item-info');
+                            $('.mark-as-read').remove();
+                            updateNotificationCount();
+                            toastr.success(data.count + ' notifications marked as read');
+                        }
+                    })
+                    .fail(function() {
+                        toastr.error('Failed to mark all notifications as read');
+                    })
+                    .always(function() {
+                        button.prop('disabled', false);
+                    });
+            });
+
+            // Update notification count
             function updateNotificationCount() {
-                $.get('@Url.Action("GetUnreadCount", "Notifications")', function(count) {
-                    $('.notification-badge').text(count);
-                });
+                $.get('@Url.Action("GetUnreadCount", "Notifications")')
+                    .done(function(data) {
+                        $('.notification-badge').text(data.count);
+                    });
             }
 
             // Update count every 30 seconds

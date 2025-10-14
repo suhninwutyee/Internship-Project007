@@ -2,12 +2,27 @@
 
 @{
     ViewData["Title"] = "Language Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h3>Language Details</h3>
+<div class="container mt-4" style="max-width: 600px;">
+    <h3 class="mb-4">📄 Language Details</h3>
 
-<p><strong>ID:</strong> @Model.Language_pkId</p>
-<p><strong>Name:</strong> @Model.LanguageName</p>
+    <div class="card shadow-sm p-4 rounded bg-white">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">ID</dt>
+            <dd class="col-sm-9">@Model.Language_pkId</dd>
 
-@* <a asp-action="Edit" asp-route-id="@Model.Language_pkId" class="btn btn-warning">Edit</a> *@
-<a asp-action="Index" class="btn btn-secondary">Back</a>
+            <dt class="col-sm-3">Language Name</dt>
+            <dd class="col-sm-9">@Model.LanguageName</dd>
+
+            <dt class="col-sm-3">Project Type</dt>
+            <dd class="col-sm-9">@Model.ProjectType?.TypeName</dd>
+        </dl>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Edit" asp-route-id="@Model.Language_pkId" class="btn btn-warning me-2">✏️ Edit</a>
+        <a asp-action="Index" class="btn btn-secondary">🔙 Back</a>
+    </div>
+</div>

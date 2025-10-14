@@ -1,5 +1,4 @@
-﻿// In Models/Announcement.cs
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 public class Announcement
 {
@@ -8,10 +7,10 @@ public class Announcement
 
     [Required]
     [StringLength(200)]
-    public string Title { get; set; }  // Added title field
+    public string Title { get; set; }
 
     [Required]
-    [StringLength(1000)]  // Increased length
+    [StringLength(1000)]
     public string Message { get; set; }
 
     [Display(Name = "Created Date")]
@@ -26,7 +25,11 @@ public class Announcement
     [Display(Name = "Block Submissions?")]
     public bool BlocksSubmissions { get; set; }
 
-    // Calculated property to check if announcement is active
-    public bool IsActive => DateTime.Now >= StartDate &&
-                          (ExpiryDate == null || DateTime.Now <= ExpiryDate);
+    [Display(Name = "Is Active")]
+    public bool IsActive { get; set; } // Manual activation control
+
+    // Helper property for display purposes
+    public bool IsCurrentlyEffective => IsActive &&
+                                      DateTime.Now >= StartDate &&
+                                      (ExpiryDate == null || DateTime.Now <= ExpiryDate);
 }

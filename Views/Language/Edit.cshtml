@@ -2,34 +2,38 @@
 
 @{
     ViewData["Title"] = "Edit Language";
-    Layout = "~/Views/Student/_Layout.cshtml";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h3>Edit Language</h3>
+<div class="container mt-4" style="max-width: 600px;">
+    <h3 class="mb-4">✏️ Edit Language</h3>
 
-<form asp-action="Edit" method="post">
-    @Html.AntiForgeryToken()
+    <form asp-action="Edit" method="post" class="shadow p-4 rounded bg-white">
+        @Html.AntiForgeryToken()
 
-    <!-- Hidden field for Language primary key -->
-    <input type="hidden" asp-for="Language_pkId" />
+        <!-- Hidden field for primary key -->
+        <input type="hidden" asp-for="Language_pkId" />
 
-    <div class="mb-3">
-        <label asp-for="LanguageName" class="form-label"></label>
-        <input asp-for="LanguageName" class="form-control" />
-        <span asp-validation-for="LanguageName" class="text-danger"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="LanguageName" class="form-label fw-semibold">Language Name</label>
+            <input asp-for="LanguageName" class="form-control" placeholder="Enter language name" />
+            <span asp-validation-for="LanguageName" class="text-danger small"></span>
+        </div>
 
-    <div class="mb-3">
-        <label asp-for="ProjectType_pkId" class="form-label">Project Type</label>
-        <select asp-for="ProjectType_pkId" class="form-select" asp-items="ViewBag.ProjectTypes">
-            <option value="">-- Select Project Type --</option>
-        </select>
-        <span asp-validation-for="ProjectType_pkId" class="text-danger"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="ProjectType_pkId" class="form-label fw-semibold">Project Type</label>
+            <select asp-for="ProjectType_pkId" class="form-select" asp-items="ViewBag.ProjectTypes">
+                <option value="">-- Select Project Type --</option>
+            </select>
+            <span asp-validation-for="ProjectType_pkId" class="text-danger small"></span>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Save Changes</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>
+        <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+            <a asp-action="Index" class="btn btn-secondary px-4">Cancel</a>
+        </div>
+    </form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

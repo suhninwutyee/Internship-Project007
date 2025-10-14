@@ -20,7 +20,7 @@ public class NotificationViewComponent : ViewComponent
             .Take(5)
             .Select(n => new NotificationViewModel
             {
-                Id = n.NotificationId,
+                Id = n.Notification_pkId,
                 Message = n.Message,
                 CreatedAt = n.CreatedAt,
                 ProjectId = n.Project_pkId,

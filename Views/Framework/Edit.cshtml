@@ -1,34 +1,40 @@
 ﻿@model FrameworkCreateViewModel
+
 @{
     ViewData["Title"] = "Edit Framework";
+    Layout = "~/Views/Shared/_Layout.cshtml";
     var frameworkId = ViewBag.FrameworkId;
 }
 
-<h2>Edit Framework</h2>
+<div class="container mt-4" style="max-width: 600px;">
+    <h3 class="mb-4" style="color: #8c5dd1;">Edit Framework</h3>
 
-<form asp-action="Edit" method="post" asp-route-id="@frameworkId">
-    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <form asp-action="Edit" method="post" asp-route-id="@frameworkId" class="shadow p-4 rounded bg-white">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
 
-    <div class="mb-3">
-        <label asp-for="SelectedLanguageId" class="form-label"></label>
-        <select asp-for="SelectedLanguageId" asp-items="Model.Languages" class="form-select">
-            <option value="">-- Select Language --</option>
-        </select>
-        <span asp-validation-for="SelectedLanguageId" class="text-danger"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="SelectedLanguageId" class="form-label fw-semibold">Language</label>
+            <select asp-for="SelectedLanguageId" asp-items="Model.Languages" class="form-select">
+                <option value="">-- Select Language --</option>
+            </select>
+            <span asp-validation-for="SelectedLanguageId" class="text-danger small"></span>
+        </div>
 
-    <div class="mb-3">
-        <label asp-for="FrameworkName" class="form-label"></label>
-        <input asp-for="FrameworkName" class="form-control" />
-        <span asp-validation-for="FrameworkName" class="text-danger"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="FrameworkName" class="form-label fw-semibold">Framework Name</label>
+            <input asp-for="FrameworkName" class="form-control" placeholder="Enter framework name" />
+            <span asp-validation-for="FrameworkName" class="text-danger small"></span>
+        </div>
 
-    <button type="submit" class="btn btn-success">Update</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>
+        <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-success px-4" style="background-color: #28a745; border-color: #28a745;">
+                Update
+            </button>
+            <a asp-action="Index" class="btn btn-secondary px-4 ms-2">Cancel</a>
+        </div>
+    </form>
+</div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }

@@ -9,7 +9,7 @@ namespace ProjectManagementSystem.Models
 
         [Required]
         [EmailAddress]
-        public string EmailAddress { get; set; }
+        public string EmailAddress { get; set; } 
 
         public bool RememberMe { get; set; } // optional if you want to implement
 

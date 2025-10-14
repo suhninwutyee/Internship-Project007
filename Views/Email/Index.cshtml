@@ -463,6 +463,7 @@
 
             // EDIT BUTTON
             $(document).on('click', '.edit-btn', function () {
+                console.log("here edit click..................")
                 const row = $(this).closest('tr');
                 row.find('.view-mode').hide();
                 row.find('.edit-mode').show();
@@ -480,7 +481,7 @@
                 row.find('.is-invalid').removeClass('is-invalid');
         // SAVE BUTTON - CORRECTED VERSION
 $(document).on('click', '.save-btn', function () {
-    const btn = $(this);
+    btn = $(this);
     const row = btn.closest('tr');
     const id = btn.data('id');
                 const btn = $(this);
@@ -531,50 +532,42 @@ $(document).on('click', '.save-btn', function () {
         headers: {
             'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
         },
-        success: function (response) {
-            if (response.success) {
-                // Update UI
-                row.find('[data-field="EmailAddress"]').text(formData.EmailAddress);
-                row.find('[data-field="RollNumber"]').text(formData.RollNumber);
-                row.find('[data-field="Class"]').text(formData.Class);
+                success: function (response) {
+                    if (response.success) {
+                        // Update UI
+                        row.find('[data-field="EmailAddress"]').text(formData.EmailAddress);
+                        row.find('[data-field="RollNumber"]').text(formData.RollNumber);
+                        row.find('[data-field="Class"]').text(formData.Class);
 
-                // Switch modes
-                row.find('.view-mode').show();
-                row.find('.edit-mode').hide();
+                        // Switch modes
+                        row.find('.view-mode').show();
+                        row.find('.edit-mode').hide();
 
-                Swal.fire('Success!', 'Updated successfully', 'success');
-            } else {
-                Swal.fire('Error!', response.message || 'Update failed', 'error');
-                // Show server-side validation errors if any
-                if (response.errors) {
-                    for (const [key, value] of Object.entries(response.errors)) {
-                        row.find(`[data-valmsg-for="${key}"]`).text(value.join(', '));
-                        row.find(`[name="${key}"]`).addClass('is-invalid');
-                    }
-                }
-            }
-        },
-        error: function (xhr) {
-            let errorMsg = 'Request failed';
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                errorMsg = xhr.responseJSON.message;
-            }
-            Swal.fire('Error!', errorMsg, 'error');
-        },
-        complete: function () {
-            btn.html('<i class="fas fa-check"></i>');
-        }
-    });
-});
-                        } else {
-                            toastr.error('Error: ' + xhr.statusText);
+                        Swal.fire('Success!', 'Updated successfully', 'success');
+                    } else {
+                        Swal.fire('Error!', response.message || 'Update failed', 'error');
+                        // Show server-side validation errors if any
+                        if (response.errors) {
+                            for (const [key, value] of Object.entries(response.errors)) {
+                                row.find(`[data-valmsg-for="${key}"]`).text(value.join(', '));
+                                row.find(`[name="${key}"]`).addClass('is-invalid');
+                            }
                         }
-                    },
-                    complete: function () {
-                        btn.prop('disabled', false).html('<i class="fas fa-check"></i>');
                     }
-                });
+                },
+                error: function (xhr) {
+                    let errorMsg = 'Request failed';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+                    Swal.fire('Error!', errorMsg, 'error');
+                },
+                complete: function () {
+                    btn.html('<i class="fas fa-check"></i>');
+                }
             });
+        });
+     });
 
                     // DELETE BUTTON - UPDATED VERSION
         $(document).on('click', '.delete-btn', function () {

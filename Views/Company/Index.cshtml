@@ -1,6 +1,8 @@
 ﻿@model List<ProjectManagementSystem.Models.CompanyViewModel>
 @{
-    ViewData["Title"] = "Companies";
+    ViewData["Title"] = "Company List";
+    // int count = (Model.PageNumber - 1) * Model.PageSize + 1;
+    // var total = Model.TotalItemCount;
     Layout = "~/Views/Shared/_TeacherLayout.cshtml";
 }
 
@@ -220,7 +222,7 @@
 
     <!-- Add Company Form -->
     <div class="add-form">
-        <form id="createCompanyForm" asp-action="Create" method="post" class="w-100">
+        <form id="createCompanyForm" asp-action="CreateCommpany" method="post" class="w-100">
             @Html.AntiForgeryToken()
             <input type="text" name="CompanyName" placeholder="Enter company name" required maxlength="100" />
             <button type="submit" class="btn btn-primary">
@@ -348,10 +350,11 @@
                 url: form.attr('action'),
                 type: 'POST',
                 data: formData,
-                success: function(response) {
-                    if (response.success) {
+                success: function(response, textStatus, xhr) {
+                    console.log(response);
+                    if (xhr.status === 200) {
                         // Add new row to table
-                        addCompanyRow(response.company);
+                        addCompanyRow(response);
                         // Reset form
                         form.trigger('reset');
                         // Show success message
@@ -380,7 +383,7 @@
                 success: function(response) {
                     if (response.success) {
                         // Update the displayed name
-                        $('#name-' + id).text(response.company.companyName);
+                        $('#name-' + id).text(response.companyName);
                         // Hide the edit form
                         hideEditForm(id);
                         // Show success message
@@ -397,6 +400,7 @@
 
         // Function to add new company row
         function addCompanyRow(company) {
+            console.log("in add company......................." + company)
             var newRow = `
                 <tr id="row-${company.company_pkId}">
                     <td>

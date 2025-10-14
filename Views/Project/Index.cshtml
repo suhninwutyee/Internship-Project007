@@ -119,24 +119,24 @@
                                             }
                                         }
                                     }
-                            </ul>
-                        </div>
+                                </ul>
+                            </div>
 
-                        <div class="mb-3">
-                            <p class="card-text mb-2">
-                                <span style="color: @darkPurple; font-weight: 500;">
-                                    <i class="bi bi-calendar me-1"></i>Submitted:
-                                </span>
-                                @(project.ProjectSubmittedDate.HasValue
-                                                            ? project.ProjectSubmittedDate.Value.ToString("dd MMM yyyy")
-                                                            : "Not submitted")
-                        </p>
+                            <div class="mb-3">
+                                <p class="card-text mb-2">
+                                    <span style="color: @darkPurple; font-weight: 500;">
+                                        <i class="bi bi-calendar me-1"></i>Submitted:
+                                    </span>
+                                    @(project.ProjectSubmittedDate.HasValue
+                                        ? project.ProjectSubmittedDate.Value.ToString("dd MMM yyyy")
+                                        : "Not submitted")
+                                </p>
 
                                 <p class="card-text mb-2">
                                     <span style="color: @darkPurple; font-weight: 500;">
                                         <i class="bi bi-file-earmark me-1"></i>Files:
                                     </span>
-                            @if (project.Files != null && project.Files.Any())
+                                    @if (project.Files != null && project.Files.Any())
                                     {
                                         <div class="mt-1">
                                             @foreach (var file in project.Files)
@@ -168,11 +168,11 @@
                                     }
                                     <span class="badge @statusClass rounded-pill">
                                         <i class="bi @(project.Status == "Approved" ? "bi-check-circle" :
-                                                                                                project.Status == "Rejected" ? "bi-x-circle" :
-                                                                                                project.Status == "Pending" ? "bi-hourglass" : "bi-pencil") me-1"></i>
-                                @project.Status
-                            </span>
-                        </div>
+                                                     project.Status == "Rejected" ? "bi-x-circle" :
+                                                     project.Status == "Pending" ? "bi-hourglass" : "bi-pencil") me-1"></i>
+                                        @project.Status
+                                    </span>
+                                </div>
 
                                 <div class="dropdown">
                                     <button class="btn btn-sm" type="button" id="dropdownMenuButton_@project.Project_pkId"
@@ -186,13 +186,18 @@
                                                 <i class="bi bi-info-circle me-2"></i>Details
                                             </a>
                                         </li>
-                                @if (project.Status == "Draft")
+                                        <li>
+                                            <a class="dropdown-item" asp-action="Edit" asp-route-id="@project.Project_pkId">
+                                                <i class="bi bi-pencil me-2"></i>Edit
+                                            </a>
+                                        </li>
+                                        @if (project.Status == "Draft")
                                         {
-                                            <li>
+                                            @*  <li>
                                                 <a class="dropdown-item" asp-action="Edit" asp-route-id="@project.Project_pkId">
                                                     <i class="bi bi-pencil me-2"></i>Edit
                                                 </a>
-                                            </li>
+                                            </li> *@
                                             <li>
                                                 <form asp-action="Upload" method="post" onsubmit="return confirm('Are you sure you want to upload the project?');">
                                                     @Html.AntiForgeryToken()
@@ -236,16 +241,16 @@
 
     <div class="d-flex justify-content-center mt-5">
         @Html.PagedListPager(Model, page => Url.Action("Index", new { page }), new X.PagedList.Web.Common.PagedListRenderOptions
-        {
-            UlElementClasses = new[] { "pagination", "pagination-sm" },
-                LiElementClasses = new[] { "page-item" },
-                PageClasses = new[] { "page-link" },
-                ActiveLiElementClass = "active",
-                LinkToPreviousPageFormat = "<i class='bi bi-chevron-left'></i>",
-                LinkToNextPageFormat = "<i class='bi bi-chevron-right'></i>",
-                LinkToFirstPageFormat = "<i class='bi bi-chevron-double-left'></i>",
-                LinkToLastPageFormat = "<i class='bi bi-chevron-double-right'></i>"
-                })
+   {
+       UlElementClasses = new[] { "pagination", "pagination-sm" },
+       LiElementClasses = new[] { "page-item" },
+       PageClasses = new[] { "page-link" },
+       ActiveLiElementClass = "active",
+       LinkToPreviousPageFormat = "<i class='bi bi-chevron-left'></i>",
+       LinkToNextPageFormat = "<i class='bi bi-chevron-right'></i>",
+       LinkToFirstPageFormat = "<i class='bi bi-chevron-double-left'></i>",
+       LinkToLastPageFormat = "<i class='bi bi-chevron-double-right'></i>"
+   })
     </div>
 </div>
 

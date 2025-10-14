@@ -1,164 +1,273 @@
 ﻿@model ProjectManagementSystem.Models.Project
 @{
     ViewData["Title"] = "Create Project";
-    Layout = "~/Views/Student/_Layout.cshtml";
+    Layout = "_Layout";
 }
 
-<div class="card shadow-sm bg-white rounded w-75 mx-auto my-4">
-    <div class="card-header text-white py-2 px-3" style="background-color: #8c5dd1;">
-        <h5 class="mb-0 small">Create New Project</h5>
+<div class="card shadow-sm rounded w-75 mx-auto my-4 border-0">
+    <div class="card-header text-white py-3 px-4" style="background-color: #8c5dd1; border-radius: 0.5rem 0.5rem 0 0;">
+        <h5 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Create New Project</h5>
     </div>
 
-    <div class="card-body small py-3 px-4">
+    <div class="card-body py-4 px-5" style="background-color: #f8f9fa;">
         <form asp-action="Create" method="post" enctype="multipart/form-data">
             @Html.AntiForgeryToken()
-            <!-- Add these hidden fields -->
+            <!-- Hidden fields -->
             <input type="hidden" asp-for="SubmittedByStudent_pkId" value="@Context.Session.GetInt32("Student_pkId")" />
             <input type="hidden" asp-for="CreatedDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+
             <!-- Leader Information Section -->
-            <div class="alert alert-primary mb-4">
-                <h6 class="alert-heading"><i class="fas fa-crown"></i> You are creating this project as Leader</h6>
-                <hr>
-                <p class="mb-1"><strong>Leader Name:</strong> @Context.Session.GetString("StudentName")</p>
-                <p class="mb-1"><strong>Roll Number:</strong> @Context.Session.GetString("RollNumber")</p>
-                <p class="mb-0"><strong>Email:</strong> @Context.Session.GetString("EmailAddress")</p>
+            <div class="alert mb-4" style="background-color: #f0e6ff; border-left: 4px solid #8c5dd1;">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-crown me-3" style="color: #8c5dd1; font-size: 1.5rem;"></i>
+                    <div>
+                        <h6 class="alert-heading mb-1" style="color: #5a3d8a;">You are the Project Leader</h6>
+                        <div class="d-flex flex-wrap">
+                            <span class="me-3"><strong><i class="fas fa-user me-1"></i>Name:</strong> @Context.Session.GetString("StudentName")</span>
+                            <span class="me-3"><strong><i class="fas fa-id-card me-1"></i>Roll No:</strong> @Context.Session.GetString("RollNumber")</span>
+                            <span><strong><i class="fas fa-envelope me-1"></i>Email:</strong> @Context.Session.GetString("EmailAddress")</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Project Basic Information -->
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label asp-for="ProjectName" class="form-label required"></label>
-                    <input asp-for="ProjectName" class="form-control" required />
-                    <span asp-validation-for="ProjectName" class="text-danger"></span>
+            <div class="mb-4">
+                <h6 class="mb-3 pb-2 border-bottom" style="color: #8c5dd1;">
+                    <i class="fas fa-info-circle me-2"></i>Project Information
+                </h6>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="ProjectName" class="form-label required"></label>
+                        <input asp-for="ProjectName" class="form-control" style="border-radius: 0.5rem;" required />
+                        <span asp-validation-for="ProjectName" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="SupervisorName" class="form-label required"></label>
+                        <input asp-for="SupervisorName" class="form-control" style="border-radius: 0.5rem;" required />
+                        <span asp-validation-for="SupervisorName" class="text-danger small"></span>
+                    </div>
                 </div>
-                <div class="col-md-6">
-                    <label asp-for="SupervisorName" class="form-label required"></label>
-                    <input asp-for="SupervisorName" class="form-control" required />
-                    <span asp-validation-for="SupervisorName" class="text-danger"></span>
-                </div>
-            </div>
 
-            <div class="mb-3">
-                <label asp-for="Description" class="form-label required"></label>
-                <textarea asp-for="Description" class="form-control" rows="3" required></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label required"></label>
+                    <textarea asp-for="Description" class="form-control" rows="3" style="border-radius: 0.5rem;" required></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
             </div>
 
             <!-- Technical Stack Section -->
-            <div class="row mb-3 align-items-end">
-                <div class="col-md-6">
-                    <label asp-for="ProjectType_pkId" class="form-label required">Project Type</label>
-                    <div class="input-group">
-                        <select asp-for="ProjectType_pkId" id="ProjectTypeDropdown" class="form-select">
-                            <option value="">-- Select Type --</option>
-                            @foreach (var item in (SelectList)ViewBag.ProjectTypes)
-                            {
-                                <option value="@item.Value">@item.Text</option>
-                            }
-                        </select>
-                        <a href="@Url.Action("Index", "ProjectType")" target="_blank" class="btn btn-outline-success">+</a>
+            <div class="mb-4">
+                <h6 class="mb-3 pb-2 border-bottom" style="color: #8c5dd1;">
+                    <i class="fas fa-code me-2"></i>Technical Details
+                </h6>
+                <div class="row mb-3 align-items-end">
+                    <div class="col-md-6">
+                        <label asp-for="ProjectType_pkId" class="form-label required">Project Type</label>
+                        <div class="input-group">
+                            <select asp-for="ProjectType_pkId" class="form-select" style="border-radius: 0.5rem 0 0 0.5rem;" asp-items="ViewBag.ProjectTypes" required>
+                                <option value="">-- Select Type --</option>
+                            </select>
+                            <a href="@Url.Action("Index", "ProjectType")" target="_blank" class="btn" style="background-color: #8c5dd1; color: white; border-radius: 0 0.5rem 0.5rem 0;">
+                                <i class="fas fa-plus"></i>
+                            </a>
+                        </div>
+                        <span asp-validation-for="ProjectType_pkId" class="text-danger small"></span>
                     </div>
-                    <span asp-validation-for="ProjectType_pkId" class="text-danger"></span>
-                </div>
 
-                <div class="col-md-6">
-                    <label asp-for="Language_pkId" class="form-label required">Language</label>
-                    <div class="input-group">
-                        <select asp-for="Language_pkId" id="LanguageDropdown" class="form-select">
-                            <option value="">-- Select Language --</option>
-                            @* Languages loaded dynamically via JS *@
-                        </select>
-                        <a href="@Url.Action("Index", "Language")" target="_blank" class="btn btn-outline-success">+</a>
-                    </div>
-                    <span asp-validation-for="Language_pkId" class="text-danger"></span>
-                </div>
-            </div>
-
-            <div class="row mb-3 align-items-end">
-                <div class="col-md-6">
-                    <label asp-for="Framework_pkId" class="form-label">Framework</label>
-                    <div class="input-group">
-                        <select asp-for="Framework_pkId" id="FrameworkDropdown" class="form-select" asp-items="ViewBag.Frameworks">
-                            <option value="">-- Select Framework --</option>
-                        </select>
-                        <a href="@Url.Action("Index", "Framework")" target="_blank" class="btn btn-outline-success">+</a>
+                    <div class="col-md-6">
+                        <label asp-for="Language_pkId" class="form-label required">Language</label>
+                        <div class="input-group">
+                            <select asp-for="Language_pkId" id="LanguageDropdown" class="form-select" style="border-radius: 0.5rem 0 0 0.5rem;" asp-items="ViewBag.Languages" required>
+                                <option value="">-- Select Language --</option>
+                            </select>
+                            <a href="@Url.Action("Index", "Language")" target="_blank" class="btn" style="background-color: #8c5dd1; color: white; border-radius: 0 0.5rem 0.5rem 0;">
+                                <i class="fas fa-plus"></i>
+                            </a>
+                        </div>
+                        <span asp-validation-for="Language_pkId" class="text-danger small"></span>
                     </div>
                 </div>
 
-                <div class="col-md-6">
-                    <label asp-for="Company_pkId" class="form-label">Company</label>
-                    <div class="input-group">
-                        <select asp-for="Company_pkId" id="CompanyDropdown" class="form-select" asp-items="ViewBag.Companies">
+                <div class="row mb-3 align-items-end">
+                    <div class="col-md-6">
+                        <label asp-for="Framework_pkId" class="form-label">Framework</label>
+                        <div class="input-group">
+                            <select asp-for="Framework_pkId" id="FrameworkDropdown" class="form-select" style="border-radius: 0.5rem 0 0 0.5rem;" asp-items="ViewBag.Frameworks">
+                                <option value="">-- Select Framework --</option>
+                            </select>
+                            <a href="@Url.Action("Index", "Framework")" target="_blank" class="btn" style="background-color: #8c5dd1; color: white; border-radius: 0 0.5rem 0.5rem 0;">
+                                <i class="fas fa-plus"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Company_pkId" class="form-label">Company</label>
+                        <select asp-for="Company_pkId" id="CompanyDropdown" class="form-select" asp-items="ViewBag.Companies" style="border-radius: 0.5rem;">
                             <option value="">-- Select Company --</option>
                             <option value="0">+ Create New Company</option>
                         </select>
                     </div>
+                    @* <div class="col-md-6">
+                        <label asp-for="Company_pkId" class="form-label">Company</label>
+                        <div class="input-group">
+                            <select asp-for="Company_pkId" id="CompanyDropdown" class="form-select" asp-items="ViewBag.Companies" style="border-radius: 0.5rem;">
+                                <option value="">-- Select Company --</option>
+                                <option value="0">+ Create New Company</option>
+                            </select>
+                        </div>
+                    </div> *@
                 </div>
             </div>
 
             <!-- Dynamic Company Information Section -->
             <div id="companyInfo" style="display:none; margin-bottom:20px;">
-                <div class="card mt-3">
-                    <div class="card-body bg-light small">
-                        <h6 class="card-title">Company Information</h6>
+                <div class="card mt-3 border-0 shadow-sm">
+                    <div class="card-body" style="background-color: white; border-radius: 0.5rem;">
+                        <h6 class="card-title mb-3" style="color: #8c5dd1;">
+                            <i class="fas fa-building me-2"></i>Company Information
+                        </h6>
 
-                        <div class="mb-2">
-                            <label for="CompanyAddress" class="form-label">Address</label>
-                            <input type="text" id="CompanyAddress" name="CompanyAddress" class="form-control" />
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="CompanyAddress" class="form-label">Address</label>
+                                <input type="text" id="CompanyAddress" name="CompanyAddress" class="form-control" style="border-radius: 0.5rem;" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="CompanyContact" class="form-label">Contact</label>
+                                <input type="text" id="CompanyContact" name="CompanyContact" class="form-control" style="border-radius: 0.5rem;" />
+                            </div>
                         </div>
-                        <div class="mb-2">
-                            <label for="CompanyContact" class="form-label">Contact</label>
-                            <input type="text" id="CompanyContact" name="CompanyContact" class="form-control" />
-                        </div>
-                        <div class="mb-2">
+
+                        <div class="mb-3">
                             <label for="CompanyDescription" class="form-label">Description</label>
-                            <textarea id="CompanyDescription" name="CompanyDescription" class="form-control"></textarea>
+                            <textarea id="CompanyDescription" name="CompanyDescription" class="form-control" style="border-radius: 0.5rem;"></textarea>
                         </div>
-                        <div class="mb-2">
-                            <label for="CompanyCity_pkId" class="form-label">State/Region</label>
-                            <select id="CompanyCity_pkId" name="CompanyCity_pkId" class="form-select">
-                                <option value="">-- Select State/Region --</option>
-                                @foreach (var item in (SelectList)ViewBag.CityList)
-                                {
-                                    <option value="@item.Value">@item.Text</option>
-                                }
-                            </select>
-                        </div>
-                        <div class="mb-2">
-                            <label for="CompanyPhoto" class="form-label">Upload Company Photo</label>
-                            <input type="file" id="CompanyPhoto" name="CompanyPhoto" class="form-control" accept="image/*" />
-                            <small class="form-text text-muted">Max size: 2MB (JPEG, PNG)</small>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="CompanyCity_pkId" class="form-label">State/Region</label>
+                                <select id="CompanyCity_pkId" name="CompanyCity_pkId" class="form-select" style="border-radius: 0.5rem;">
+                                    <option value="">-- Select State/Region --</option>
+                                    @foreach (var item in (SelectList)ViewBag.CityList)
+                                    {
+                                        <option value="@item.Value">@item.Text</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="CompanyPhoto" class="form-label">Company Photo</label>
+                                <input type="file" id="CompanyPhoto" name="CompanyPhoto" class="form-control" style="border-radius: 0.5rem;" accept="image/*" />
+                                <small class="form-text text-muted">Max size: 2MB (JPEG, PNG)</small>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">Upload Project Files</label>
-                <input type="file" id="projectFiles" name="projectFiles" multiple class="form-control" />
-                <small class="form-text text-muted">You can upload multiple files.</small>
-            </div>
-
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label asp-for="ProjectSubmittedDate" class="form-label">Target Submission Date</label>
-                    <input asp-for="ProjectSubmittedDate" class="form-control" type="date" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
-                    <small class="form-text text-muted">Estimated completion date</small>
+            <!-- File Upload Section -->
+            <div class="mb-4">
+                <h6 class="mb-3 pb-2 border-bottom" style="color: #8c5dd1;">
+                    <i class="fas fa-file-upload me-2"></i>Project Files
+                </h6>
+                <div class="file-upload-area p-4 text-center" style="background-color: white; border: 2px dashed #d1c4e9; border-radius: 0.5rem;">
+                    <i class="fas fa-cloud-upload-alt mb-3" style="font-size: 2rem; color: #8c5dd1;"></i>
+                    <p class="mb-2">Drag & drop files here or click to browse</p>
+                    <input type="file" name="projectFiles" multiple class="form-control d-none" id="fileInput" />
+                    <label for="fileInput" class="btn btn-sm" style="background-color: #8c5dd1; color: white; border-radius: 0.5rem;">
+                        <i class="fas fa-folder-open me-2"></i>Select Files
+                    </label>
+                    <div id="fileList" class="mt-3 small text-muted"></div>
+                    <small class="form-text text-muted">Max 10 files, 5MB each (PDF, DOCX, ZIP, RAR)</small>
                 </div>
             </div>
+
+            <!-- Submission Date -->
+            @*  <div class="mb-4">
+                <h6 class="mb-3 pb-2 border-bottom" style="color: #8c5dd1;">
+                    <i class="fas fa-calendar-alt me-2"></i>Timeline
+                </h6>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label asp-for="ProjectSubmittedDate" class="form-label">Target Submission Date</label>
+                        <div class="input-group">
+                            <input asp-for="ProjectSubmittedDate" class="form-control" type="date" style="border-radius: 0.5rem;" min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                            <span class="input-group-text" style="border-radius: 0 0.5rem 0.5rem 0; background-color: #e9e0f7;">
+                                <i class="fas fa-calendar-day" style="color: #8c5dd1;"></i>
+                            </span>
+                        </div>
+                        <small class="form-text text-muted">Estimated completion date</small>
+                    </div>
+                </div>
+            </div> *@
+
+            <div class="timeline-section mb-4">
+                <!-- Header with animated icon -->
+                <div class="d-flex align-items-center mb-3">
+                    <div class="timeline-icon me-2">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h5 class="section-title mb-0">Project Timeline</h5>
+                </div>
+
+                <!-- Date Picker Card -->
+                <div class="timeline-card">
+                    <div class="date-picker-container">
+                        <label asp-for="ProjectSubmittedDate" class="date-picker-label">
+                            <i class="far fa-calendar-check me-2"></i>Target Completion Date
+                        </label>
+
+                        <div class="date-input-group">
+                            <input asp-for="ProjectSubmittedDate"
+                                   class="form-control date-picker-input"
+                                   type="date"
+                                   min="@DateTime.Now.ToString("yyyy-MM-dd")"
+                                   onfocus="this.showPicker()" />
+
+                            <button type="button" class="date-picker-button" onclick="this.previousElementSibling.showPicker()">
+                                <i class="far fa-calendar-alt"></i>
+                                <span>Select Date</span>
+                            </button>
+                        </div>
+
+                        <div class="date-meta-info">
+                            <small class="text-muted">
+                                <i class="far fa-lightbulb me-1"></i>Select your estimated project completion date
+                            </small>
+                            <div class="days-remaining-badge" id="daysRemainingBadge">
+                                <span id="daysRemainingCount">0</span> days remaining
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visual timeline indicator (optional) -->
+                    <div class="timeline-visual mt-3">
+                        <div class="timeline-progress">
+                            <div class="timeline-now"></div>
+                            <div class="timeline-target"></div>
+                        </div>
+                        <div class="timeline-labels d-flex justify-content-between">
+                            <small>Today</small>
+                            <small>Target</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
             <!-- Hidden Fields -->
             <input type="hidden" asp-for="CreatedBy" value="@Context.Session.GetString("StudentName")" />
             <input type="hidden" asp-for="Status" value="Draft" />
 
             <!-- Form Actions -->
-            <div class="d-flex justify-content-between mt-4">
-                <button type="submit" class="btn btn-success px-4">
-                    <i class="fas fa-save"></i> Create Project
-                </button>
-                <a asp-action="Dashboard" asp-controller="Student" class="btn btn-secondary px-4">
-                    <i class="fas fa-times"></i> Cancel
+            <div class="d-flex justify-content-between mt-5 pt-3 border-top">
+                <a asp-action="Dashboard" asp-controller="Student" class="btn btn-outline-secondary px-4" style="border-radius: 0.5rem;">
+                    <i class="fas fa-arrow-left me-2"></i>Cancel
                 </a>
+                <button type="submit" class="btn px-4" style="background-color: #8c5dd1; color: white; border-radius: 0.5rem;">
+                    <i class="fas fa-save me-2"></i>Create Project
+                </button>
             </div>
         </form>
     </div>
@@ -171,18 +280,186 @@
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .required:after {
-            content: " *";
-            color: red;
+        /* Timeline Section Styles */
+        /* //Date?? */
+        .timeline-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 2px 8px rgba(140, 93, 209, 0.1);
         }
 
-        .card-header {
-            border-radius: 0.25rem 0.25rem 0 0 !important;
+        .timeline-icon {
+            width: 32px;
+            height: 32px;
+            background: #f0e6ff;
+            color: #8c5dd1;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .section-title {
+            color: #5a3d8a;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* Date Picker Card */
+        .timeline-card {
+            background: #f9f5ff;
+            border-radius: 10px;
+            padding: 1.25rem;
+            border: 1px solid #e9e0f7;
+        }
+
+        .date-picker-label {
+            display: flex;
+            align-items: center;
+            color: #5a3d8a;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+
+        .date-input-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .date-picker-input {
+            flex: 1;
+            border: 1px solid #d1c4e9;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 0.95rem;
+            color: #5a3d8a;
+            transition: all 0.3s ease;
+        }
+
+            .date-picker-input:focus {
+                border-color: #8c5dd1;
+                box-shadow: 0 0 0 3px rgba(140, 93, 209, 0.2);
+            }
+
+        .date-picker-button {
+            background: #8c5dd1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .date-picker-button:hover {
+                background: #7a4bc2;
+            }
+
+            .date-picker-button span {
+                font-size: 0.9rem;
+            }
+
+        .date-meta-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .days-remaining-badge {
+            background: white;
+            color: #8c5dd1;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid #d1c4e9;
+        }
+
+        /* Visual Timeline */
+        .timeline-visual {
+            background: white;
+            border-radius: 8px;
+            padding: 0.75rem;
+            border: 1px solid #e9e0f7;
+        }
+
+        .timeline-progress {
+            height: 6px;
+            background: #e9e0f7;
+            border-radius: 3px;
+            position: relative;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-now {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 20%;
+            background: #8c5dd1;
+            border-radius: 3px;
+        }
+
+        .timeline-target {
+            position: absolute;
+            right: 10%;
+            top: -4px;
+            width: 14px;
+            height: 14px;
+            background: white;
+            border: 2px solid #8c5dd1;
+            border-radius: 50%;
+        }
+
+        .timeline-labels small {
+            color: #8c5dd1;
+            font-size: 0.75rem;
+        }
+        /* //Date?? */
+
+
+        .required:after {
+            content: " *";
+            color: #dc3545;
+        }
+
+        .card {
+            box-shadow: 0 0.5rem 1.5rem rgba(140, 93, 209, 0.1);
+            border: none;
         }
 
         .form-control, .form-select {
             font-size: 0.875rem;
+            border: 1px solid #d1c4e9;
         }
+
+            .form-control:focus, .form-select:focus {
+                border-color: #8c5dd1;
+                box-shadow: 0 0 0 0.25rem rgba(140, 93, 209, 0.25);
+            }
+
+        .file-upload-area:hover {
+            border-color: #8c5dd1 !important;
+            background-color: #f9f5ff !important;
+            cursor: pointer;
+        }
+
+        .btn-outline-secondary {
+            border-color: #8c5dd1;
+            color: #8c5dd1;
+        }
+
+            .btn-outline-secondary:hover {
+                background-color: #8c5dd1;
+                color: white;
+            }
     </style>
 }
 
@@ -193,30 +470,7 @@
 
     <script>
         $(function () {
-            // On Project Type change: load Languages
-            $('#ProjectTypeDropdown').change(function () {
-                var projectTypeId = $(this).val();
-                var $languageDropdown = $('#LanguageDropdown');
-
-                $languageDropdown.empty().append($('<option>').val('').text('-- Loading Languages --'));
-
-                if (projectTypeId) {
-                    $.getJSON('@Url.Action("GetLanguagesByProjectType", "Project")', { projectTypeId: projectTypeId })
-                        .done(function (data) {
-                            $languageDropdown.empty().append($('<option>').val('').text('-- Select Language --'));
-                            $.each(data, function (i, lang) {
-                                $languageDropdown.append($('<option>').val(lang.language_pkId).text(lang.languageName));
-                            });
-                        })
-                        .fail(function () {
-                            $languageDropdown.empty().append($('<option>').val('').text('-- Error loading languages --'));
-                        });
-                } else {
-                    $languageDropdown.empty().append($('<option>').val('').text('-- Select Language --'));
-                }
-            });
-
-            // On Language change: load Frameworks
+            // Framework dropdown population based on language
             $('#LanguageDropdown').change(function () {
                 var languageId = $(this).val();
                 var $frameworkDropdown = $('#FrameworkDropdown');
@@ -237,7 +491,7 @@
                 }
             });
 
-            // On Company change: load company info and show/hide company info card
+            // Company information toggle
             $('#CompanyDropdown').change(function () {
                 var companyId = $(this).val();
                 if (companyId == "0") {
@@ -261,6 +515,49 @@
                 }
             });
 
+            // File upload display
+            $('#fileInput').change(function() {
+                var files = $(this)[0].files;
+                var fileList = $('#fileList');
+                fileList.empty();
+
+                if (files.length > 0) {
+                    fileList.append('<p>Selected files:</p><ul class="list-unstyled">');
+                    for (var i = 0; i < files.length; i++) {
+                        fileList.append('<li><i class="fas fa-file me-2"></i>' + files[i].name + ' (' + (files[i].size / 1024).toFixed(2) + ' KB)</li>');
+                    }
+                    fileList.append('</ul>');
+                }
+            });
+
+            // Drag and drop for files
+            $('.file-upload-area').on('dragover', function(e) {
+                e.preventDefault();
+                $(this).css('border-color', '#8c5dd1');
+                $(this).css('background-color', '#f0e6ff');
+            });
+
+            $('.file-upload-area').on('dragleave', function(e) {
+                e.preventDefault();
+                $(this).css('border-color', '#d1c4e9');
+                $(this).css('background-color', 'white');
+            });
+
+            $('.file-upload-area').on('drop', function(e) {
+                e.preventDefault();
+                $(this).css('border-color', '#d1c4e9');
+                $(this).css('background-color', 'white');
+
+                var files = e.originalEvent.dataTransfer.files;
+                $('#fileInput')[0].files = files;
+                $('#fileInput').trigger('change');
+            });
+
+            // Click on upload area triggers file input
+            $('.file-upload-area').click(function() {
+                $('#fileInput').click();
+            });
+
             // Form submission handling
             $('form').submit(function(e) {
                 if ($(this).valid()) {
@@ -268,6 +565,7 @@
                         title: 'Creating Project',
                         html: 'Please wait while we create your project...',
                         allowOutsideClick: false,
+                        backdrop: 'rgba(140, 93, 209, 0.4)',
                         didOpen: () => {
                             Swal.showLoading()
                         }
@@ -275,10 +573,48 @@
                 }
             });
 
-            // Initially hide company info if no company selected
-            if (!$('#CompanyDropdown').val()) {
-                $('#companyInfo').hide();
+            // Set minimum date for submission date
+            var today = new Date().toISOString().split('T')[0];
+            $('#ProjectSubmittedDate').attr('min', today);
+        });
+
+        ///Date???
+             document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.querySelector('.date-picker-input');
+            const daysRemainingBadge = document.getElementById('daysRemainingBadge');
+            const daysRemainingCount = document.getElementById('daysRemainingCount');
+
+            // Calculate days remaining when date changes
+            dateInput.addEventListener('change', function() {
+                if (this.value) {
+                    const targetDate = new Date(this.value);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    const diffTime = targetDate - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    daysRemainingCount.textContent = diffDays;
+
+                    // Visual feedback based on days remaining
+                    if (diffDays < 7) {
+                        daysRemainingBadge.style.backgroundColor = '#ffebee';
+                        daysRemainingBadge.style.color = '#d32f2f';
+                    } else if (diffDays < 14) {
+                        daysRemainingBadge.style.backgroundColor = '#fff8e1';
+                        daysRemainingBadge.style.color = '#ff8f00';
+                    } else {
+                        daysRemainingBadge.style.backgroundColor = '#e8f5e9';
+                        daysRemainingBadge.style.color = '#388e3c';
+                    }
+                }
+            });
+
+            // Initialize if there's a default value
+            if (dateInput.value) {
+                dateInput.dispatchEvent(new Event('change'));
             }
         });
+        //Date????
     </script>
 }

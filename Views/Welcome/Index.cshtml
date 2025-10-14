@@ -9,6 +9,12 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <title>Internship Project Information System</title>
     <link rel="stylesheet" href="~/css/style.css" />
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Font Awesome CSS (for icons) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
 </head>
 <body>
     <header>
@@ -18,14 +24,14 @@
             </div>
             <nav>
                 <ul>
-                    <li><a href="#home" class="active">Home</a></li>
-                    <li><a href="#about">About us</a></li>
-                    <li><a href="#info">Info</a></li>
-                    <li><a href="#contact">Contact us</a></li>
-                    <li><a href="@Url.Action("Login", "Admin")" class="login-btn">Login</a></li>
-
+                    <li><a href="#home" class="active"><i class="fas fa-home icon"></i> Home</a></li>
+                    <li><a href="#about"><i class="fas fa-info-circle icon"></i> About us</a></li>
+                    <li><a href="#roadmap"><i class="fas fa-map icon"></i> Project Roadmap</a></li>
+                    <li><a href="#contact"><i class="fas fa-envelope icon"></i> Contact us</a></li>
+                    <li><a href="@Url.Action("Login", "StudentLogin")" class="login-btn"><i class="fas fa-sign-in-alt icon"></i> Login</a></li>
                 </ul>
             </nav>
+
         </div>
     </header>
 
@@ -42,10 +48,11 @@
             <div class="hero-content">
                 <h1>Internship Project Information System</h1>
                 <p>
-                    Get ready to connect with industry projects and take
-                    your internship journey to the next level.
+                    If you want to see the projects that were made by your seniors and if you want to know information
+                    about the company that the seniors have worked as intern.
                 </p>
-                <a href="@Url.Action("Index", "Public")" class="hero-btn">Get Started</a>
+                <a href="@Url.Action("Index", "Public")" class="hero-btn" style="text-decoration: none;">Explore</a>
+
 
             </div>
             <div class="hero-image">
@@ -72,32 +79,56 @@
                     Final-year students can upload and showcase their internship projects, normal students can explore and learn from them, and teachers manage the workflow and ensure academic standards.
                     Our mission is to make internship tracking simple and transparent, fostering real-world skills and collaboration for future professionals.
                 </p>
-                <div class="about-cards">
-                    <div class="about-card text-center">
-                        <div class="icon">📝</div>
-                        <h3>Total Projects</h3>
-                        <div class="display-5 fw-bold counter" data-target="@Model.ProjectCount">0</div>
-                        <a href="@Url.Action("ProjectIdeas", "Public")" class="btn btn-primary btn-sm mt-3">View Projects</a>
+                <div class="about-cards d-flex flex-wrap gap-3 justify-content-center">
+                    <div class="about-card text-center border rounded p-3 shadow-sm" style="width: 220px;">
+                        <div class="icon fs-3 mb-1">📝</div>
+                        <h6 class="mb-1">Total Projects</h6>
+                        <div class="counter text-primary fw-bold fs-3" data-target="@Model.ProjectCount">0</div>
+                        <a href="@Url.Action("ProjectIdeas", "Public")" class="btn btn-sm mt-2"
+                            style="background-color: #8c5dd1; color: white;">
+                            View Projects
+                        </a>
+
                     </div>
 
-                    <div class="about-card text-center">
-                        <div class="icon">🏢</div>
-                        <h3>Total Companies</h3>
-                        <div class="display-5 fw-bold counter" data-target="@Model.CompanyCount">0</div>
-                        <a href="@Url.Action("InternshipCompanies", "Public")" class="btn btn-success btn-sm mt-3">View Companies</a>
-                    </div>
+                    <div class="about-card text-center border rounded p-3 shadow-sm" style="width: 220px;">
+                        <div class="icon fs-3 mb-1">🏢</div>
+                        <h6 class="mb-1">Total Companies</h6>
+                        <div class="counter text-success fw-bold fs-3" data-target="@Model.CompanyCount">0</div>
+                        <a href="@Url.Action("InternshipCompanies", "Public")"
+                           class="btn btn-sm mt-2"
+                           style="background-color: #8c5dd1; border-color: #8c5dd1; color: white;">
+                            View Companies
+                        </a>
 
-                    <div class="about-card text-center">
-                        <div class="icon">🎓</div>
-                        <h3>Total Final Students</h3>
-                        <div class="display-5 fw-bold counter" data-target="@Model.StudentCount">0</div>
-                        <a href="@Url.Action("Index", "Student")" class="btn btn-info btn-sm mt-3">View Students</a>
                     </div>
                 </div>
 
-
-
                 <script>
+                                        document.addEventListener("DOMContentLoaded", function () {
+                      const navLinks = document.querySelectorAll("nav ul li a");
+
+                      function setActiveLink() {
+                        let index = navLinks.length;
+
+                        while (--index && window.scrollY + 60 < document.querySelector(navLinks[index].getAttribute("href")).offsetTop) {}
+
+                        navLinks.forEach(link => link.classList.remove("active"));
+                        navLinks[index].classList.add("active");
+                      }
+
+                      setActiveLink();
+                      window.addEventListener("scroll", setActiveLink);
+
+                      // Optional: Highlight active on click too
+                      navLinks.forEach(link => {
+                        link.addEventListener("click", function () {
+                          navLinks.forEach(l => l.classList.remove("active"));
+                          this.classList.add("active");
+                        });
+                      });
+                    });
+
                     document.addEventListener("DOMContentLoaded", function () {
                         const counters = document.querySelectorAll('.counter');
 
@@ -121,85 +152,285 @@
                             updateCount();
                         });
                     });
-                </script>
-
-
-
-
-
-
-
-               
-
+                   </script>           
 
             </div>
         </div>
     </section>
 
     <!-- Info -->
-    <section id="info" class="section fade-up">
+    <section id="roadmap" class="section fade-up" style="background-color: #f4f7ff; padding: 60px 0;">
         <div class="container">
-            <h2>Info</h2>
-            <p>
-                Dive into our expert guides: from crafting standout resumes to acing
-                interviews and maximizing your internship experience.
-            </p>
-            <div class="info-cards">
-                <div class="card">
-                    <h3>Resume Tips</h3>
-                    <p>Stand out with a polished, recruiter-friendly CV.</p>
+            <h2 class="text-center mb-5" style="color: #8c5dd1;">🛣️ Project Roadmap</h2>
+
+            <div class="timeline">
+                <div class="timeline-step">
+                    <div class="circle">1</div>
+                    <h4>Ideation</h4>
+                    <p>Choose your project topic and define goals.</p>
                 </div>
-                <div class="card">
-                    <h3>Interview Prep</h3>
-                    <p>Mock questions, feedback, and confidence building.</p>
+                <div class="timeline-step">
+                    <div class="circle">2</div>
+                    <h4>Research</h4>
+                    <p>Study existing works and gather resources.</p>
                 </div>
-                <div class="card">
-                    <h3>Career Advice</h3>
-                    <p>Long-term strategies for your professional journey.</p>
+                <div class="timeline-step">
+                    <div class="circle">3</div>
+                    <h4>Development</h4>
+                    <p>Build your project using selected tools and technologies.</p>
+                </div>
+                <div class="timeline-step">
+                    <div class="circle">4</div>
+                    <h4>Testing</h4>
+                    <p>Test your application and fix issues.</p>
+                </div>
+                <div class="timeline-step">
+                    <div class="circle">5</div>
+                    <h4>Presentation</h4>
+                    <p>Prepare documents, slides, and present confidently.</p>
                 </div>
             </div>
         </div>
+
+        <style>
+
+            a.btn {
+                text-decoration: none !important;
+               
+            }
+
+            .timeline {
+                display: flex;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+
+            .timeline-step {
+                flex: 1;
+                min-width: 180px;
+                text-align: center;
+                padding: 20px;
+                position: relative;
+            }
+
+                .timeline-step:not(:last-child)::after {
+                    content: '';
+                    position: absolute;
+                    top: 40px;
+                    right: -10px;
+                    width: 20px;
+                    height: 2px;
+                    background-color: #8c5dd1;
+                }
+
+            .circle {
+                width: 40px;
+                height: 40px;
+                margin: 0 auto 10px auto;
+                border-radius: 50%;
+                background-color: #8c5dd1;
+                color: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                font-size: 18px;
+            }
+
+            .timeline-step h4 {
+                color: #333;
+                margin-bottom: 5px;
+            }
+
+            .timeline-step p {
+                color: #555;
+                font-size: 14px;
+            }
+
+            @@media (max-width: 768px) {
+                .timeline {
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                .timeline-step:not(:last-child)::after {
+                    display: none;
+                }
+            }
+
+            .contact-info {
+                max-width: 600px;
+                margin: 0 auto;
+            }
+
+            .socials {
+                margin-top: 20px;
+            }
+
+            .map-responsive {
+                position: relative;
+                padding-bottom: 56.25%; /* 16:9 ratio */
+                height: 0;
+                overflow: hidden;
+            }
+
+                .map-responsive iframe {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    border: 0;
+                }
+
+            .social-icon {
+                font-size: 1.5rem;
+                color: #8c5dd1;
+                margin-right: 15px;
+                transition: color 0.3s ease, transform 0.3s ease;
+            }
+
+                .social-icon:hover {
+                    color: #5d3aa1;
+                   
+                   transform: scale(1.1);
+                }            
+
+            nav ul {
+                list-style: none;
+                padding-left: 0;
+                margin: 0;
+                display: flex;
+                gap: 20px; /* spacing between nav items */
+            }
+
+                nav ul li {
+                    display: inline-block;
+                }
+
+            nav a {
+                text-decoration: none;
+                color: #333;
+                padding: 6px 12px;
+                display: inline-flex;
+                align-items: center;
+                font-weight: 500;
+                font-size: 1rem;
+            }
+
+                nav a .icon {
+                    color: #8c5dd1;
+                    margin-right: 8px;
+                    font-size: 1.2rem;
+                }
+
+                nav a.active {
+                    color: #8c5dd1;
+                    font-weight: 700;
+                    /* no border-bottom here */
+                }
+
+                    nav a.active .icon {
+                        color: #8c5dd1;
+                    }
+
+            .social-icon.facebook i {
+                color: #3b5998;
+            }
+
+            .social-icon.twitter i {
+                color: #1da1f2;
+            }
+
+            .social-icon.linkedin i {
+                color: #0077b5;
+            }
+
+            .social-icon.instagram i {
+                color: #e4405f;
+            }
+
+            ul.list-unstyled i {
+                color: #8c5dd1; /* your preferred purple color */
+                margin-right: 8px; /* space between icon and text */
+                font-size: 1.1rem; /* adjust icon size if needed */
+            }
+
+            .fa-map-marker-alt {
+                color: #4caf50;
+            }
+
+            .fa-envelope {
+                color: #f44336;
+            }
+
+            .fa-phone {
+                color: #2196f3;
+            }
+
+            .text-muted {
+                font-style: italic;
+            }
+        </style>
     </section>
+    <section id="contact" class="py-5">
+        <div class="container">
+            <div class="row justify-content-center align-items-start">
+                <!-- Contact Info Left -->
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm p-4 h-100">
+                        <h2 class="mb-4">Contact Us</h2>
+                        <p>If you have questions or want to know more, feel free to send us an email.</p>
 
-    <!-- Contact Us -->
-    <section id="contact" class="section fade-up">
-        <div class="container contact-wrapper">
-            <!-- left: contact info -->
-            <div class="contact-info">
-                <h2>Contact Us</h2>
-                <p>Questions? Feedback? We'd love to hear from you.</p>
-                <ul>
-                    <li><span class="contact-icon">📍</span> University Of Computer(Mandalay)</li>
-                    <li><span class="contact-icon">✉️</span> support@internsync.com</li>
-                    <li><span class="contact-icon">📞</span> +95-796727093</li>
-                </ul>
-                <div class="socials">
-                    <a href="#"><span class="social-icon">🐦</span></a>
-                    <a href="#"><span class="social-icon">💼</span></a>
-                    <a href="#"><span class="social-icon">📘</span></a>
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-3 d-flex align-items-start">
+                                <i class="fas fa-map-marker-alt me-3 fs-4 text-primary"></i>
+                                <div>
+                                    <strong>University of Computer Studies (Mandalay)</strong><br />
+                                    <small class="text-muted">
+                                        Between 73rd x 80th Street, Patheingyi Township,<br />
+                                        Mandalay, Myanmar
+                                    </small>
+                                </div>
+                            </li>
+
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="fas fa-envelope me-3 fs-4 text-primary"></i>
+                                <a href="mailto:19katana@gmail.com" class="text-decoration-none text-dark fw-semibold">19katana@gmail.com</a>
+                            </li>
+
+                            <li class="d-flex align-items-center">
+                                <i class="fas fa-phone me-3 fs-4 text-primary"></i>
+                                <span class="fw-semibold">+95-796727093</span>
+                            </li>
+                        </ul>
+
+                        <div>
+                            <a href="#" class="social-icon facebook me-3" style="color:#3b5998; font-size: 1.5rem;">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="social-icon twitter me-3" style="color:#1da1f2; font-size: 1.5rem;">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="social-icon linkedin me-3" style="color:#0077b5; font-size: 1.5rem;">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="#" class="social-icon instagram" style="color:#e4405f; font-size: 1.5rem;">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <!-- right: fancy form -->
-            <div class="contact-form">
-                <form>
-                    <div class="form-field">
-                        <input type="text" id="name" placeholder=" " required />
-                        <label for="name">Your Name</label>
+                <!-- Google Map Right -->
+                <div class="col-md-6 mb-4">
+                    
+                    <div class="map-responsive" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3704.727002297637!2d96.11191747470411!3d21.79082428005607!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30cb75ab46393931%3A0xd7a9c58f0f5cfaef!2sUniversity%20of%20Computer%20Studies%2C%20Mandalay%20(Ta-Ohn)!5e0!3m2!1sen!2smm!4v1753767515543!5m2!1sen!2smm" width="600"
+                        height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                     </div>
-                    <div class="form-field">
-                        <input type="email" id="email" placeholder=" " required />
-                        <label for="email">Your Email</label>
-                    </div>
-                    <div class="form-field">
-                        <textarea id="message"
-                                  rows="4"
-                                  placeholder=" "
-                                  required></textarea>
-                        <label for="message">Your Message</label>
-                    </div>
-                    <button type="submit" class="btn-submit">Send Message</button>
-                </form>
+                </div>
             </div>
         </div>
     </section>

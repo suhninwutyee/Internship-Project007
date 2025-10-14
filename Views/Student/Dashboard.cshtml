@@ -1,4 +1,4 @@
-﻿@* @model ProjectManagementSystem.Models.StudentDashboardViewModel
+﻿@model ProjectManagementSystem.Models.StudentDashboardViewModel
 @using System.Linq
 @functions {
     string ToMyanmarDigits(int number)
@@ -33,15 +33,17 @@
     var leaderProjects = Model.LeaderProjects;
     var isProjectLeader = leaderProjects.Any();
 }
+
 <div>
     <partial name="_ProgressBarPartial" />
 </div>
+
 <style>
     body {
-            background: linear-gradient(135deg, #e4eefd);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        background: linear-gradient(135deg, #e4eefd);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
     :root {
         --primary-color: #8c5dd1;
@@ -142,632 +144,6 @@
     .table-hover tbody tr:hover {
         background-color: rgba(140, 93, 209, 0.05);
     }
-</style>
-
-<div class="container-fluid px-4 py-4">
-    <!-- Welcome Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h2 class="mb-1 fw-bold text-purple">Welcome back, @Model.Student.StudentName</h2>
-            <p class="text-muted mb-0">
-                <i class="fas fa-calendar-day me-2"></i>@DateTime.Now.ToString("dddd, MMMM dd, yyyy")
-            </p>
-        </div>
-        @if (isProjectLeader)
-        {
-            <a asp-action="Create" asp-controller="Project" class="btn btn-purple rounded-pill px-4">
-                <i class="fas fa-plus me-2"></i>New Project
-            </a>
-        }
-    </div>
-
-    <!-- Stats Cards -->
-    <div class="row mb-4 g-4">
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase text-muted mb-2">Total Projects</h6>
-                            <h2 class="mb-0 fw-bold">@Model.SubmissionStatus.TotalProjects</h2>
-                        </div>
-                        <div class="project-icon">
-                            <i class="fas fa-project-diagram"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase text-muted mb-2">Approved</h6>
-                            <h2 class="mb-0 fw-bold">@Model.SubmissionStatus.ApprovedProjects</h2>
-                        </div>
-                        <div class="project-icon bg-success-light text-success">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase text-muted mb-2">Pending</h6>
-                            <h2 class="mb-0 fw-bold">@Model.SubmissionStatus.PendingProjects</h2>
-                        </div>
-                        <div class="project-icon bg-warning-light text-warning">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase text-muted mb-2">Team Members</h6>
-                            <h2 class="mb-0 fw-bold">@Model.TeamMembers.Count</h2>
-                        </div>
-                        <div class="project-icon bg-info-light text-info">
-                            <i class="fas fa-users"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4">
-        <!-- Profile Column -->
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-header bg-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-bold text-purple">Student Profile</h5>
-                        <a asp-action="Edit" asp-controller="Student" asp-route-id="@Model.Student.Student_pkId"
-                           class="btn btn-sm btn-outline-purple rounded-pill">
-                            <i class="fas fa-edit me-1"></i>Edit
-                        </a>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="text-center mb-4">
-                        <div class="avatar-profile">
-                            @Model.Student.StudentName[0]
-                        </div>
-                        <h4 class="mt-3 mb-1 fw-bold">@Model.Student.StudentName</h4>
-                        <p class="text-muted mb-3">@Model.Student.StudentDepartment?.DepartmentName</p>
-                        <div class="d-flex justify-content-center">
-                            <span class="badge bg-primary-light text-primary rounded-pill px-3 py-1">
-                                @Model.Student.Email?.RollNumber
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="list-group list-group-flush">
-                        <div class="list-group-item border-0 px-0 py-2">
-                            <div class="d-flex align-items-center">
-                                <div class="member-avatar me-3">
-                                    <i class="fas fa-envelope"></i>
-                                </div>
-                                <div>
-                                    <h6 class="fw-bold mb-0">Email</h6>
-                                    <p class="text-muted mb-0">@Model.Student.Email?.EmailAddress</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="list-group-item border-0 px-0 py-2">
-                            <div class="d-flex align-items-center">
-                                <div class="member-avatar me-3">
-                                    <i class="fas fa-phone"></i>
-                                </div>
-                                <div>
-                                    <h6 class="fw-bold mb-0">Phone</h6>
-                                    <p class="text-muted mb-0">@Model.Student.PhoneNumber</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="list-group-item border-0 px-0 py-2">
-                            <div class="d-flex align-items-center">
-                                <div class="member-avatar me-3">
-                                    <i class="fas fa-calendar-alt"></i>
-                                </div>
-                                <div>
-                                    <h6 class="fw-bold mb-0">Academic Year</h6>
-                                    <p class="text-muted mb-0">@Model.Student.AcademicYear?.YearRange</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="list-group-item border-0 px-0 py-2">
-                            <div class="d-flex align-items-center">
-                                <div class="member-avatar me-3">
-                                    <i class="fas fa-id-card"></i>
-                                </div>
-                                <div>
-                                    <h6 class="fw-bold mb-0">NRC</h6>
-                                    <p class="text-muted mb-0">
-                                        @Model.Student.NRCTownship?.RegionCode_M/@Model.Student.NRCTownship?.TownshipCode_M (@Model.Student.NRCType?.TypeCode) @ToMyanmarDigits(Model.Student.NRCNumber)
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Content Column -->
-        <div class="col-lg-8">
-            <!-- Project Submissions Card -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-bold text-purple">Project Submissions</h5>
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-outline-purple dropdown-toggle rounded-pill" type="button"
-                                    id="projectFilter" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-filter me-1"></i>Filter
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="projectFilter">
-                                <li><a class="dropdown-item" href="#" data-filter="all">All Projects</a></li>
-                                <li><a class="dropdown-item" href="#" data-filter="leader">My Leader Projects</a></li>
-                                <li><a class="dropdown-item" href="#" data-filter="member">Member Projects</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#" data-filter="draft">Drafts</a></li>
-                                <li><a class="dropdown-item" href="#" data-filter="pending">Pending</a></li>
-                                <li><a class="dropdown-item" href="#" data-filter="approved">Approved</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body">
-                    @if (Model.Projects.Any())
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead>
-                                    <tr class="table-light">
-                                        <th>Project</th>
-                                        <th>Type</th>
-                                        <th>Tech Stack</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var project in Model.Projects)
-                                    {
-                                        <tr data-project-id="@project.Project_pkId"
-                                            data-project-status="@project.Status.ToLower()"
-                                            data-project-role="@(IsProjectLeader(project, Model.Student) ? "leader" : "member")">
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="project-icon me-3">
-                                                        <i class="fas fa-project-diagram"></i>
-                                                    </div>
-                                                    <div>
-                                                        <h6 class="mb-0 fw-bold">@project.ProjectName</h6>
-                                                        <small class="text-muted">
-                                                            @if (IsProjectLeader(project, Model.Student))
-                                                            {
-                                                                <span class="badge bg-purple me-1">Leader</span>
-                                                            }
-                                                            else
-                                                            {
-                                                                <span class="badge bg-secondary me-1">Member</span>
-                                                            }
-                                                            @project.Company?.CompanyName
-                                                        </small>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>@project.ProjectType?.TypeName</td>
-                                            <td>
-                                                <span class="d-block fw-medium">@project.Language?.LanguageName</span>
-                                                <small class="text-muted">@project.Framework?.FrameworkName</small>
-                                            </td>
-                                            <td>
-                                                <span class="badge @GetStatusBadgeClass(project.Status) rounded-pill py-1 px-2">
-                                                    @project.Status
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="dropdown">
-                                                    <button class="btn btn-sm btn-outline-purple dropdown-toggle rounded-circle"
-                                                            type="button" id="projectActions" data-bs-toggle="dropdown" aria-expanded="false">
-                                                        <i class="fas fa-ellipsis-h"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="projectActions">
-                                                        <li>
-                                                            <a class="dropdown-item" asp-action="Details" asp-controller="Project"
-                                                               asp-route-id="@project.Project_pkId">
-                                                                <i class="fas fa-eye me-2"></i>View Details
-                                                            </a>
-                                                        </li>
-                                                        @if (IsProjectLeader(project, Model.Student))
-                                                        {
-                                                            <li>
-                                                                <a class="dropdown-item" asp-action="AddMember" asp-controller="Project"
-                                                                   asp-route-projectId="@project.Project_pkId">
-                                                                    <i class="fas fa-user-plus me-2"></i>Add Member
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a class="dropdown-item" asp-action="Upload" asp-controller="Project"
-                                                                   asp-route-id="@project.Project_pkId">
-                                                                    <i class="fas fa-upload me-2"></i>Submit Project
-                                                                </a>
-                                                            </li>
-                                                        }
-                                                        @if (project.Status == "Draft" && IsProjectLeader(project, Model.Student))
-                                                        {
-                                                            <li>
-                                                                <a class="dropdown-item" asp-action="Edit" asp-controller="Project"
-                                                                   asp-route-id="@project.Project_pkId">
-                                                                    <i class="fas fa-edit me-2"></i>Edit Project
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a class="dropdown-item text-danger" asp-action="Delete" asp-controller="Project"
-                                                                   asp-route-id="@project.Project_pkId">
-                                                                    <i class="fas fa-trash-alt me-2"></i>Delete
-                                                                </a>
-                                                            </li>
-                                                        }
-                                                        @if (project.Status == "Revision Required" && IsProjectLeader(project, Model.Student))
-                                                        {
-                                                            <li>
-                                                                <a class="dropdown-item text-warning" asp-action="Edit" asp-controller="Project"
-                                                                   asp-route-id="@project.Project_pkId">
-                                                                    <i class="fas fa-redo me-2"></i>Revise Project
-                                                                </a>
-                                                            </li>
-                                                        }
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="text-center py-5">
-                            <div class="member-avatar mx-auto mb-3" style="width: 80px; height: 80px;">
-                                <i class="fas fa-project-diagram fa-2x"></i>
-                            </div>
-                            <h4 class="mt-4 fw-bold">No Projects Yet</h4>
-                            <p class="text-muted mb-4">You haven't created or joined any projects</p>
-                            <a asp-action="Create" asp-controller="Project" class="btn btn-purple rounded-pill px-4">
-                                <i class="fas fa-plus me-2"></i>Create Your First Project
-                            </a>
-                        </div>
-                    }
-                </div>
-            </div>
-
-            <!-- Team Members Card -->
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-bold text-purple">Team Members</h5>
-                        @if (isProjectLeader)
-                        {
-                            <div>
-                                <div class="dropdown d-inline-block me-2">
-                                    <button class="btn btn-sm btn-outline-purple dropdown-toggle" type="button"
-                                            id="teamFilter" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fas fa-filter me-1"></i>Filter Teams
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="teamFilter">
-                                        @foreach (var project in leaderProjects)
-                                        {
-                                            <li>
-                                                <a class="dropdown-item" href="#" data-project-id="@project.Project_pkId">
-                                                    @project.ProjectName
-                                                </a>
-                                            </li>
-                                        }
-                                    </ul>
-                                </div>
-                                <a asp-action="AddMember" asp-controller="Project"
-                                   asp-route-projectId="@leaderProjects.First().Project_pkId" class="btn btn-sm btn-purple">
-                                    <i class="fas fa-user-plus me-1"></i>Add Member
-                                </a>
-                            </div>
-                        }
-                    </div>
-                </div>
-                <div class="card-body">
-                    @if (Model.TeamMembers.Any())
-                    {
-                        <div class="row" id="teamMembersContainer">
-                            @foreach (var member in Model.TeamMembers)
-                            {
-                                <div class="col-md-6 mb-3" data-project-id="@member.Project_pkId">
-                                    <div class="team-member-card p-3 bg-white rounded">
-                                        <div class="d-flex align-items-center">
-                                            <div class="member-avatar me-3">
-                                                @member.Student?.StudentName[0]
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-0 fw-bold">@member.Student?.StudentName</h6>
-                                                <p class="text-muted small mb-1">@member.Student?.Email?.RollNumber</p>
-                                                <div class="d-flex align-items-center mb-2">
-                                                    <span class="badge @(member.Role == "Leader" ? "bg-purple" : "bg-secondary") me-2">
-                                                        @member.Role
-                                                    </span>
-                                                    <span class="text-muted small">
-                                                        @member.Student?.StudentDepartment?.DepartmentName
-                                                    </span>
-                                                </div>
-                                                <div>
-                                                    <small class="text-muted">Project: @Model.Projects.First(p => p.Project_pkId == member.Project_pkId).ProjectName</small>
-                                                </div>
-                                            </div>
-                                            <div class="d-flex flex-column">
-                                                <a href="mailto:@member.Student?.Email?.EmailAddress"
-                                                   class="btn btn-sm btn-outline-purple mb-2" title="Email">
-                                                    <i class="fas fa-envelope"></i>
-                                                </a>
-                                                @if (isProjectLeader && member.Role != "Leader")
-                                                {
-                                                    <form asp-action="RemoveMember" asp-controller="Project" method="post" class="d-inline">
-                                                        @Html.AntiForgeryToken()
-                                                        <input type="hidden" name="projectId" value="@member.Project_pkId" />
-                                                        <input type="hidden" name="studentId" value="@member.Student_pkId" />
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                                title="Remove" onclick="return confirm('Are you sure you want to remove this member?')">
-                                                            <i class="fas fa-user-minus"></i>
-                                                        </button>
-                                                    </form>
-                                                }
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="text-center py-4">
-                            <div class="member-avatar mx-auto mb-3" style="width: 80px; height: 80px;">
-                                <i class="fas fa-users fa-2x"></i>
-                            </div>
-                            <h4 class="mt-4 fw-bold">No Team Members</h4>
-                            <p class="text-muted mb-4">You haven't joined any teams yet</p>
-                            @if (isProjectLeader)
-                            {
-                                <a asp-action="AddMember" asp-controller="Project"
-                                   asp-route-projectId="@leaderProjects.First().Project_pkId" class="btn btn-purple">
-                                    <i class="fas fa-user-plus me-2"></i>Add Members
-                                </a>
-                            }
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Project Filtering
-            const projectFilterLinks = document.querySelectorAll('[data-filter]');
-            projectFilterLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const filter = this.getAttribute('data-filter');
-                    const rows = document.querySelectorAll('tbody tr');
-
-                    rows.forEach(row => {
-                        const status = row.getAttribute('data-project-status');
-                        const role = row.getAttribute('data-project-role');
-
-                        if (filter === 'all') {
-                            row.style.display = '';
-                        }
-                        else if (filter === 'leader' && role === 'leader') {
-                            row.style.display = '';
-                        }
-                        else if (filter === 'member' && role === 'member') {
-                            row.style.display = '';
-                        }
-                        else if (filter === status) {
-                            row.style.display = '';
-                        }
-                        else {
-                            row.style.display = 'none';
-                        }
-                    });
-                });
-            });
-
-            // Team Filtering
-            const teamFilterLinks = document.querySelectorAll('[data-project-id]');
-            teamFilterLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const projectId = this.getAttribute('data-project-id');
-                    const memberCards = document.querySelectorAll('#teamMembersContainer > div');
-
-                    memberCards.forEach(card => {
-                        if (projectId === 'all' || card.getAttribute('data-project-id') === projectId) {
-                            card.style.display = '';
-                        } else {
-                            card.style.display = 'none';
-                        }
-                    });
-                });
-            });
-
-            // Initialize tooltips
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            });
-        });
-    </script>
-} *@
-@model ProjectManagementSystem.Models.StudentDashboardViewModel
-@using System.Linq
-@functions {
-    string ToMyanmarDigits(int number)
-    {
-        var myanmarDigits = new[] { '၀', '၁', '၂', '၃', '၄', '၅', '၆', '၇', '၈', '၉' };
-        return string.Concat(number.ToString("D6").Select(c => myanmarDigits[c - '0']));
-    }
-
-    string GetStatusBadgeClass(string status)
-    {
-        return status switch
-        {
-            "Approved" => "bg-success-light text-success",
-            "Rejected" => "bg-danger-light text-danger",
-            "Pending" => "bg-warning-light text-warning",
-            "Draft" => "bg-secondary-light text-secondary",
-            "Revision Required" => "bg-info-light text-info",
-            _ => "bg-primary-light text-primary"
-        };
-    }
-
-    bool IsProjectLeader(Project project, Student student)
-    {
-        return project.SubmittedByStudent_pkId == student.Student_pkId;
-    }
-}
-
-@{
-    ViewData["Title"] = "Student Dashboard";
-    Layout = "_Layout";
-
-    var leaderProjects = Model.LeaderProjects;
-    var isProjectLeader = leaderProjects.Any();
-}
-
-<div>
-    <partial name="_ProgressBarPartial" />
-</div>
-
-<style>
-    body {
-        background: linear-gradient(135deg, #e4eefd);
-        min-height: 100vh;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    :root {
-        --primary-color: #8c5dd1;
-        --primary-light: #f0e6ff;
-        --primary-dark: #6a3cb0;
-        --secondary-color: #6c757d;
-        --success-color: #28a745;
-        --info-color: #17a2b8;
-        --warning-color: #ffc107;
-        --danger-color: #dc3545;
-        --light-color: #f8f9fa;
-        --dark-color: #343a40;
-        --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        --transition: all 0.3s ease;
-    }
-
-    .bg-purple {
-        background-color: var(--primary-color) !important;
-    }
-
-    .btn-purple {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
-        color: white;
-    }
-
-    .btn-purple:hover {
-        background-color: var(--primary-dark);
-        border-color: var(--primary-dark);
-        color: white;
-    }
-
-    .btn-outline-purple {
-        color: var(--primary-color);
-        border-color: var(--primary-color);
-    }
-
-    .btn-outline-purple:hover {
-        background-color: var(--primary-color);
-        color: white;
-    }
-
-    .text-purple {
-        color: var(--primary-color) !important;
-    }
-
-    .avatar-profile {
-        width: 100px;
-        height: 100px;
-        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.5rem;
-        font-weight: bold;
-        margin: 0 auto;
-    }
-
-    .team-member-card {
-        transition: var(--transition);
-        border-left: 3px solid var(--primary-color);
-    }
-
-    .team-member-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .member-avatar {
-        width: 40px;
-        height: 40px;
-        background: var(--primary-light);
-        color: var(--primary-color);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-    }
-
-    .project-icon {
-        width: 40px;
-        height: 40px;
-        background: var(--primary-light);
-        color: var(--primary-color);
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .dropdown-item.active, .dropdown-item:active {
-        background-color: var(--primary-color);
-    }
-
-    .table-hover tbody tr:hover {
-        background-color: rgba(140, 93, 209, 0.05);
-    }
 
     /* Remove member button styles */
     .remove-member-btn {
@@ -778,6 +154,11 @@
         justify-content: center;
         padding: 0;
     }
+
+    .d-flex.flex-nowrap {
+        overflow-x: auto;
+    }
+
 </style>
 
 <div class="container-fluid px-4 py-4">
@@ -797,69 +178,69 @@
         }
     </div>
 
-    <!-- Stats Cards -->
-    <div class="row mb-4 g-4">
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase text-muted mb-2">Total Projects</h6>
-                            <h2 class="mb-0 fw-bold">@Model.SubmissionStatus.TotalProjects</h2>
-                        </div>
-                        <div class="project-icon">
-                            <i class="fas fa-project-diagram"></i>
-                        </div>
-                    </div>
+    <!-- Stats Cards in One Line -->
+    <div class="d-flex flex-nowrap gap-3 mb-4">
+        <div class="card border-0 shadow-sm flex-fill">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase text-muted mb-2">Total Projects</h6>
+                    <h2 class="mb-0 fw-bold">@Model.SubmissionStatus.TotalProjects</h2>
+                </div>
+                <div class="project-icon">
+                    <i class="fas fa-project-diagram"></i>
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase text-muted mb-2">Approved</h6>
-                            <h2 class="mb-0 fw-bold">@Model.SubmissionStatus.ApprovedProjects</h2>
-                        </div>
-                        <div class="project-icon bg-success-light text-success">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                    </div>
+
+        <div class="card border-0 shadow-sm flex-fill">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase text-muted mb-2">Approved</h6>
+                    <h2 class="mb-0 fw-bold">@Model.SubmissionStatus.ApprovedProjects</h2>
+                </div>
+                <div class="project-icon bg-success-light text-success">
+                    <i class="fas fa-check-circle"></i>
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase text-muted mb-2">Pending</h6>
-                            <h2 class="mb-0 fw-bold">@Model.SubmissionStatus.PendingProjects</h2>
-                        </div>
-                        <div class="project-icon bg-warning-light text-warning">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                    </div>
+
+        <div class="card border-0 shadow-sm flex-fill">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase text-muted mb-2">Pending</h6>
+                    <h2 class="mb-0 fw-bold">@Model.SubmissionStatus.PendingProjects</h2>
+                </div>
+                <div class="project-icon bg-warning-light text-warning">
+                    <i class="fas fa-clock"></i>
                 </div>
             </div>
         </div>
-        <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="text-uppercase text-muted mb-2">Team Members</h6>
-                            <h2 class="mb-0 fw-bold">@Model.TeamMembers.Count</h2>
-                        </div>
-                        <div class="project-icon bg-info-light text-info">
-                            <i class="fas fa-users"></i>
-                        </div>
-                    </div>
+
+        <div class="card border-0 shadow-sm flex-fill">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase text-muted mb-2">Rejected</h6>
+                    <h2 class="mb-0 fw-bold">@Model.SubmissionStatus.RejectedProjects</h2>
+                </div>
+                <div class="project-icon bg-danger-light text-danger">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm flex-fill">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase text-muted mb-2">Team Members</h6>
+                    <h2 class="mb-0 fw-bold">@Model.TeamMembers.Count</h2>
+                </div>
+                <div class="project-icon bg-info-light text-info">
+                    <i class="fas fa-users"></i>
                 </div>
             </div>
         </div>
     </div>
+
 
     <div class="row g-4">
         <!-- Profile Column -->
@@ -1052,13 +433,31 @@
                                                                 </a>
                                                             </li>
                                                             <li>
+                                                                <form asp-action="Delete" asp-route-id="@project.Project_pkId" method="post"
+                                                                      onsubmit="return confirm('Are you sure you want to delete this project?');">
+                                                                    <button type="submit" class="dropdown-item text-danger">
+                                                                        <i class="fas fa-trash-alt me-2"></i>Delete
+                                                                    </button>
+                                                                </form>
+                                                            </li>
+                                                            @* <li>
                                                                 <a class="dropdown-item text-danger" asp-action="Delete" asp-controller="Project"
                                                                    asp-route-id="@project.Project_pkId">
                                                                     <i class="fas fa-trash-alt me-2"></i>Delete
                                                                 </a>
+                                                            </li> *@
+                                                        }
+                                                        @if (project.Status == "Rejected" && IsProjectLeader(project, Model.Student))
+                                                        {
+                                                            <li>
+                                                                <a class="dropdown-item text-warning" asp-action="Edit" asp-controller="Project"
+                                                                   asp-route-id="@project.Project_pkId">
+                                                                    <i class="fas fa-redo me-2"></i>
+                                                                    @(project.Status == "Rejected" ? "Fix & Resubmit" : "Revise Project")
+                                                                </a>
                                                             </li>
                                                         }
-                                                        @if (project.Status == "Revision Required" && IsProjectLeader(project, Model.Student))
+                                                        @*  @if (project.Status == "Revision Required" && IsProjectLeader(project, Model.Student))
                                                         {
                                                             <li>
                                                                 <a class="dropdown-item text-warning" asp-action="Edit" asp-controller="Project"
@@ -1066,7 +465,7 @@
                                                                     <i class="fas fa-redo me-2"></i>Revise Project
                                                                 </a>
                                                             </li>
-                                                        }
+                                                        } *@
                                                     </ul>
                                                 </div>
                                             </td>
@@ -1159,7 +558,7 @@
                                                 </a>
                                                 @if (isProjectLeader && member.Role != "Leader")
                                                 {
-                                                    <form asp-action="RemoveMember" asp-controller="Project" method="post" 
+                                                    <form asp-action="RemoveMember" asp-controller="Project" method="post"
                                                           class="remove-member-form" data-member-name="@member.Student?.StudentName">
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" name="projectId" value="@member.Project_pkId" />
@@ -1265,7 +664,7 @@
                 form.addEventListener('submit', function(e) {
                     e.preventDefault();
                     const memberName = this.getAttribute('data-member-name');
-                    
+
                     Swal.fire({
                         title: 'Remove Team Member?',
                         html: `Are you sure you want to remove <b>${memberName}</b> from the project team?`,

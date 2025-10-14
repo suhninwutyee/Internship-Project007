@@ -14,7 +14,7 @@ namespace ProjectManagementSystem.ViewModels
         public int TotalProjects { get; set; }
         public int PendingProjectsCount { get; set; }
         public List<SubmissionStat> SubmissionStats { get; set; } = new List<SubmissionStat>();
-       
+
     }
 
     public class StudentSubmission
@@ -27,6 +27,7 @@ namespace ProjectManagementSystem.ViewModels
     public class SubmissionStat
     {
         public string Date { get; set; }
+        public string DisplayDate { get; set; } // Add this line
         public int Count { get; set; }
     }
 }

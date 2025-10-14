@@ -15,7 +15,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>@ViewData["Title"] - Internship Project System</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-  @*   <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" /> *@
+    @*   <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" /> *@
     <link rel="stylesheet" href="~/ProjectManagementSystem.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -57,6 +57,7 @@
 
         a, button {
             touch-action: manipulation;
+            transition: all 0.3s ease;
         }
 
         /* Announcement Banner */
@@ -448,12 +449,19 @@
         }
 
         .notification-badge {
-            background-color: #dc3545;
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: var(--accent-color);
             color: white;
             border-radius: 50%;
-            padding: 2px 6px;
-            font-size: 12px;
-            margin-left: 5px;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
         }
 
         /* Mobile */
@@ -528,6 +536,24 @@
             }
         }
 
+        .notification-icon {
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            margin-right: 1rem;
+        }
+
+            .notification-icon:hover {
+                transform: scale(1.1);
+            }
+
+        .top-bar {
+            display: flex;
+            justify-content: flex-end;
+            padding: 1rem;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
         /* Small Mobile */
         @@media (max-width: 575.98px) {
             .main-content {
@@ -559,7 +585,7 @@
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <i class="fas fa-project-diagram"></i> <span>Final Year Student Portal</span>
+            <i class="fas fa-user-graduate"></i> <span>Final Year Student Portal</span>
         </div>
         <ul class="sidebar-nav">
             <li>
@@ -568,12 +594,12 @@
                 </a>
             </li>
 
-            <!-- Project Submission Menu -->
-           @*  <li>
-                <a asp-area="" asp-controller="Project" asp-action="Upload">
-                    <i class="fas fa-cloud-upload-alt"></i> <span>Project Submission</span>
+
+            <li>
+                <a asp-area="" asp-controller="Project" asp-action="Index">
+                    <i class="fas fa-project-diagram"></i> <span>Projects</span>
                 </a>
-            </li> *@
+            </li>
 
             <!-- Manage Dropdown Menu -->
             <li>
@@ -581,9 +607,7 @@
                     <i class="fas fa-cog"></i> <span>Manage</span>
                 </a>
                 <div class="sidebar-dropdown collapse" id="manageDropdown">
-                    <a asp-area="" asp-controller="Project" asp-action="Index">
-                        <i class="fas fa-project-diagram"></i> <span>Projects</span>
-                    </a>
+
                     <a asp-area="" asp-controller="Language" asp-action="Index">
                         <i class="fas fa-code"></i> <span>Languages</span>
                     </a>
@@ -592,9 +616,9 @@
                         <i class="fas fa-cubes"></i> <span>Frameworks</span>
                     </a>
                     <a asp-area="" asp-controller="ProjectType" asp-action="Index">
-                        <i class="fas fa-cubes"></i> <span>ProjectTypes</span>
+                        <i class="fas fa-file"></i> <span>ProjectTypes</span>
                     </a>
-                  
+
                 </div>
             </li>
 
@@ -618,7 +642,7 @@
     <div class="main-content">
         <!-- Top Bar -->
         <div class="top-bar">
-            <div class="notification-icon position-relative">
+            @* <div class="notification-icon position-relative">
                 <i class="fas fa-bell fa-lg text-secondary"></i>
                 @if (User.Identity.IsAuthenticated)
                 {
@@ -637,7 +661,30 @@
                         </span>
                     }
                 }
+            </div> *@
+
+            <div class="notification-icon position-relative">
+                <i class="fas fa-bell fa-lg" style="color: #8c5dd1;"></i>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    var rollNumber = Context.Session.GetString("RollNumber");
+                    var student = await _context.Students
+                    .Include(s => s.Email)
+                    .FirstOrDefaultAsync(s => s.Email.RollNumber == rollNumber);
+
+                    if (student != null)
+                    {
+                        var notificationCount = await _context.Notifications
+                        .CountAsync(n => n.UserId == student.Student_pkId && !n.IsRead);
+
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
+                              style="background-color: #8c5dd1;">
+                            @notificationCount
+                        </span>
+                    }
+                }
             </div>
+
 
             @if (!string.IsNullOrEmpty(email))
             {
@@ -784,6 +831,22 @@
             }
 
             setActiveMenu();
+        });
+
+                $(document).ready(function() {
+            // Click handler for notification icon
+            $('.notification-icon').click(function() {
+                window.location.href = '@Url.Action("Index", "Notifications")';
+            });
+
+            // Update notification count every 30 seconds
+            setInterval(updateNotificationCount, 30000);
+
+            function updateNotificationCount() {
+                $.get('@Url.Action("GetUnreadCount", "Notifications")', function(data) {
+                    $('.notification-badge').text(data.count);
+                });
+            }
         });
     </script>
     @await RenderSectionAsync("Scripts", required: false)

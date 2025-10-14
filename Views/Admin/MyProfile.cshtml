@@ -5,120 +5,504 @@
     Layout = "~/Views/Shared/_TeacherLayout.cshtml";
 }
 
-<div class="container">
-    <h2>My Profile</h2>
-    <hr />
+<!DOCTYPE html>
+<html lang="en">
+<head>
 
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show">
-            @TempData["SuccessMessage"]
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+    <style>
+        :root {
+            --primary: #6366F1;
+            --primary-light: #A5B4FC;
+            --primary-dark: #4F46E5;
+            --secondary: #94A3B8;
+            --accent: #E0E7FF;
+            --dark: #1E293B;
+            --light: #F8FAFC;
+            --success: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #F1F5F9;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .profile-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+            .profile-container:hover {
+                box-shadow: var(--card-shadow-hover);
+                transform: translateY(-2px);
+            }
+
+        .profile-header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: white;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0 auto 1.25rem;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+            .profile-avatar:hover {
+                transform: scale(1.05);
+                box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+            }
+
+        .profile-name {
+            font-size: 1.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .profile-email {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1rem;
+            font-weight: 400;
+        }
+
+        .profile-role {
+            display: inline-block;
+            margin-top: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .profile-body {
+            padding: 2.5rem;
+        }
+
+        .profile-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-title {
+            color: var(--primary-dark);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+            .section-title i {
+                font-size: 1.1rem;
+            }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            background-color: white;
+        }
+
+            .form-control:focus {
+                border-color: var(--primary-light);
+                box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+                outline: none;
+            }
+
+            .form-control[readonly] {
+                background-color: #F8FAFC;
+                border-color: #E2E8F0;
+                color: #64748B;
+            }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background-color: var(--primary-dark);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 6px rgba(99, 102, 241, 0.25);
+            }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+            .btn-outline:hover {
+                background-color: rgba(99, 102, 241, 0.05);
+                transform: translateY(-1px);
+            }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .text-danger {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: block;
+        }
+
+        .status-message {
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            margin-bottom: 1.75rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border-left: 4px solid transparent;
+        }
+
+        .status-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-left-color: var(--success);
+        }
+
+        .status-error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border-left-color: var(--danger);
+        }
+
+        .password-field {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--secondary);
+            transition: all 0.2s ease;
+        }
+
+            .password-toggle:hover {
+                color: var(--primary);
+            }
+
+        .edit-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+            .edit-icon:hover {
+                color: var(--primary);
+            }
+
+        .input-with-edit {
+            position: relative;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge-primary {
+            background-color: var(--accent);
+            color: var(--primary-dark);
+        }
+
+        .badge-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        @@media (max-width: 768px) {
+            .profile-container {
+                margin: 1rem;
+                border-radius: 10px;
+            }
+
+            .profile-header {
+                padding: 2rem 1.5rem;
+            }
+
+            .profile-body {
+                padding: 1.75rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-avatar">@Model.FullName?[0].ToString().ToUpper()</div>
+            <h2 class="profile-name">@Model.FullName</h2>
+            <div class="profile-email">@Model.Email</div>
+            <div class="profile-role">Teacher</div>
         </div>
-    }
 
-    @if (!Model.IsEditMode)
-    {
-        <div class="card">
-            <div class="card-body">
-                <h4 class="card-title">Profile Information</h4>
-                <dl class="row">
-                    <dt class="col-sm-3">Full Name</dt>
-                    <dd class="col-sm-9">@Model.FullName</dd>
+        <div class="profile-body">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="status-message status-success">
+                    <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="status-message status-error">
+                    <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+                </div>
+            }
 
-                    <dt class="col-sm-3">Email</dt>
-                    <dd class="col-sm-9">@Model.Email</dd>
-                </dl>
+            <form asp-action="MyProfile" method="post">
+                <div class="profile-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-user-circle"></i> Personal Information
+                    </h3>
 
-                <form asp-action="ToggleEditMode" method="post">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-edit"></i> Edit Profile
-                    </button>
-                </form>
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="card">
-            <div class="card-body">
-                <h4 class="card-title">Edit Profile</h4>
-                <form asp-action="MyProfile" method="post">
-                    @Html.AntiForgeryToken()
-
-                    <div class="form-group row">
-                        <label asp-for="FullName" class="col-sm-3 col-form-label"></label>
-                        <div class="col-sm-9">
-                            <input asp-for="FullName" class="form-control" />
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" asp-for="FullName"></label>
+                            <div class="input-with-edit">
+                                <input asp-for="FullName" class="form-control" />
+                                <i class="fas fa-pencil-alt edit-icon"></i>
+                            </div>
                             <span asp-validation-for="FullName" class="text-danger"></span>
                         </div>
-                    </div>
 
-                    <div class="form-group row">
-                        <label asp-for="Email" class="col-sm-3 col-form-label"></label>
-                        <div class="col-sm-9">
+                        <div class="form-group">
+                            <label class="form-label" asp-for="Email"></label>
                             <input asp-for="Email" class="form-control" readonly />
                         </div>
                     </div>
+                </div>
 
-                    <hr />
-                    <h5>Change Password</h5>
-                    <p class="text-muted">Fill these fields only if you want to change your password</p>
+                @if (Model.IsEditMode)
+                {
+                    <div class="profile-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-key"></i> Change Password
+                        </h3>
 
-                    <div class="form-group row">
-                        <label asp-for="OldPassword" class="col-sm-3 col-form-label"></label>
-                        <div class="col-sm-9">
-                            <input asp-for="OldPassword" type="password" class="form-control" />
-                            <span asp-validation-for="OldPassword" class="text-danger"></span>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Current Password</label>
+                                <div class="password-field">
+                                    <input name="OldPassword" type="password" class="form-control" placeholder="Enter current password" />
+                                    <i class="fas fa-eye password-toggle" onclick="togglePassword(this)"></i>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">New Password</label>
+                                <div class="password-field">
+                                    <input name="NewPassword" type="password" class="form-control" placeholder="Enter new password" />
+                                    <i class="fas fa-eye password-toggle" onclick="togglePassword(this)"></i>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Confirm New Password</label>
+                                <div class="password-field">
+                                    <input name="ConfirmNewPassword" type="password" class="form-control" placeholder="Confirm new password" />
+                                    <i class="fas fa-eye password-toggle" onclick="togglePassword(this)"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                }
 
-                    <div class="form-group row">
-                        <label asp-for="NewPassword" class="col-sm-3 col-form-label"></label>
-                        <div class="col-sm-9">
-                            <input asp-for="NewPassword" type="password" class="form-control" />
-                            <span asp-validation-for="NewPassword" class="text-danger"></span>
+                <div class="profile-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-info-circle"></i> Account Information
+                    </h3>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Account Status</label>
+                            <div>
+                                <span class="badge badge-success">Active</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Last Login</label>
+                            <input type="text" class="form-control" value="@DateTime.Now.AddDays(-1).ToString("MMMM dd, yyyy hh:mm tt")" readonly />
                         </div>
                     </div>
+                </div>
 
-                    <div class="form-group row">
-                        <label asp-for="ConfirmPassword" class="col-sm-3 col-form-label"></label>
-                        <div class="col-sm-9">
-                            <input asp-for="ConfirmPassword" type="password" class="form-control" />
-                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                        </div>
-                    </div>
-
-                    <div class="form-group row">
-                        <div class="col-sm-9 offset-sm-3">
-                            <button type="submit" class="btn btn-success mr-2">
-                                <i class="fas fa-save"></i> Save Changes
-                            </button>
-                            <a asp-action="MyProfile" class="btn btn-secondary">
-                                <i class="fas fa-times"></i> Cancel
-                            </a>
-                        </div>
-                    </div>
-                </form>
-            </div>
+                <div class="action-buttons">
+                    @if (Model.IsEditMode)
+                    {
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                        <a asp-action="MyProfile" class="btn btn-outline">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-action="MyProfile" asp-route-isEditMode="true" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </a>
+                    }
+                </div>
+            </form>
         </div>
-    }
-</div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    </div>
 
     <script>
-        // Close the alert after 5 seconds
-        $(document).ready(function() {
-            setTimeout(function() {
-                $(".alert").alert('close');
-            }, 5000);
+        // Toggle password visibility
+        function togglePassword(icon) {
+            const input = icon.previousElementSibling;
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        }
+
+        // Focus effect for form inputs
+        document.addEventListener('DOMContentLoaded', function () {
+            const formControls = document.querySelectorAll('.form-control');
+            formControls.forEach(control => {
+                // Add focus effect
+                control.addEventListener('focus', function () {
+                    this.parentElement.querySelector('.form-label').style.color = 'var(--primary-dark)';
+                    if (this.readOnly) return;
+                    const editIcon = this.parentElement.querySelector('.edit-icon');
+                    if (editIcon) editIcon.style.color = 'var(--primary)';
+                });
+
+                // Remove focus effect
+                control.addEventListener('blur', function () {
+                    this.parentElement.querySelector('.form-label').style.color = '';
+                    const editIcon = this.parentElement.querySelector('.edit-icon');
+                    if (editIcon) editIcon.style.color = 'var(--secondary)';
+                });
+
+                // Click edit icon to focus input
+                const editIcon = control.parentElement.querySelector('.edit-icon');
+                if (editIcon) {
+                    editIcon.addEventListener('click', function() {
+                        control.focus();
+                    });
+                }
+            });
+
+            // Add hover effect to buttons
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    if (!this.classList.contains('btn-primary')) return;
+                    this.style.boxShadow = '0 4px 6px rgba(99, 102, 241, 0.25)';
+                });
+                btn.addEventListener('mouseleave', function() {
+                    this.style.boxShadow = '';
+                });
+            });
         });
     </script>
-}
+</body>
+</html>

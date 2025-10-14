@@ -10,8 +10,6 @@ namespace ProjectManagementSystem.Models
         [Key] // Explicitly define as primary key
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)] // Auto-increment
         public int Notification_pkId { get; set; }
-        [Key]
-        public int NotificationId { get; set; }
 
         public int UserId { get; set; } // Student_pkId (foreign key)
 

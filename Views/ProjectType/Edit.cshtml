@@ -1,237 +1,74 @@
 ﻿@model ProjectType
+
 @{
-    ViewData["Title"] = "Edit ProjectType";
-    Layout = "~/Views/Student/_Layout.cshtml";
+    ViewData["Title"] = "Edit Project Type";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<div class="edit-form-container">
-    <!-- Cute header with icon -->
-    <div class="form-header">
-        <div class="form-icon">✏️</div>
-        <h2>Edit Project Type</h2>
-        <p class="subtitle">Update academic category details</p>
+
+<section class="py-5 d-flex justify-content-center align-items-center" style="background-color: #EFEFEF; min-height: 100vh;">
+    <div class="card shadow-lg border-0 rounded-4 p-4" style="max-width: 500px; width: 100%; animation: fadeIn 0.6s ease-out;">
+        <div class="text-center mb-4">
+            <div class="display-5 mb-2" style="animation: bounce 2s infinite;">✏️</div>
+            <h2 class="fw-bold text-primary" style="color: #8C5DD1;">Edit Project Type</h2>
+            <p class="text-muted mb-0">Update academic category details</p>
+        </div>
+
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="ProjectType_pkId" />
+
+            <div class="mb-3">
+                <label asp-for="TypeName" class="form-label fw-semibold" style="color: #8C5DD1;"></label>
+                <input asp-for="TypeName" class="form-control rounded-3" placeholder="e.g. Undergraduate Research, Capstone Project" />
+                <span asp-validation-for="TypeName" class="text-danger small mt-1 d-block"></span>
+            </div>
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn text-white fw-semibold w-100" style="background-color: #8C5DD1;">
+                    💾 Save Changes
+                </button>
+                <a asp-action="Index" class="btn btn-light fw-semibold w-100 text-primary" style="background-color: #E4EEFD;">
+                    ← Cancel
+                </a>
+            </div>
+        </form>
     </div>
-
-    <!-- Simplified form -->
-    <form asp-action="Edit" class="project-form">
-        <input type="hidden" asp-for="ProjectType_pkId" />
-
-        <div class="form-group">
-            <label asp-for="TypeName">Type Name</label>
-            <input asp-for="TypeName" class="form-input"
-                   placeholder="e.g. Undergraduate Research, Capstone Project" />
-            <span asp-validation-for="TypeName" class="validation-message"></span>
-        </div>
-
-        <div class="form-actions">
-            <button type="submit" class="save-button">
-                <span class="button-icon">💾</span>
-                Save Changes
-            </button>
-            <a asp-action="Index" class="cancel-button">
-                <span class="button-icon">←</span>
-                Cancel
-            </a>
-        </div>
-    </form>
-</div>
+</section>
 
 <style>
-    :root {
-        --primary: #8C5DD1;
-        --light: #E4EEFD;
-        --neutral: #EFEFEF;
-        --gray: #C8C6C1;
-        --white: #FFFFFF;
-    }
-
-    body {
-        font-family: 'Segoe UI', sans-serif;
-        background-color: var(--neutral);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        margin: 0;
-        padding: 20px;
-    }
-
-    .edit-form-container {
-        max-width: 500px;
-        width: 100%;
-        background: var(--white);
-        border-radius: 20px;
-        padding: 30px;
-        box-shadow: 0 10px 30px rgba(140, 93, 209, 0.1);
-        animation: fadeIn 0.6s ease-out;
-    }
-
-    .form-header {
-        text-align: center;
-        margin-bottom: 30px;
-    }
-
-    .form-icon {
-        font-size: 2.5rem;
-        margin-bottom: 15px;
-        animation: bounce 2s infinite;
-    }
-
-    h2 {
-        color: var(--primary);
-        margin: 0 0 10px 0;
-        font-size: 1.8rem;
-    }
-
-    .subtitle {
-        color: var(--gray);
-        margin: 0;
-        font-size: 1rem;
-    }
-
-    .project-form {
-        display: flex;
-        flex-direction: column;
-        gap: 25px;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    label {
-        font-weight: 600;
-        color: var(--primary);
-        font-size: 0.95rem;
-    }
-
-    .form-input {
-        padding: 15px;
-        border: 2px solid var(--gray);
-        border-radius: 10px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(140, 93, 209, 0.2);
-        }
-
-    .validation-message {
-        color: #ff4757;
-        font-size: 0.85rem;
-        margin-top: 5px;
-    }
-
-    .form-actions {
-        display: flex;
-        gap: 15px;
-        margin-top: 20px;
-    }
-
-    .save-button {
-        flex: 1;
-        padding: 12px;
-        background: var(--primary);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-
-        .save-button:hover {
-            background: #7a4bc3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(140, 93, 209, 0.2);
-        }
-
-    .cancel-button {
-        flex: 1;
-        padding: 12px;
-        background: var(--light);
-        color: var(--primary);
-        border: none;
-        border-radius: 10px;
-        font-weight: 600;
-        text-decoration: none;
-        text-align: center;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-    }
-
-        .cancel-button:hover {
-            background: #d9e4fc;
-            transform: translateY(-2px);
-        }
-
-    .button-icon {
-        font-size: 1.1rem;
-    }
-
-    /* Animations */
     @@keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
+        from
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
     }
 
     @@keyframes bounce {
-        0%, 100% {
-            transform: translateY(0);
-        }
+        0%, 100%
 
-        50% {
-            transform: translateY(-5px);
-        }
+    {
+        transform: translateY(0);
     }
 
-    /* Responsive */
+    50% {
+        transform: translateY(-5px);
+    }
+
+    }
+
     @@media (max-width: 600px) {
-        .edit-form-container {
-            padding: 25px;
-        }
+        .card
 
-        h2 {
-            font-size: 1.5rem;
-        }
+    {
+        padding: 1.5rem !important;
+    }
 
-        .form-actions {
-            flex-direction: column;
-        }
     }
 </style>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add focus effect to input
-        const input = document.querySelector('.form-input');
-
-        input.addEventListener('focus', function() {
-            this.style.borderColor = 'var(--primary)';
-            this.parentNode.querySelector('label').style.color = '#6a3db1';
-        });
-
-        input.addEventListener('blur', function() {
-            this.style.borderColor = 'var(--gray)';
-            this.parentNode.querySelector('label').style.color = 'var(--primary)';
-        });
-    });
-</script>

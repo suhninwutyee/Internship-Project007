@@ -39,6 +39,9 @@ namespace ProjectManagementSystem.Migrations
                     b.Property<DateTime?>("ExpiryDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -371,185 +374,6 @@ namespace ProjectManagementSystem.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ProjectManagementSystem.Models.AcademicYear", b =>
-                {
-                    b.Property<int>("AcademicYear_pkId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AcademicYear_pkId"));
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("YearRange")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.HasKey("AcademicYear_pkId");
-
-                    b.ToTable("AcademicYears");
-
-                    b.HasData(
-                        new
-                        {
-                            AcademicYear_pkId = 2025,
-                            IsActive = true,
-                            YearRange = "2024-2025"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2024,
-                            IsActive = true,
-                            YearRange = "2023-2024"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2023,
-                            IsActive = true,
-                            YearRange = "2022-2023"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2022,
-                            IsActive = true,
-                            YearRange = "2021-2022"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2021,
-                            IsActive = true,
-                            YearRange = "2020-2021"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2020,
-                            IsActive = true,
-                            YearRange = "2019-2020"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2019,
-                            IsActive = true,
-                            YearRange = "2018-2019"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2018,
-                            IsActive = true,
-                            YearRange = "2017-2018"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2017,
-                            IsActive = true,
-                            YearRange = "2016-2017"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2016,
-                            IsActive = true,
-                            YearRange = "2015-2016"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2015,
-                            IsActive = true,
-                            YearRange = "2014-2015"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2014,
-                            IsActive = true,
-                            YearRange = "2013-2014"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2013,
-                            IsActive = true,
-                            YearRange = "2012-2013"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2012,
-                            IsActive = true,
-                            YearRange = "2011-2012"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2011,
-                            IsActive = true,
-                            YearRange = "2010-2011"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2010,
-                            IsActive = true,
-                            YearRange = "2009-2010"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2009,
-                            IsActive = true,
-                            YearRange = "2008-2009"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2008,
-                            IsActive = true,
-                            YearRange = "2007-2008"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2007,
-                            IsActive = true,
-                            YearRange = "2006-2007"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2006,
-                            IsActive = true,
-                            YearRange = "2005-2006"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2005,
-                            IsActive = true,
-                            YearRange = "2004-2005"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2004,
-                            IsActive = true,
-                            YearRange = "2003-2004"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2003,
-                            IsActive = true,
-                            YearRange = "2002-2003"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2002,
-                            IsActive = true,
-                            YearRange = "2001-2002"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2001,
-                            IsActive = true,
-                            YearRange = "2000-2001"
-                        },
-                        new
-                        {
-                            AcademicYear_pkId = 2000,
-                            IsActive = true,
-                            YearRange = "1999-2000"
-                        });
-                });
-
             modelBuilder.Entity("ProjectManagementSystem.Models.AdminActivityLog", b =>
                 {
                     b.Property<int>("Id")
@@ -609,6 +433,9 @@ namespace ProjectManagementSystem.Migrations
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsUsingDefaultPassword")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -771,8 +598,8 @@ namespace ProjectManagementSystem.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<DateTimeOffset>("CreatedDate")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("EmailAddress")
                         .IsRequired()
@@ -898,45 +725,10 @@ namespace ProjectManagementSystem.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Notification_pkId"));
 
-                    b.Property<DateTime>("CreatedDate")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NotificationType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Notification_pkId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Notifications");
-                });
-
-            modelBuilder.Entity("ProjectManagementSystem.Models.Notification", b =>
-                {
-                    b.Property<int>("NotificationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationId"));
-
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedDate")
@@ -952,12 +744,27 @@ namespace ProjectManagementSystem.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("NotificationType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<int>("Project_pkId")
                         .HasColumnType("int");
 
-                    b.HasKey("NotificationId");
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Notification_pkId");
 
                     b.HasIndex("Project_pkId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Notifications");
                 });
@@ -1022,6 +829,9 @@ namespace ProjectManagementSystem.Migrations
 
                     b.Property<int?>("Framework_pkId")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsApprovedByTeacher")
+                        .HasColumnType("bit");
 
                     b.Property<bool?>("IsDeleted")
                         .HasColumnType("bit");
@@ -1123,11 +933,6 @@ namespace ProjectManagementSystem.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProjectMember_pkId"));
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("Role")
                         .IsRequired()
@@ -1349,16 +1154,6 @@ namespace ProjectManagementSystem.Migrations
                     b.Navigation("AcademicYear");
                 });
 
-            modelBuilder.Entity("ProjectManagementSystem.Models.Email", b =>
-                {
-                    b.HasOne("ProjectManagementSystem.Models.AcademicYear", "AcademicYear")
-                        .WithMany()
-                        .HasForeignKey("AcademicYear_pkId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("AcademicYear");
-                });
-
             modelBuilder.Entity("ProjectManagementSystem.Models.Framework", b =>
                 {
                     b.HasOne("ProjectManagementSystem.Models.Language", "Language")
@@ -1370,22 +1165,12 @@ namespace ProjectManagementSystem.Migrations
                     b.Navigation("Language");
                 });
 
-            modelBuilder.Entity("ProjectManagementSystem.Models.Notification", b =>
-                {
-                    b.HasOne("ProjectManagementSystem.Models.Student", "Student")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Student");
-                });
-
             modelBuilder.Entity("ProjectManagementSystem.Models.Language", b =>
                 {
                     b.HasOne("ProjectManagementSystem.Models.ProjectType", "ProjectType")
                         .WithMany("Languages")
-                        .HasForeignKey("ProjectType_pkId");
+                        .HasForeignKey("ProjectType_pkId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("ProjectType");
                 });
@@ -1398,7 +1183,15 @@ namespace ProjectManagementSystem.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ProjectManagementSystem.Models.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Project");
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("ProjectManagementSystem.Models.Project", b =>

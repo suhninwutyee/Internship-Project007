@@ -86,7 +86,7 @@ using (var scope = app.Services.CreateScope())
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Admin}/{action=Login}/{id?}");
+    pattern: "{controller=Public}/{action=Index}/{id?}");
 
 
 app.Run(); 
