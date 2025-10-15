@@ -27,5 +27,7 @@ namespace ProjectManagementSystem.Models
 
         public ICollection<Announcement>? Announcements { get; set; }
 
+        //public ICollection<Notification>? Notifications { get; set; }
+
     }
 }

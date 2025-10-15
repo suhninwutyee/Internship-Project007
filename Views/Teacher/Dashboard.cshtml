@@ -10,7 +10,6 @@
     var greeting = currentHour < 12 ? "Good Morning" :
                   currentHour < 17 ? "Good Afternoon" : "Good Evening";
 
-    // Serialize chart data
     var chartData = new
     {
         dates = Model.SubmissionStats?.Select(s => s.Date) ?? Enumerable.Empty<string>(),
@@ -19,11 +18,128 @@
     var serializedChartData = JsonSerializer.Serialize(chartData);
 }
 
-<div class="container-fluid">
+<style>
+    body {
+        background: linear-gradient(135deg, #e4eefd, #f9f9ff);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #333;
+    }
+
+    .dashboard-header h1 {
+        color: #8C5DD1;
+    }
+
+    .stat-card {
+        background: #fff;
+        border-radius: 15px;
+        padding: 20px;
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+        box-shadow: 0 8px 20px rgba(140, 93, 209, 0.1);
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(140, 93, 209, 0.2);
+        }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #fff;
+        font-size: 1.4rem;
+        margin-bottom: 10px;
+    }
+
+    .bg-primary {
+        background-color: #8C5DD1 !important;
+    }
+
+    .bg-warning {
+        background-color: #FFB74D !important;
+    }
+
+    .bg-danger {
+        background-color: #FF6B6B !important;
+    }
+
+    .stat-title {
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 5px;
+        color: #555;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #8C5DD1;
+    }
+
+    .announcement-card {
+        max-height: 220px;
+        overflow-y: auto;
+    }
+
+    .announcement-message p {
+        margin: 0;
+    }
+
+    .activity-card {
+        background: #fff;
+        border-radius: 15px;
+        padding: 15px;
+        box-shadow: 0 8px 20px rgba(140, 93, 209, 0.05);
+    }
+
+        .activity-card .card-header {
+            font-weight: 600;
+            color: #8C5DD1;
+            border-bottom: none;
+            font-size: 1.1rem;
+        }
+
+    .badge-custom {
+        background-color: #8C5DD1;
+        color: #fff;
+        border-radius: 10px;
+        padding: 0.3em 0.6em;
+        font-size: 0.8rem;
+    }
+
+    .chart-container {
+        background: #fff;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 8px 20px rgba(140, 93, 209, 0.05);
+    }
+
+    table.table {
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+        table.table th, table.table td {
+            vertical-align: middle !important;
+        }
+
+        table.table th {
+            background-color: #f7f7ff;
+            color: #555;
+            font-weight: 600;
+        }
+</style>
+
+<div class="container-fluid py-4">
     <!-- Dashboard Header -->
     <div class="dashboard-header d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="fw-bold text-primary">Dashboard Overview</h1>
+            <h1 class="fw-bold">Dashboard Overview</h1>
             <p class="text-muted mb-0">@greeting! Today is @DateTime.Now.ToString("MMMM dd, yyyy")</p>
         </div>
     </div>
@@ -132,7 +248,7 @@
     </div>
 
     <!-- Recent Submissions -->
-    <div class="row">
+    @* <div class="row">
         <div class="col-12">
             <div class="activity-card">
                 <div class="card-header">Recent Submissions</div>
@@ -173,9 +289,8 @@
             </div>
         </div>
     </div>
-</div>
+</div> *@
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {

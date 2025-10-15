@@ -116,6 +116,7 @@ namespace ProjectManagementSystem.Controllers
         //}
 
 
+        [HttpGet]
         // GET: Project/Upload/5
         public async Task<IActionResult> Upload(int id)
         {
@@ -156,10 +157,69 @@ namespace ProjectManagementSystem.Controllers
 
 
 
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Upload(int Project_pkId)
+        //{
+        //    // Check if submissions are blocked
+        //    var activeBlock = _context.Announcements.Any(a => a.BlocksSubmissions && a.IsActive);
+        //    if (activeBlock)
+        //    {
+        //        TempData["Error"] = "Project submissions are temporarily blocked by the teacher.";
+        //        return RedirectToAction("StudentView", "Announcement");
+        //    }
+
+        //    var existingProject = await _context.Projects
+        //        .Include(p => p.Language)
+        //        .Include(p => p.ProjectType)
+        //        .Include(p => p.Framework)
+        //        .Include(p => p.Company)
+        //        .Include(p => p.ProjectMembers)
+        //            .ThenInclude(pm => pm.Student)
+        //        .FirstOrDefaultAsync(p => p.Project_pkId == Project_pkId);
+
+        //    if (existingProject == null)
+        //        return NotFound();
+
+        //    // Prevent multiple uploads
+        //    if (existingProject.Status == "Pending" || existingProject.Status == "Approved")
+        //    {
+        //        TempData["Error"] = "You cannot upload again. Wait for teacher feedback.";
+        //        return RedirectToAction(nameof(Index));
+        //    }
+
+        //    // Mark project as submitted
+        //    existingProject.Status = "Pending";
+        //    existingProject.ProjectSubmittedDate = DateTime.Now;
+
+        //    var leader = existingProject.ProjectMembers.FirstOrDefault(pm => pm.Role == "Leader")?.Student;
+        //    var leaderName = leader?.StudentName ?? "Unknown Student";
+
+        //    // Create notification for each team member
+        //    foreach (var member in existingProject.ProjectMembers)
+        //    {
+        //        var notification = new Notification
+        //        {
+        //            UserId = member.Student.Student_pkId,
+        //            Title = "Project Submitted",
+        //            Message = $"Your project '{existingProject.ProjectName}' has been submitted and is pending approval.",
+        //            CreatedAt = DateTime.Now,
+        //            IsRead = false,
+        //            NotificationType = "ProjectStatus",
+        //            Project_pkId = existingProject.Project_pkId
+        //        };
+        //        _context.Notifications.Add(notification);
+        //    }
+
+        //    await _context.SaveChangesAsync();
+
+        //    TempData["Success"] = "Project submitted successfully!";
+        //    return RedirectToAction(nameof(Index));
+        //}
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [HttpPost]
-        public async Task<IActionResult> UploadProj(int Project_pkId)
+        public async Task<IActionResult> Upload(Project project)
         {
             // Check if submissions are blocked
             var activeBlock = _context.Announcements.Any(a => a.BlocksSubmissions && a.IsActive);
@@ -176,7 +236,7 @@ namespace ProjectManagementSystem.Controllers
                 .Include(p => p.Company)
                 .Include(p => p.ProjectMembers)
                     .ThenInclude(pm => pm.Student)
-                .FirstOrDefaultAsync(p => p.Project_pkId == Project_pkId);
+                .FirstOrDefaultAsync(p => p.Project_pkId == project.Project_pkId);
 
             if (existingProject == null)
                 return NotFound();
@@ -192,9 +252,6 @@ namespace ProjectManagementSystem.Controllers
             existingProject.Status = "Pending";
             existingProject.ProjectSubmittedDate = DateTime.Now;
 
-            var leader = existingProject.ProjectMembers.FirstOrDefault(pm => pm.Role == "Leader")?.Student;
-            var leaderName = leader?.StudentName ?? "Unknown Student";
-
             // Create notification for each team member
             foreach (var member in existingProject.ProjectMembers)
             {
@@ -205,14 +262,14 @@ namespace ProjectManagementSystem.Controllers
                     Message = $"Your project '{existingProject.ProjectName}' has been submitted and is pending approval.",
                     CreatedAt = DateTime.Now,
                     IsRead = false,
-                    NotificationType = "ProjectStatus",
-                    Project_pkId = existingProject.Project_pkId
+                    NotificationType = "ProjectStatus"
                 };
                 _context.Notifications.Add(notification);
             }
 
             await _context.SaveChangesAsync();
 
+            TempData["UploadSuccess"] = "Project successfully uploaded and sent to teacher.";
             TempData["Success"] = "Project submitted successfully!";
             return RedirectToAction(nameof(Index));
         }

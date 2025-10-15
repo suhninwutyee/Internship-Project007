@@ -42,10 +42,13 @@ namespace ProjectManagementSystem.Models
         public int? Project_pkId { get; set; }
         public virtual Project Project { get; set; }
 
-        // Foreign key to AdminActivityLog
-        public int? AdminActivityLogId { get; set; }
-        [ForeignKey(nameof(AdminActivityLogId))]
-        public AdminActivityLog? Admin { get; set; }
+        //public int? AdminActivityLogId { get; set; }
+
+        //// Foreign key to AdminActivityLog
+        //[ForeignKey(nameof(AdminActivityLogId))]
+        
+        
+        //public virtual AdminActivityLog? Admin { get; set; }
         public bool IsRead { get; set; }
     }
 }

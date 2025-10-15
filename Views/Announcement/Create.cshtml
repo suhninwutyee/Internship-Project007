@@ -5,51 +5,59 @@
     Layout = "~/Views/Shared/_TeacherLayout.cshtml";
 }
 
-<h3>Create Announcement</h3>
+<div class="announcement-container">
+    <div class="announcement-card">
+        <h3 class="announcement-title">Create Announcement</h3>
 
-<form asp-action="Create" enctype="multipart/form-data" method="post">
-    <div class="mb-3">
-        <label asp-for="Title" class="form-label"></label>
-        <input asp-for="Title" class="form-control" />
-        <span asp-validation-for="Title" class="text-danger"></span>
+        <form asp-action="Create" enctype="multipart/form-data" method="post" class="announcement-form">
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label"></label>
+                <input asp-for="Title" class="form-control input-field" />
+                <span asp-validation-for="Title" class="text-danger validation-message"></span>
             </div>
 
-    <div class="mb-3">
-        <label asp-for="Message" class="form-label"></label>
-        <textarea asp-for="Message" class="form-control" rows="4"></textarea>
-        <span asp-validation-for="Message" class="text-danger"></span>
+            <div class="mb-3">
+                <label asp-for="Message" class="form-label"></label>
+                <textarea asp-for="Message" class="form-control input-field textarea-field"></textarea>
+                <span asp-validation-for="Message" class="text-danger validation-message"></span>
             </div>
 
-    <div class="row">
-        <div class="col-md-4 mb-3">
-            <label asp-for="StartDate"></label>
-            <input asp-for="StartDate" type="date" class="form-control" />
-                    </div>
-        <div class="col-md-4 mb-3">
-            <label asp-for="ExpiryDate"></label>
-            <input asp-for="ExpiryDate" type="date" class="form-control" />
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="StartDate" class="form-label"></label>
+                    <input asp-for="StartDate" type="date" class="form-control input-field" />
                 </div>
-        <div class="col-md-4 mb-3 form-check mt-4">
-            <input asp-for="BlocksSubmissions" class="form-check-input" />
-            <label asp-for="BlocksSubmissions" class="form-check-label"></label>
-                    </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="ExpiryDate" class="form-label"></label>
+                    <input asp-for="ExpiryDate" type="date" class="form-control input-field" />
+                </div>
+                <div class="col-md-4 mb-3 form-check mt-4">
+                    <input asp-for="BlocksSubmissions" class="form-check-input checkbox-input" />
+                    <label asp-for="BlocksSubmissions" class="form-check-label checkbox-label"></label>
                 </div>
             </div>
 
-    <div class="mb-3">
-        <label asp-for="Attachment" class="form-label"></label>
-        <input asp-for="Attachment" type="file" class="form-control" accept=".pdf,.jpg,.png,.jpeg" />
-        <span asp-validation-for="Attachment" class="text-danger"></span>
+            <div class="mb-3">
+                <label asp-for="Attachment" class="form-label"></label>
+                <input asp-for="Attachment" type="file" class="form-control input-field" accept=".pdf,.jpg,.png,.jpeg" />
+                <span asp-validation-for="Attachment" class="text-danger validation-message"></span>
             </div>
 
-    <button type="submit" class="btn btn-success">Save</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            <div class="button-group">
+                <button type="submit" class="btn submit-button">Save</button>
+                <a asp-action="Index" class="btn cancel-button">Cancel</a>
+            </div>
         </form>
     </div>
 </div>
 
 @section Styles {
     <style>
+        body {
+            background: linear-gradient(135deg, #e4eefd, #f9f9ff);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
         .announcement-container {
             max-width: 800px;
             margin: 2rem auto;
@@ -58,42 +66,37 @@
 
         .announcement-card {
             background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(140, 93, 209, 0.1);
             padding: 2.5rem;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
             .announcement-card:hover {
-                transform: translateY(-2px);
+                transform: translateY(-3px);
+                box-shadow: 0 12px 25px rgba(140, 93, 209, 0.15);
             }
 
         .announcement-title {
             color: #8C5DD1;
-            margin-bottom: 1.5rem;
-            font-weight: 600;
             text-align: center;
+            font-weight: 600;
             font-size: 1.8rem;
-        }
-
-        .announcement-form {
-            margin-top: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .form-label {
             color: #5a5a5a;
             font-weight: 500;
             margin-bottom: 0.5rem;
-            display: block;
         }
 
         .input-field {
             border: 1px solid #C8C6C1;
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 0.75rem 1rem;
-            font-size: 1rem;
-            transition: all 0.3s ease;
             background-color: #f9f9f9;
+            transition: all 0.3s ease;
         }
 
             .input-field:focus {
@@ -123,8 +126,6 @@
         .checkbox-label {
             color: #5a5a5a;
             font-weight: 400;
-            cursor: pointer;
-            user-select: none;
         }
 
         .button-group {
@@ -137,59 +138,55 @@
         .submit-button {
             background-color: #8C5DD1;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 0.75rem 1.5rem;
             font-weight: 500;
+            color: #fff;
             transition: all 0.3s ease;
         }
 
             .submit-button:hover {
                 background-color: #7a4bc2;
-                transform: translateY(-1px);
+                transform: translateY(-2px);
             }
 
         .cancel-button {
             background-color: #C8C6C1;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 0.75rem 1.5rem;
             font-weight: 500;
-            transition: all 0.3s ease;
             color: #333;
+            transition: all 0.3s ease;
         }
 
             .cancel-button:hover {
                 background-color: #b5b3af;
-                transform: translateY(-1px);
+                transform: translateY(-2px);
             }
-
-        .validation-summary {
-            color: #dc3545;
-            background-color: #f8d7da;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-        }
 
         .validation-message {
             font-size: 0.85rem;
             margin-top: 0.25rem;
+            color: #dc3545;
         }
 
-        /* Responsive adjustments */
         @@media (max-width: 768px) {
-            .announcement-card {
-                padding: 1.5rem;
-            }
+            .announcement-card
 
-            .button-group {
-                flex-direction: column;
-                gap: 0.75rem;
-            }
+        {
+            padding: 1.5rem;
+        }
 
-            .submit-button, .cancel-button {
-                width: 100%;
-            }
+        .button-group {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .submit-button, .cancel-button {
+            width: 100%;
+        }
+
         }
     </style>
 }

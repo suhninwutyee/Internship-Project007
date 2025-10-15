@@ -40,7 +40,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<AcademicYear> AcademicYears { get; set; }
 
 
-    public DbSet<AdminActivityLog> AdminActivityLog { get; set; }
+    //public DbSet<AdminActivityLog> AdminActivityLog { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -59,7 +59,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
-        
+     //   modelBuilder.Entity<AdminActivityLog>()
+     //.HasMany(pm => pm.Notifications)
+     //.WithOne(p => p.Admin)
+     //.HasForeignKey(p => p.AdminActivityLogId)
+     //.OnDelete(DeleteBehavior.Cascade);
+
 
         var years = new List<AcademicYear>();
         for (int year = DateTime.Now.Year; year >= 2000; year--)
