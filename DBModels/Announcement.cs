@@ -1,0 +1,29 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace ProjectManagementSystem.DBModels;
+
+public partial class Announcement
+{
+    public int AnnouncementId { get; set; }
+
+    public string Title { get; set; } = null!;
+
+    public string Message { get; set; } = null!;
+
+    public DateTime CreatedDate { get; set; }
+
+    public DateTime StartDate { get; set; }
+
+    public DateTime? ExpiryDate { get; set; }
+
+    public bool BlocksSubmissions { get; set; }
+
+    public string? FilePath { get; set; }
+
+    public bool IsActive { get; set; }
+
+    public int? AdminActivityLogId { get; set; }
+
+    public virtual AdminActivityLog? AdminActivityLog { get; set; }
+}
