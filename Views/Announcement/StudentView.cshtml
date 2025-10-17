@@ -1,48 +1,79 @@
-﻿@model IEnumerable<Announcement>
-
-<h4>📢 Announcements</h4>
-
-@if (!Model.Any())
-{
-    <div class="alert alert-info text-center">No active announcements</div>
+﻿@model IEnumerable<ProjectManagementSystem.Models.AnnouncementViewModel>
+@{
+    ViewData["Title"] = "Announcements";
+    Layout = "_Layout";
 }
-else
-{
-    @foreach (var item in Model)
+
+<style>
+    body {
+        background: linear-gradient(135deg, #e4eefd, #ffffff);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .announcement-card {
+        border-radius: 16px;
+        transition: all 0.3s ease;
+    }
+
+        .announcement-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+        }
+
+    .announcement-title {
+        color: #8C5DD1;
+        font-weight: 600;
+    }
+
+    .date-text {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+</style>
+
+<div class="container py-5">
+    <h3 class="mb-4 fw-bold text-center" style="color: #8C5DD1;">
+        <i class="bi bi-megaphone-fill me-2"></i> Latest Announcements
+    </h3>
+
+    @if (!Model.Any())
     {
-        <div class="card mb-3 shadow-sm">
-            <div class="card-body">
-                <h5>@item.Title</h5>
-                <p>@item.Message</p>
-
-                @if (!string.IsNullOrEmpty(item.FilePath))
-                {
-                    <p>
-                        📎 <a href="@item.FilePath" target="_blank">View Attachment</a>
-                    </p>
-                }
-
-                <small class="text-muted">
-                    Posted: @item.CreatedDate.ToShortDateString()
-                    Valid: @item.StartDate.ToShortDateString() → @(item.ExpiryDate?.ToShortDateString() ?? "∞")
-                </small>
-            </div>
+        <div class="alert alert-info text-center mt-4">
+            <i class="bi bi-info-circle me-2"></i>No active announcements at the moment.
         </div>
     }
-}
+    else
+    {
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card shadow-sm border-0 announcement-card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="announcement-title">
+                                <a asp-action="Detail" asp-route-id="@item.AnnouncementId" class="text-decoration-none" style="color: #8C5DD1;">
+                                    @item.Title
+                                </a>
+                            </h5>
 
-@section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        Swal.fire({
-            title: '📢 New Announcement!',
-            text: 'Check out the latest updates from your teacher.',
-            icon: 'info',
-            toast: true,
-            position: 'top-end',
-            timer: 4000,
-            timerProgressBar: true,
-            showConfirmButton: false
-        });
-    </script>
-}
+                            @*                             <p class="text-muted mt-2 mb-3">@item.Content?.Substring(0, Math.Min(item.Content.Length, 100))...</p>
+ *@
+                            <div class="mt-auto">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="date-text">
+                                        <i class="bi bi-calendar-event me-1"></i>@item.CreatedDate?.ToString("dd MMM yyyy")
+                                    </span>
+
+                                    <a asp-action="Detail" asp-route-id="@item.AnnouncementId" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye me-1"></i>View
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

@@ -21,9 +21,11 @@ public partial class Announcement
 
     public string? FilePath { get; set; }
 
-    public bool IsActive { get; set; }
-
     public int? AdminActivityLogId { get; set; }
+
+    public bool? IsActive { get; set; }
+
+    public string? Attachment { get; set; }
 
     public virtual AdminActivityLog? AdminActivityLog { get; set; }
 }

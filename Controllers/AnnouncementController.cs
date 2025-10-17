@@ -271,11 +271,28 @@ namespace ProjectManagementSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // GET: /Announcement/Detail/5
+        [AllowAnonymous]
+        public async Task<IActionResult> Detail(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var announcement = await _context.Announcements
+                .FirstOrDefaultAsync(a => a.AnnouncementId == id);
+
+            if (announcement == null)
+                return NotFound();
+
+            return View(announcement);
+        }
+
         // Student view: only active announcements
         [AllowAnonymous]
         public IActionResult StudentView()
         {
             var activeAnnouncements = _context.Announcements
+                .AsEnumerable() // important: bring to memory to use IsActive property
                 .Where(a => a.IsActive)
                 .OrderByDescending(a => a.StartDate)
                 .ToList();

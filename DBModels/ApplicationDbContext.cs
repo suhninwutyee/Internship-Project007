@@ -81,8 +81,11 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Announcement>(entity =>
         {
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
             entity.Property(e => e.FilePath).HasMaxLength(255);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.Message).HasMaxLength(1000);
+            entity.Property(e => e.StartDate).HasColumnType("datetime");
             entity.Property(e => e.Title).HasMaxLength(200);
 
             entity.HasOne(d => d.AdminActivityLog).WithMany(p => p.Announcements)

@@ -554,7 +554,38 @@ namespace ProjectManagementSystem.Controllers
               .Where(n => n.UserId == student.Student_pkId)
               .OrderByDescending(n => n.CreatedAt)
               .ToListAsync();
-            // 7. Prepare View Model
+
+            // 7. Determine if the logged-in student is a member
+            var memberInfo = await _context.ProjectMembers
+                .Include(pm => pm.Project)
+                .ThenInclude(p => p.ProjectMembers)
+                    .ThenInclude(m => m.Student)
+                    .ThenInclude(s => s.Email)
+                .FirstOrDefaultAsync(pm => pm.Student_pkId == studentId && !pm.IsDeleted);
+
+            bool isMember = false;
+            string? memberProjectName = null;
+            string? memberResponsibility = null;
+            string? leaderName = null;
+            string? leaderEmail = null;
+
+            if (memberInfo != null && memberInfo.Project != null)
+            {
+                isMember = true;
+                memberProjectName = memberInfo.Project.ProjectName;
+                memberResponsibility = memberInfo.RoleDescription;
+
+                // Find the Leader of this project
+                var leader = memberInfo.Project.ProjectMembers
+                    .FirstOrDefault(m => m.Role == "Leader" && !m.IsDeleted);
+
+                if (leader != null)
+                {
+                    leaderName = leader.Student?.StudentName;
+                    leaderEmail = leader.Student?.Email?.EmailAddress;
+                }
+            }
+
             var dashboardViewModel = new StudentDashboardViewModel
             {
                 Student = student,
@@ -562,7 +593,12 @@ namespace ProjectManagementSystem.Controllers
                 TeamMembers = allTeamMembers,
                 SubmissionStatus = submissionStatus,
                 Notifications = notifications,
-                LeaderProjects = projects.Where(p => p.SubmittedByStudent_pkId == studentId).ToList()
+                LeaderProjects = projects.Where(p => p.SubmittedByStudent_pkId == studentId).ToList(),
+                IsMember = isMember,
+                MemberProjectName = memberProjectName,
+                MemberResponsibility = memberResponsibility,
+                LeaderName = leaderName,
+                LeaderEmail = leaderEmail
             };
 
             return View(dashboardViewModel);

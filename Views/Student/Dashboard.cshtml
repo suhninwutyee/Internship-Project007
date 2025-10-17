@@ -32,6 +32,9 @@
 
     var leaderProjects = Model.LeaderProjects;
     var isProjectLeader = leaderProjects.Any();
+
+    var isMember = Model.IsMember;
+    var memberProjectName = Model.MemberProjectName;
 }
 
 <div>
@@ -580,11 +583,14 @@
 
             <!-- Team Members Card -->
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-bold text-purple me-2">Team Members</h5>
-                        @if (isProjectLeader)
-                        {
+                @*  <div class="card-header bg-white"> *@
+                @* <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold text-purple me-2">Team Members</h5> *@
+                @if (isProjectLeader)
+                {
+                    <div class="card-header bg-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 fw-bold text-purple me-2">Team Members</h5>
                             <div>
                                 <div class="dropdown d-inline-block me-2">
                                     <button class="btn btn-sm btn-outline-purple dropdown-toggle" type="button"
@@ -608,9 +614,11 @@
                                     <i class="fas fa-user-plus me-1"></i>Add Member
                                 </a>
                             </div>
-                        }
+                        </div>
                     </div>
-                </div>
+                }
+                @*  </div> *@
+                @* </div> *@
                 <div class="card-body">
                     @if (Model.TeamMembers.Any())
                     {
@@ -679,7 +687,7 @@
                             }
                         </div>
                     }
-                    else
+                    @*   else
                     {
                         <div class="text-center py-4">
                             <div class="member-avatar mx-auto mb-3" style="width: 80px; height: 80px;">
@@ -695,7 +703,94 @@
                                 </a>
                             }
                         </div>
+                    } *@
+                    else
+                    {
+                        <div class="text-center py-4">
+                            @*   <div class="member-avatar mx-auto mb-3" style="width: 80px; height: 80px;">
+                                <i class="fas fa-users fa-2x"></i>
+                            </div>
+ *@
+                            @if (isMember && !isProjectLeader)
+                            {
+                                <div class="card border-0 shadow-lg p-4 mt-4" style="background: #ffffff; border-left: 6px solid #8C5DD1; border-radius: 16px;">
+                                    <h4 class="fw-bold mb-3" style="color: #8C5DD1;">
+                                        <i class="bi bi-person-check me-2"></i>
+                                        You are a <span class="text-dark">Member</span> in
+                                        <span style="color:#8C5DD1;">"@memberProjectName"</span>
+                                    </h4>
+
+                                    <div class="row g-3 mt-2">
+                                        <div class="col-md-6">
+                                            <div class="p-3 bg-light rounded shadow-sm h-100">
+                                                <h6 class="fw-semibold text-secondary mb-2">
+                                                    <i class="bi bi-person-badge me-2"></i>Role
+                                                </h6>
+                                                <p class="mb-0 text-dark">Member</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="p-3 bg-light rounded shadow-sm h-100">
+                                                <h6 class="fw-semibold text-secondary mb-2">
+                                                    <i class="bi bi-clipboard-check me-2"></i>Responsibility
+                                                </h6>
+                                                <p class="mb-0 text-dark">
+                                                    @(Model.MemberResponsibility ?? "Not assigned")
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="p-3 bg-light rounded shadow-sm h-100">
+                                                <h6 class="fw-semibold text-secondary mb-2">
+                                                    <i class="bi bi-person-lines-fill me-2"></i>Leader Name
+                                                </h6>
+                                                <p class="mb-0 text-dark">
+                                                    @(Model.LeaderName ?? "Unknown")
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="p-3 bg-light rounded shadow-sm h-100">
+                                                <h6 class="fw-semibold text-secondary mb-2">
+                                                    <i class="bi bi-envelope-paper me-2"></i>Leader Email
+                                                </h6>
+                                                <a href="mailto:@Model.LeaderEmail" class="text-decoration-none" style="color: #8C5DD1;">
+                                                    @Model.LeaderEmail
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="alert mt-4 mb-0" style="background:#f8f5ff; color:#5a4b91; border-left:4px solid #8C5DD1;">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        You can view your project details and progress updates here.
+                                    </div>
+                                </div>
+                            }
+
+                            else
+                            {
+                                <div class="member-avatar mx-auto mb-3" style="width: 80px; height: 80px;">
+                                    <i class="fas fa-users fa-2x"></i>
+                                </div>
+
+                                <h4 class="mt-4 fw-bold">No Team Members</h4>
+                                <p class="text-muted mb-4">You haven't joined any teams yet</p>
+
+                                @if (isProjectLeader)
+                                {
+                                    @* <a asp-action="AddMember" asp-controller="Project"
+                                       asp-route-projectId="@leaderProjects.First().Project_pkId" class="btn btn-purple">
+                                        <i class="fas fa-user-plus me-2"></i>Add Members
+                                    </a> *@
+                                }
+                            }
+                        </div>
                     }
+
                 </div>
             </div>
         </div>

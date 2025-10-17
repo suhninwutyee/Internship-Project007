@@ -12,6 +12,13 @@ namespace ProjectManagementSystem.Models
         public List<Project> LeaderProjects { get; set; }
 
         public List<Notification> Notifications { get; set; } = new List<Notification>();
+
+        public bool IsMember { get; set; }
+        public string? MemberProjectName { get; set; }
+
+        public string? MemberResponsibility { get; set; }
+        public string? LeaderName { get; set; }
+        public string? LeaderEmail { get; set; }
     }
 
 }
