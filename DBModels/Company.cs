@@ -17,13 +17,17 @@ public partial class Company
 
     public string? Description { get; set; }
 
-    public int? CityPkId { get; set; }
+    public int CityPkId { get; set; }
 
     public DateTime? CreatedDate { get; set; }
 
     public string? ImageFileName { get; set; }
 
-    public virtual City? CityPk { get; set; } = null!;
+
+    //public virtual City? CityPk { get; set; } = null!;
+
+    public virtual City CityPk { get; set; } = null!;
+
 
     public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
 }

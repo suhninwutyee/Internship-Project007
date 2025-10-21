@@ -33,7 +33,7 @@ namespace ProjectManagementSystem.Controllers
                         .Where(p => p.Status == "Pending" && (p.IsDeleted == null || !p.IsDeleted.Value))
                         .CountAsync(),
 
-                    //Announcements = await GetRecentAnnouncementsAsync(),
+                    Announcements = await GetRecentAnnouncementsAsync(),
 
                     RecentSubmitters = await GetRecentSubmittersAsync(),
 
