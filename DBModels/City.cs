@@ -7,7 +7,7 @@ public partial class City
 {
     public int CityPkId { get; set; }
 
-    public string CityName { get; set; } = null!;
+    public string? CityName { get; set; }
 
     public string? ImageFileName { get; set; }
 

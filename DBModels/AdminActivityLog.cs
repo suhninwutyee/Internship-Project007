@@ -9,15 +9,15 @@ public partial class AdminActivityLog
 
     public string AdminId { get; set; } = null!;
 
-    public string LoggedName { get; set; } = null!;
+    public string? LoggedName { get; set; }
 
-    public string Action { get; set; } = null!;
+    public string? Action { get; set; }
 
-    public string Details { get; set; } = null!;
+    public string? Details { get; set; }
 
-    public DateTime Timestamp { get; set; }
+    public DateTime? Timestamp { get; set; }
 
-    public string IpAddress { get; set; } = null!;
+    public string? IpAddress { get; set; }
 
     public virtual ICollection<Announcement> Announcements { get; set; } = new List<Announcement>();
 }

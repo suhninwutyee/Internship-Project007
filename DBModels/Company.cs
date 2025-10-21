@@ -9,7 +9,7 @@ public partial class Company
 
     public string? CompanyName { get; set; }
 
-    public string Incharge { get; set; } = null!;
+    public string? Incharge { get; set; }
 
     public string? Address { get; set; }
 
@@ -17,13 +17,13 @@ public partial class Company
 
     public string? Description { get; set; }
 
-    public int? CityPkId { get; set; }
+    public int CityPkId { get; set; }
 
     public DateTime? CreatedDate { get; set; }
 
     public string? ImageFileName { get; set; }
 
-    public virtual City? CityPk { get; set; }
+    public virtual City CityPk { get; set; } = null!;
 
     public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
 }

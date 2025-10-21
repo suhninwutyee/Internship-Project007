@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 public class NotificationController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly PMSDbContext _context;
 
-    public NotificationController(ApplicationDbContext context)
+    public NotificationController(PMSDbContext context)
     {
         _context = context;
     }

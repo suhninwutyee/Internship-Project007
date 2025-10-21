@@ -10,9 +10,9 @@ namespace ProjectManagementSystem.Controllers
 {
     public class NotificationsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly PMSDbContext _context;
 
-        public NotificationsController(ApplicationDbContext context)
+        public NotificationsController(PMSDbContext context)
         {
             _context = context;
         }

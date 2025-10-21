@@ -1,10 +1,11 @@
-﻿using ProjectManagementSystem.Models;
+﻿using ProjectManagementSystem.DBModels;
+//using ProjectManagementSystem.Models;
 
 namespace ProjectManagementSystem.Controllers
 {
     public class ProjectApprovalViewModel
     {
-        public IEnumerable<Project> Projects { get; set; }
+        public List<Project> Projects { get; set; }
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
         public int TotalCount { get; set; }

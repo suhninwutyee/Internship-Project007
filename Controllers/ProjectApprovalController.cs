@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementSystem.Data;
+//using ProjectManagementSystem.Data;
+using ProjectManagementSystem.DBModels;
 using ProjectManagementSystem.Models;
 using ProjectManagementSystem.ViewModels;
 
@@ -8,9 +9,9 @@ namespace ProjectManagementSystem.Controllers
 {
     public class ProjectApprovalController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly PMSDbContext _context;
 
-        public ProjectApprovalController(ApplicationDbContext context)
+        public ProjectApprovalController(PMSDbContext context)
         {
             _context = context;
         }
@@ -25,10 +26,10 @@ namespace ProjectManagementSystem.Controllers
             const int pageSize = 15;
 
             var query = _context.Projects
-                .Include(p => p.Company)
-                .Include(p => p.ProjectType)
+                .Include(p => p.CompanyPk)
+                .Include(p => p.ProjectTypePk)
                 .Include(p => p.ProjectMembers) 
-                    .ThenInclude(pm => pm.Student) 
+                    .ThenInclude(pm => pm.StudentPk) 
                 .Where(p => p.IsDeleted == null || p.IsDeleted == false);
 
             // Apply search filter
@@ -38,7 +39,7 @@ namespace ProjectManagementSystem.Controllers
                     p.ProjectName.Contains(searchString) ||
                     p.CreatedBy.Contains(searchString) ||
                     p.ProjectMembers.Any(pm =>  
-                                              pm.Student.StudentName.Contains(searchString))
+                    pm.StudentPk.StudentName.Contains(searchString))
                 );
             }
 
@@ -133,14 +134,14 @@ namespace ProjectManagementSystem.Controllers
         public async Task<IActionResult> Details(int id)
         {
             var project = await _context.Projects
-                .Include(p => p.Company)
-                .Include(p => p.ProjectType)
-                .Include(p => p.Language)
-                .Include(p => p.Framework)
-                .Include(p => p.Files)
+                .Include(p => p.CompanyPk)
+                .Include(p => p.ProjectTypePk)
+                .Include(p => p.LanguagePk)
+                .Include(p => p.FrameworkPk)
+                .Include(p => p.ProjectFiles)
                 .Include(p => p.ProjectMembers)
-                    .ThenInclude(pm => pm.Student)
-                .FirstOrDefaultAsync(p => p.Project_pkId == id);
+                    .ThenInclude(pm => pm.StudentPk)
+                .FirstOrDefaultAsync(p => p.ProjectPkId == id);
 
             if (project == null)
             {
@@ -205,8 +206,8 @@ namespace ProjectManagementSystem.Controllers
             var model = new ProjectApprovalViewModel
             {
                 Projects = await _context.Projects
-                    .Include(p => p.Company)
-                    .Include(p => p.ProjectType)
+                    .Include(p => p.CompanyPk)
+                    .Include(p => p.ProjectTypePk)
                     .Where(p => p.IsDeleted == null || p.IsDeleted == false)
                     .OrderByDescending(p => p.ProjectSubmittedDate)
                     .ToListAsync(),
@@ -225,8 +226,8 @@ namespace ProjectManagementSystem.Controllers
             var model = new ProjectApprovalViewModel
             {
                 Projects = await _context.Projects
-                    .Include(p => p.Company)
-                    .Include(p => p.ProjectType)
+                    .Include(p => p.CompanyPk)
+                    .Include(p => p.ProjectTypePk)
                     .Where(p => p.ProjectSubmittedDate.HasValue &&
                            p.ProjectSubmittedDate.Value.Date == filterDate.Date)
                     .OrderByDescending(p => p.ProjectSubmittedDate)

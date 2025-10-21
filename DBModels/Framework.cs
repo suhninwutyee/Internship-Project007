@@ -7,7 +7,7 @@ public partial class Framework
 {
     public int FrameworkPkId { get; set; }
 
-    public string FrameworkName { get; set; } = null!;
+    public string? FrameworkName { get; set; }
 
     public int LanguagePkId { get; set; }
 

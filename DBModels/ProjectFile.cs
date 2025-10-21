@@ -9,13 +9,13 @@ public partial class ProjectFile
 
     public int ProjectPkId { get; set; }
 
-    public string FilePath { get; set; } = null!;
+    public string? FilePath { get; set; }
 
-    public string FileType { get; set; } = null!;
+    public string? FileType { get; set; }
 
-    public long FileSize { get; set; }
+    public long? FileSize { get; set; }
 
-    public DateTime UploadedAt { get; set; }
+    public DateTime? UploadedAt { get; set; }
 
     public virtual Project ProjectPk { get; set; } = null!;
 }

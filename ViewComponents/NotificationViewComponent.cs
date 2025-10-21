@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementSystem.Data;
+//using ProjectManagementSystem.Data;
+using ProjectManagementSystem.DBModels;
 
 public class NotificationViewComponent : ViewComponent
 {
-    private readonly ApplicationDbContext _context;
+    private readonly PMSDbContext _context;
 
-    public NotificationViewComponent(ApplicationDbContext context)
+    public NotificationViewComponent(PMSDbContext context)
     {
         _context = context;
     }
@@ -35,17 +36,17 @@ public class NotificationViewComponent : ViewComponent
     public async Task<IViewComponentResult> InvokeAsync()
     {
         var notifications = await _context.Notifications
-            .Include(n => n.Project)
-            .Where(n => !n.IsRead)
+            .Include(n => n.ProjectPk)
+            .Where(n => n.IsRead == false)
             .OrderByDescending(n => n.CreatedAt)
             .Take(5)
             .Select(n => new NotificationViewModel
             {
-                Id = n.Notification_pkId,
+                Id = n.NotificationPkId,
                 Message = n.Message,
                 CreatedAt = (DateTime)n.CreatedAt, // NULL safe
-                ProjectId = n.Project_pkId ?? 0,          // NULL safe
-                ProjectName = n.Project != null ? n.Project.ProjectName : "No Project",
+                ProjectId = n.ProjectPkId,          // NULL safe
+                ProjectName = n.ProjectPk != null ? n.ProjectPk.ProjectName : "No Project",
                 IsRead = n.IsRead,
             })
             .ToListAsync();
@@ -61,5 +62,5 @@ public class NotificationViewModel
     public DateTime CreatedAt { get; set; }
     public int? ProjectId { get; set; }
     public string ProjectName { get; set; }
-    public bool IsRead { get; set; }
+    public bool? IsRead { get; set; }
 }

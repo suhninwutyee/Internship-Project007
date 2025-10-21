@@ -12,9 +12,9 @@ namespace ProjectManagementSystem.Controllers
 {
     public class StudentController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly PMSDbContext _context;
         private readonly IWebHostEnvironment _env;
-        public StudentController(ApplicationDbContext context, IWebHostEnvironment env)
+        public StudentController(PMSDbContext context, IWebHostEnvironment env)
         {
             _context = context;
             _env = env;

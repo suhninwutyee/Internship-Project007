@@ -16,10 +16,10 @@ namespace ProjectManagementSystem.Controllers.Public
 {
     public class PublicController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly PMSDbContext _context;
         private const string AccessCode = "OLDSTUDENT2025"; // your secret code
         private readonly string _imageFolder = "uploads/successstories";
-        public PublicController(ApplicationDbContext context)
+        public PublicController(PMSDbContext context)
         {
             _context = context;
         }      

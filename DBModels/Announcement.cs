@@ -7,17 +7,17 @@ public partial class Announcement
 {
     public int AnnouncementId { get; set; }
 
-    public string Title { get; set; } = null!;
+    public string? Title { get; set; }
 
-    public string Message { get; set; } = null!;
+    public string? Message { get; set; }
 
-    public DateTime CreatedDate { get; set; }
+    public DateTime? CreatedDate { get; set; }
 
-    public DateTime StartDate { get; set; }
+    public DateTime? StartDate { get; set; }
 
     public DateTime? ExpiryDate { get; set; }
 
-    public bool BlocksSubmissions { get; set; }
+    public bool? BlocksSubmissions { get; set; }
 
     public string? FilePath { get; set; }
 

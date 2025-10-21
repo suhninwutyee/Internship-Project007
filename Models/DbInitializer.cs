@@ -1,10 +1,11 @@
-﻿using ProjectManagementSystem.Data;
+﻿//using ProjectManagementSystem.Data;
+using ProjectManagementSystem.DBModels;
 
 namespace ProjectManagementSystem.Models
 {
     public static class DbInitializer
     {
-        public static void SeedAcademicYears(ApplicationDbContext context)
+        public static void SeedAcademicYears(PMSDbContext context)
         {
             var currentYear = DateTime.Now.Year;
 
@@ -14,7 +15,7 @@ namespace ProjectManagementSystem.Models
 
                 if (!context.AcademicYears.Any(a => a.YearRange == range))
                 {
-                    context.AcademicYears.Add(new AcademicYear
+                    context.AcademicYears.Add(new DBModels.AcademicYear
                     {
                         YearRange = range
                     });

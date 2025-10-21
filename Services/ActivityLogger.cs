@@ -1,7 +1,7 @@
 ﻿// Services/ActivityLogger.cs
 using Microsoft.AspNetCore.Http;
-using ProjectManagementSystem.Data;
-using ProjectManagementSystem.Models;
+using ProjectManagementSystem.DBModels;
+//using ProjectManagementSystem.Models;
 using ProjectManagementSystem.Services.Interface;
 using System;
 using System.Threading.Tasks;
@@ -10,9 +10,9 @@ namespace ProjectManagementSystem.Services
 {
     public class ActivityLogger : IActivityLogger
     {
-        private readonly ApplicationDbContext _context;
+        private readonly PMSDbContext _context;
 
-        public ActivityLogger(ApplicationDbContext context)
+        public ActivityLogger(PMSDbContext context)
         {
             _context = context;
         }

@@ -17,10 +17,10 @@ namespace ProjectManagementSystem.Controllers
 {
     public class ProjectController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly PMSDbContext _context;
         private readonly IWebHostEnvironment _env;
         private readonly ILogger<ProjectController> _logger;        
-        public ProjectController(ApplicationDbContext context, IWebHostEnvironment env, ILogger<ProjectController> logger)
+        public ProjectController(PMSDbContext context, IWebHostEnvironment env, ILogger<ProjectController> logger)
         {
             _context = context;
             _env = env;

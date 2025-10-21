@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementSystem.Data;
+//using ProjectManagementSystem.Data;
+using ProjectManagementSystem.DBModels;
 using ProjectManagementSystem.Models;
 using ProjectManagementSystem.Services.Interface;
 using ProjectManagementSystem.ViewModels;
@@ -18,13 +19,13 @@ namespace ProjectManagementSystem.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IActivityLogger _activityLogger;
-        private readonly ApplicationDbContext _context;
+        private readonly PMSDbContext _context;
 
         public AdminController(
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager,
             IActivityLogger activityLogger,
-            ApplicationDbContext context)
+            PMSDbContext context)
         {
             _signInManager = signInManager;
             _userManager = userManager;

@@ -9,9 +9,9 @@ using X.PagedList;
 
 public class FrameworkController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly PMSDbContext _context;
 
-    public FrameworkController(ApplicationDbContext context)
+    public FrameworkController(PMSDbContext context)
     {
         _context = context;
     }

@@ -1,7 +1,7 @@
 ﻿@using System.Security.Claims
 @using Microsoft.EntityFrameworkCore
 @using ProjectManagementSystem.Data
-@inject ApplicationDbContext _context
+@inject PMSDbContext _context
 
 @{
     var email = Context.Session.GetString("EmailAddress");

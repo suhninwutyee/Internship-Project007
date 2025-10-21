@@ -7,9 +7,9 @@ namespace ProjectManagementSystem.Controllers
 {
     public class ProjectTypeController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly PMSDbContext _context;
 
-        public ProjectTypeController(ApplicationDbContext context)
+        public ProjectTypeController(PMSDbContext context)
         {
             _context = context;
         }

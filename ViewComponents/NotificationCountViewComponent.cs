@@ -4,9 +4,9 @@ using ProjectManagementSystem.Data;
 
 public class NotificationCountViewComponent : ViewComponent
 {
-    private readonly ApplicationDbContext _context;
+    private readonly PMSDbContext _context;
 
-    public NotificationCountViewComponent(ApplicationDbContext context)
+    public NotificationCountViewComponent(PMSDbContext context)
     {
         _context = context;
     }

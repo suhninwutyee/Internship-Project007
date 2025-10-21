@@ -7,11 +7,9 @@ public partial class AcademicYear
 {
     public int AcademicYearPkId { get; set; }
 
-    public string YearRange { get; set; } = null!;
+    public string? YearRange { get; set; }
 
-    public bool IsActive { get; set; }
-
-    public virtual ICollection<Email> Emails { get; set; } = new List<Email>();
+    public bool? IsActive { get; set; }
 
     public virtual ICollection<Student> Students { get; set; } = new List<Student>();
 }

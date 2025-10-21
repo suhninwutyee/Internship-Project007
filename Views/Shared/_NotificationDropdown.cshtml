@@ -5,7 +5,7 @@
     {
         foreach (var notification in Model)
         {
-            <a class="notification-item @(notification.IsRead ? "" : "unread")"
+            <a class="notification-item @(notification.IsRead == true ? "" : "unread")"
                href="@Url.Action("Details", "ProjectApproval", new { id = notification.ProjectId })"
                data-notification-id="@notification.Id">
                 <div class="notification-message">@Html.Raw(notification.Message)</div>

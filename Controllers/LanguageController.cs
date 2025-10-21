@@ -11,9 +11,9 @@ namespace ProjectManagementSystem.Controllers
 {
     public class LanguageController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly PMSDbContext _context;
 
-        public LanguageController(ApplicationDbContext context)
+        public LanguageController(PMSDbContext context)
         {
             _context = context;
         }

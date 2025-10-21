@@ -15,11 +15,11 @@
             <div class="mb-3 text-muted">
                 <small>
                     <i class="bi bi-calendar-event me-1"></i>
-                    Posted on @Model.CreatedDate.ToString("dd MMM yyyy")
+                    Posted on @Model.CreatedDate?.ToString("dd MMM yyyy")
                 </small>
                 @if (Model.StartDate != null && Model.ExpiryDate != null)
                 {
-                    <div><small><i class="bi bi-clock me-1"></i>Active: @Model.StartDate.ToString("dd MMM yyyy") → @Model.ExpiryDate?.ToString("dd MMM yyyy")</small></div>
+                    <div><small><i class="bi bi-clock me-1"></i>Active: @Model.StartDate?.ToString("dd MMM yyyy") → @Model.ExpiryDate?.ToString("dd MMM yyyy")</small></div>
                 }
             </div>
 
@@ -34,7 +34,7 @@
                 </div>
             }
 
-            @if (Model.BlocksSubmissions)
+            @if (Model.BlocksSubmissions == true )
             {
                 <div class="alert alert-danger mt-4 mb-0">
                     <i class="bi bi-exclamation-triangle me-2"></i>

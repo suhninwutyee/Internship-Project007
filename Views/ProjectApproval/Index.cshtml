@@ -335,7 +335,7 @@
                         <td class="project-name">@project.ProjectName</td>
                         @{
                             var leader = project.ProjectMembers?.FirstOrDefault(m => m.Role == "Leader");
-                            var leaderName = leader?.Student?.StudentName ?? "No Leader";
+                            var leaderName = leader?.StudentPk?.StudentName ?? "No Leader";
                         }
                         <td>@leaderName</td>
 
@@ -345,17 +345,17 @@
                             <div class="action-buttons">
                                 @if (project.Status != "Approved")
                                 {
-                                    <button class="btn-icon approve" onclick="confirmApprove(@project.Project_pkId, '@Html.Raw(project.ProjectName.Replace("'", "\\'"))', '@Html.Raw(project.CreatedBy?.Replace("'", "\\'") ?? "")')">
+                                    <button class="btn-icon approve" onclick="confirmApprove(@project.ProjectPkId, '@Html.Raw(project.ProjectName.Replace("'", "\\'"))', '@Html.Raw(project.CreatedBy?.Replace("'", "\\'") ?? "")')">
                                         <i class="fas fa-check"></i><span class="tooltip">Approve</span>
                                     </button>
                                 }
                                 @if (project.Status != "Rejected")
                                 {
-                                    <button class="btn-icon reject" onclick="confirmReject(@project.Project_pkId, '@Html.Raw(project.ProjectName.Replace("'", "\\'"))', '@Html.Raw(project.CreatedBy?.Replace("'", "\\'") ?? "")')">
+                                    <button class="btn-icon reject" onclick="confirmReject(@project.ProjectPkId, '@Html.Raw(project.ProjectName.Replace("'", "\\'"))', '@Html.Raw(project.CreatedBy?.Replace("'", "\\'") ?? "")')">
                                         <i class="fas fa-times"></i><span class="tooltip">Reject</span>
                                     </button>
                                 }
-                                <a href="@Url.Action("Details", "ProjectApproval", new { id = project.Project_pkId })" class="btn-icon view">
+                                <a href="@Url.Action("Details", "ProjectApproval", new { id = project.ProjectPkId })" class="btn-icon view">
                                     <i class="fas fa-eye"></i><span class="tooltip">View</span>
                                 </a>
                             </div>
@@ -424,7 +424,7 @@
                 <tr>
                     <td>@(++count)</td>
                     <td>@project.ProjectName</td>
-                    <td>@(leader != null ? leader.Student.StudentName : "No Leader")</td>
+                    <td>@(leader != null ? leader.StudentPk.StudentName : "No Leader")</td>
                     <td>@(project.ProjectSubmittedDate?.ToString("dd-MMM-yyyy") ?? "Not submitted")</td>
                     <td>@project.Status</td>
                 </tr>

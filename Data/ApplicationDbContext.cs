@@ -6,9 +6,9 @@ using ProjectManagementSystem.Models;
 using System;
 using System.ComponentModel.DataAnnotations;
 
-public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+public class PMSDbContext : IdentityDbContext<ApplicationUser>
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+    public PMSDbContext(DbContextOptions<PMSDbContext> options)
         : base(options)
     { }
 

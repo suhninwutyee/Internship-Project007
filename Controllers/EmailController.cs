@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementSystem.Data;
+using ProjectManagementSystem.DBModels;
 using ProjectManagementSystem.Models;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,9 +9,9 @@ namespace ProjectManagementSystem.Controllers
 {
     public class EmailController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly PMSDbContext _context;
 
-        public EmailController(ApplicationDbContext context)
+        public EmailController(PMSDbContext context)
         {
             _context = context;
         }
@@ -21,29 +21,42 @@ namespace ProjectManagementSystem.Controllers
             int pageSize = 15;
 
             var query = _context.Emails
-                 .Include(e => e.AcademicYear) // Include first
-        .Where(e => !e.IsDeleted); // Include the AcademicYear navigation property
+                 .Include(e => e.AcademicYearPkId) // Include first
+        .Where(e => e.IsDeleted == false); // Include the AcademicYear navigation property
 
             if (!string.IsNullOrEmpty(selectedYear))
             {
-                query = query.Where(e => e.AcademicYear.YearRange == selectedYear);
+                //query = query.Where(e => e.AcademicYearPkId == selectedYear);
+                query = from e in _context.Emails
+                        join aca in _context.AcademicYears
+                        on e.AcademicYearPkId equals aca.AcademicYearPkId
+                        where aca.YearRange == selectedYear
+                        select new DBModels.Email
+                        {
+                            EmailPkId = e.EmailPkId,
+                            EmailAddress = e.EmailAddress,
+                            RollNumber = e.RollNumber,
+                            Class = e.Class,
+                            IsDeleted = e.IsDeleted,
+                            AcademicYearPkId = e.AcademicYearPkId
+                        };
             }
             else
             {
                 // Don't load anything if no year selected
-                ViewBag.Emails = new List<Email>();
+                ViewBag.Emails = new List<DBModels.Email>();
                 ViewBag.AcademicYears = await GetAcademicYearsAsync();
                 ViewBag.SelectedYear = null;
                 ViewBag.TotalPages = 0;
                 ViewBag.CurrentPage = 1;
                 ViewBag.StartRowNumber = 1;
-                return View(new List<Email>());
+                return View(new List<DBModels.Email>());
             }
 
             var totalEmails = await query.CountAsync();
             var totalPages = (int)Math.Ceiling(totalEmails / (double)pageSize);
             var emails = await query
-                .OrderBy(e => e.Email_PkId)
+                .OrderBy(e => e.EmailPkId)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -57,7 +70,7 @@ namespace ProjectManagementSystem.Controllers
             return View(emails);
         }
 
-        private async Task<List<AcademicYear>> GetAcademicYearsAsync()
+        private async Task<List<DBModels.AcademicYear>> GetAcademicYearsAsync()
         {
             return await _context.AcademicYears
                 .OrderByDescending(y => y.YearRange)
@@ -74,7 +87,7 @@ namespace ProjectManagementSystem.Controllers
         // POST: Email/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("EmailAddress,RollNumber,AcademicYear_pkId")] Email email)
+        public async Task<IActionResult> Create([Bind("EmailAddress,RollNumber,AcademicYear_pkId")] DBModels.Email email)
         {
                 try
                 {
@@ -89,12 +102,12 @@ namespace ProjectManagementSystem.Controllers
                         {
                             success = true,
                             message = "Email created successfully!",
-                            redirectUrl = Url.Action("Index", new { selectedYear = _context.AcademicYears.Find(email.AcademicYear_pkId)?.YearRange })
+                            redirectUrl = Url.Action("Index", new { selectedYear = _context.AcademicYears.Find(email.AcademicYearPkId)?.YearRange })
                         });
                     }
 
                     TempData["SuccessMessage"] = "Email created successfully!";
-                    return RedirectToAction("Index", new { selectedYear = _context.AcademicYears.Find(email.AcademicYear_pkId)?.YearRange });
+                    return RedirectToAction("Index", new { selectedYear = _context.AcademicYears.Find(email.AcademicYearPkId)?.YearRange });
                 }
                 catch (Exception ex)
                 {
@@ -158,7 +171,7 @@ namespace ProjectManagementSystem.Controllers
                 return View();
             }
 
-            var emails = new List<Email>();
+            var emails = new List<DBModels.Email>();
             using (var stream = new StreamReader(file.OpenReadStream()))
             {
                 string line;
@@ -179,13 +192,13 @@ namespace ProjectManagementSystem.Controllers
                         string.IsNullOrWhiteSpace(rollNumber))
                         continue;
 
-                    emails.Add(new Email
+                    emails.Add(new DBModels.Email
                     {
                       
                         EmailAddress = emailAddress,
                         RollNumber = rollNumber,
                         Class = "Final Year",
-                        AcademicYear_pkId = academicYear_pkId,
+                        AcademicYearPkId = academicYear_pkId,
                         CreatedDate= DateTime.Now,
                     });
                 }
@@ -210,7 +223,7 @@ namespace ProjectManagementSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditInline(int id, [FromForm] Email model)
+        public async Task<IActionResult> EditInline(int id, [FromForm] DBModels.Email model)
         {
             if (!ModelState.IsValid)
             {

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementSystem.Data;
+//using ProjectManagementSystem.Data;
+using ProjectManagementSystem.DBModels;
 using ProjectManagementSystem.Models;
 using ProjectManagementSystem.Services;
 
@@ -19,12 +20,12 @@ builder.Services.AddSession(options =>
 });
 
 // Configure DbContext
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddDbContext<PMSDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Configure Identity (MUST be before builder.Build())
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddEntityFrameworkStores<PMSDbContext>()
     .AddDefaultTokenProviders();
 
 // Add this to your services configuration
@@ -55,7 +56,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<ApplicationDbContext>();
+    var context = services.GetRequiredService<ProjectManagementSystem.DBModels.PMSDbContext>();
     DbInitializer.SeedAcademicYears(context);
 }
 // Configure the HTTP request pipeline

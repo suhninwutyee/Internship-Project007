@@ -7,11 +7,11 @@ public partial class Language
 {
     public int LanguagePkId { get; set; }
 
-    public string LanguageName { get; set; } = null!;
+    public string? LanguageName { get; set; }
 
-    public int? ProjectTypePkId { get; set; }
+    public int ProjectTypePkId { get; set; }
 
-    public int? ProjectTypePkId1 { get; set; }
+    public int ProjectTypePkId1 { get; set; }
 
     public virtual ICollection<Framework> Frameworks { get; set; } = new List<Framework>();
 

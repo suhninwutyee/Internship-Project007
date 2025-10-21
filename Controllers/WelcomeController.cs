@@ -1,18 +1,19 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using ProjectManagementSystem.Data;
+//using ProjectManagementSystem.Data;
+using ProjectManagementSystem.DBModels;
 using ProjectManagementSystem.Models;
 using ProjectManagementSystem.ViewModels;
 using System.Linq;
 
 public class WelcomeController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly PMSDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
 
-    public WelcomeController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+    public WelcomeController(PMSDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
     {
         _context = context;
         _userManager = userManager;

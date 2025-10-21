@@ -7,7 +7,7 @@
     {
         @foreach (var notification in Model)
         {
-            <a class="notification-item @(notification.IsRead ? "" : "unread")"
+            <a class="notification-item @(notification.IsRead == true ? "" : "unread")"
                asp-controller="ProjectApproval"
                asp-action="Details"
                asp-route-id="@notification.ProjectId"

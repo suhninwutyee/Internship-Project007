@@ -59,10 +59,10 @@ namespace ProjectManagementSystem.Controllers
     [Authorize(Roles = "Admin,Teacher")] // Teacher + Admin only
     public class AnnouncementController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly PMSDbContext _context;
         private readonly IWebHostEnvironment _env;
 
-        public AnnouncementController(ApplicationDbContext context, IWebHostEnvironment env)
+        public AnnouncementController(PMSDbContext context, IWebHostEnvironment env)
         {
             _context = context;
             _env = env;

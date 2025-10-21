@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementSystem.Data;
+//using ProjectManagementSystem.Data;
+using ProjectManagementSystem.DBModels;
 using ProjectManagementSystem.Models;
 using ProjectManagementSystem.Services;
 using System;
@@ -12,11 +13,11 @@ namespace ProjectManagementSystem.Controllers
 {
     public class StudentLoginController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly PMSDbContext _context;
         private readonly IEmailService _emailService;
         private readonly ILogger<StudentLoginController> _logger;
 
-        public StudentLoginController(ApplicationDbContext context, IEmailService emailService, ILogger<StudentLoginController> logger)
+        public StudentLoginController(PMSDbContext context, IEmailService emailService, ILogger<StudentLoginController> logger)
         {
             _context = context;
             _emailService = emailService;
@@ -45,7 +46,7 @@ namespace ProjectManagementSystem.Controllers
                 .FirstOrDefaultAsync(e =>
                     e.RollNumber.Trim().ToLower() == rollNo &&
                     e.EmailAddress.Trim().ToLower() == email &&
-                    !e.IsDeleted);
+                    e.IsDeleted == false);
 
             if (emailRecord == null)
             {
@@ -55,13 +56,13 @@ namespace ProjectManagementSystem.Controllers
 
             // Then find student with relaxed requirements
             var student = await _context.Students
-                .Include(s => s.Email)
+                .Include(s => s.EmailPk)
                 .Include(s => s.ProjectMembers)
                 .FirstOrDefaultAsync(s =>
-                    s.Email != null &&
-                    s.Email.RollNumber.ToLower() == rollNo &&
-                    s.Email.EmailAddress.ToLower() == email &&
-                    !s.IsDeleted);
+                    s.EmailPk != null &&
+                    s.EmailPk.RollNumber.ToLower() == rollNo &&
+                    s.EmailPk.EmailAddress.ToLower() == email &&
+                    s.IsDeleted == false);
 
             if (student == null)
             {
@@ -70,7 +71,7 @@ namespace ProjectManagementSystem.Controllers
             }
 
             // If student exists, proceed with OTP
-            return await ProcessOtpForUser(student.Email.RollNumber, student.Email.EmailAddress);
+            return await ProcessOtpForUser(student.EmailPk .RollNumber, student.EmailPk.EmailAddress);
         }
 
         private async Task<IActionResult> ProcessOtpForUser(string rollNumber, string emailAddress)
@@ -79,7 +80,7 @@ namespace ProjectManagementSystem.Controllers
             TempData.Remove("RollNumber");
             TempData.Remove("EmailAddress");
 
-            var recentOtp = await _context.OTPs
+            var recentOtp = await _context.Otps
                 .Where(o => o.RollNumber == rollNumber && !o.IsUsed)
                 .OrderByDescending(o => o.SendTime)
                 .FirstOrDefaultAsync();
@@ -100,7 +101,7 @@ namespace ProjectManagementSystem.Controllers
                     $"Your verification code is: {otpCode}");
 
                 // Invalidate previous OTPS
-                var oldOtps = await _context.OTPs
+                var oldOtps = await _context.Otps
                     .Where(o => o.RollNumber == rollNumber && !o.IsUsed)
                     .ToListAsync();
 
@@ -109,16 +110,16 @@ namespace ProjectManagementSystem.Controllers
                     otp.IsUsed = true;
                 }
 
-                var otpEntry = new OTP
+                var otpEntry = new Otp
                 {
                     RollNumber = rollNumber,
-                    OTPCode = otpCode,
+                    Otpcode = otpCode,
                     SendTime = DateTime.Now,
                     IsUsed = false
                     //ExpiryTime = DateTime.Now.AddMinutes(5)
                 };
 
-                _context.OTPs.Add(otpEntry);
+                _context.Otps.Add(otpEntry);
                 await _context.SaveChangesAsync();
 
                 TempData["RollNumber"] = rollNumber;
@@ -163,13 +164,13 @@ namespace ProjectManagementSystem.Controllers
 
             Console.WriteLine("her everify otp post......................................");
 
-            var otp = _context.OTPs
+            var otp = _context.Otps
                 .Where(o => o.RollNumber == model.RollNumber && !o.IsUsed)
                 .OrderByDescending(o => o.SendTime)
                 .FirstOrDefault();
 
             if (otp != null &&
-                otp.OTPCode == model.OTPCode &&
+                otp.Otpcode == model.OTPCode &&
                 otp.SendTime.AddMinutes(1) > DateTime.Now)
             {
                 Console.WriteLine("here success otp.......................................");
@@ -179,21 +180,21 @@ namespace ProjectManagementSystem.Controllers
                 HttpContext.Session.SetString("RollNumber", model.RollNumber);
 
                 var student = _context.Students
-                    .Include(s => s.Email)
-                    .FirstOrDefault(s => s.Email.RollNumber == model.RollNumber && !s.IsDeleted);
+                    .Include(s => s.EmailPk)
+                    .FirstOrDefault(s => s.EmailPk.RollNumber == model.RollNumber && s.IsDeleted == false);
                 Console.WriteLine("here student nul?........................" + (student == null));
                 if (student != null)
                 {
                     Console.WriteLine("here student not null.........................");
                     HttpContext.Session.SetString("StudentName", student.StudentName);
-                    HttpContext.Session.SetString("EmailAddress", student.Email?.EmailAddress ?? "");
+                    HttpContext.Session.SetString("EmailAddress", student.EmailPk?.EmailAddress ?? "");
                 }
                 else
                 {
                     Console.WriteLine("here student null.........................");
 
                     var emailRecord = _context.Emails
-                        .FirstOrDefault(e => e.RollNumber == model.RollNumber && !e.IsDeleted);
+                        .FirstOrDefault(e => e.RollNumber == model.RollNumber && e.IsDeleted == false);
 
                     if (emailRecord != null)
                     {
@@ -224,7 +225,7 @@ namespace ProjectManagementSystem.Controllers
                 }
 
                 // Check if OTP was recently sent
-                var recentOtp = await _context.OTPs
+                var recentOtp = await _context.Otps
                     .Where(o => o.RollNumber == rollNumber && !o.IsUsed)
                     .OrderByDescending(o => o.SendTime)
                     .FirstOrDefaultAsync();
@@ -240,7 +241,7 @@ namespace ProjectManagementSystem.Controllers
                 }
 
                 var emailRecord = await _context.Emails
-                    .FirstOrDefaultAsync(e => e.RollNumber == rollNumber && !e.IsDeleted);
+                    .FirstOrDefaultAsync(e => e.RollNumber == rollNumber && e.IsDeleted == false);
 
                 if (emailRecord == null)
                 {
@@ -248,7 +249,7 @@ namespace ProjectManagementSystem.Controllers
                 }
 
                 // Invalidate previous OTPs
-                var oldOtps = await _context.OTPs
+                var oldOtps = await _context.Otps
                     .Where(o => o.RollNumber == rollNumber && !o.IsUsed)
                     .ToListAsync();
 
@@ -260,15 +261,15 @@ namespace ProjectManagementSystem.Controllers
                 // Generate new OTP
                 string otpCode = new Random().Next(100000, 999999).ToString();
 
-                var newOtp = new OTP
+                var newOtp = new Otp
                 {
                     RollNumber = rollNumber,
-                    OTPCode = otpCode,
+                    Otpcode = otpCode,
                     SendTime = DateTime.Now,
                     IsUsed = false
                 };
 
-                _context.OTPs.Add(newOtp);
+                _context.Otps.Add(newOtp);
                 await _context.SaveChangesAsync();
 
                 // Send email
@@ -321,23 +322,23 @@ namespace ProjectManagementSystem.Controllers
             Console.WriteLine("here roll no not null.........................");
 
             var isLeader = _context.ProjectMembers
-                .Any(pm => pm.Student.Email.RollNumber == rollNumber &&
+                .Any(pm => pm.StudentPk.EmailPk.RollNumber == rollNumber &&
                            pm.Role == "Leader" &&
-                           !pm.IsDeleted);
+                           pm.IsDeleted == false);
 
             Console.WriteLine("here isLeader ........................." + isLeader);
 
             if (isLeader)
             {
                 var student = _context.Students
-                .Include(s => s.Email)
-                .FirstOrDefault(s => s.Email.RollNumber == rollNumber && !s.IsDeleted);
+                .Include(s => s.EmailPk)
+                .FirstOrDefault(s => s.EmailPk.RollNumber == rollNumber && s.IsDeleted == false);
                 if (student == null)
                 {
                     TempData["NextAction"] = "CreateProject";
                     return RedirectToAction("Create", "Student");
                 }
-                HttpContext.Session.SetInt32("Student_pkId", student.Student_pkId);
+                HttpContext.Session.SetInt32("Student_pkId", student.StudentPkId);
 
                 Console.WriteLine("here is leader...............................");
                 return RedirectToAction("Dashboard", "Student");
@@ -363,8 +364,8 @@ namespace ProjectManagementSystem.Controllers
             HttpContext.Session.SetString("UserRole", role);
 
             var student = _context.Students
-                .Include(s => s.Email)
-                .FirstOrDefault(s => s.Email.RollNumber == rollNumber && !s.IsDeleted);
+                .Include(s => s.EmailPk)
+                .FirstOrDefault(s => s.EmailPk.RollNumber == rollNumber && s.IsDeleted == false);
 
             if (role == "Leader")
             {
@@ -374,12 +375,12 @@ namespace ProjectManagementSystem.Controllers
                     return RedirectToAction("Create", "Student");
                 }
 
-                HttpContext.Session.SetInt32("Student_pkId", student.Student_pkId);
+                HttpContext.Session.SetInt32("Student_pkId", student.StudentPkId);
 
                 var hasProject = _context.ProjectMembers
-                    .Any(pm => pm.Student_pkId == student.Student_pkId &&
+                    .Any(pm => pm.StudentPkId == student.StudentPkId &&
                                pm.Role == "Leader" &&
-                               !pm.IsDeleted);
+                               pm.IsDeleted == false);
 
                 if (!hasProject)
                 {
@@ -396,10 +397,10 @@ namespace ProjectManagementSystem.Controllers
                     return RedirectToAction("Create", "Student");
                 }
 
-                HttpContext.Session.SetInt32("Student_pkId", student.Student_pkId);
+                HttpContext.Session.SetInt32("Student_pkId", student.StudentPkId);
 
                 var isInProject = _context.ProjectMembers
-                    .Any(pm => pm.Student_pkId == student.Student_pkId && !pm.IsDeleted);
+                    .Any(pm => pm.StudentPkId == student.StudentPkId && pm.IsDeleted == false);
 
                 if (isInProject)
                 {

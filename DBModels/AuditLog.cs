@@ -7,15 +7,15 @@ public partial class AuditLog
 {
     public int LogPkId { get; set; }
 
-    public string StudentName { get; set; } = null!;
+    public string? StudentName { get; set; }
 
     public int StudentPkId { get; set; }
 
-    public string Action { get; set; } = null!;
+    public string? Action { get; set; }
 
-    public string PerformedBy { get; set; } = null!;
+    public string? PerformedBy { get; set; }
 
-    public DateTime PerformedAt { get; set; }
+    public DateTime? PerformedAt { get; set; }
 
     public virtual Student StudentPk { get; set; } = null!;
 }

@@ -15,7 +15,7 @@ namespace ProjectManagementSystem.Services
 
             var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
             var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-            var context = services.GetRequiredService<ApplicationDbContext>();
+            var context = services.GetRequiredService<PMSDbContext>();
 
            
 

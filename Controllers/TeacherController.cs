@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementSystem.Data;
+using ProjectManagementSystem.DBModels;
 using ProjectManagementSystem.Models;
 using ProjectManagementSystem.ViewModels;
 using System.Diagnostics;
@@ -11,10 +11,10 @@ namespace ProjectManagementSystem.Controllers
 {
     public class TeacherController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly PMSDbContext _context;
         private readonly ILogger<TeacherController> _logger;
 
-        public TeacherController(ApplicationDbContext context, ILogger<TeacherController> logger)
+        public TeacherController(PMSDbContext context, ILogger<TeacherController> logger)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -97,12 +97,12 @@ namespace ProjectManagementSystem.Controllers
             }
         }
 
-        private async Task<List<Announcement>> GetRecentAnnouncementsAsync()
+        private async Task<List<DBModels.Announcement>> GetRecentAnnouncementsAsync()
         {
             try
             {
                 return await _context.Announcements
-                    .Where(a => a.IsActive) // Only get manually activated announcements
+                    .Where(a => a.IsActive == true ) // Only get manually activated announcements
                     .OrderByDescending(a => a.CreatedDate)
                     .Take(1) // Only get the most recent active announcement
                     .ToListAsync();
@@ -110,7 +110,7 @@ namespace ProjectManagementSystem.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting recent announcements");
-                return new List<Announcement>();
+                return new List<DBModels.Announcement>();
             }
         }
 
@@ -119,15 +119,15 @@ namespace ProjectManagementSystem.Controllers
             try
             {
                 return await _context.Projects
-                    .Include(p => p.SubmittedByStudent)
+                    .Include(p => p.SubmittedByStudentPk)
                     .Where(p => p.Status == "Submitted" &&
-                           p.SubmittedByStudent != null &&
+                           p.SubmittedByStudentPk != null &&
                            p.ProjectSubmittedDate.HasValue)
                     .OrderByDescending(p => p.ProjectSubmittedDate)
                     .Take(5)
                     .Select(p => new StudentSubmission
                     {
-                        StudentName = p.SubmittedByStudent.StudentName,
+                        StudentName = p.SubmittedByStudentPk.StudentName,
                         ProjectName = p.ProjectName,
                         SubmissionDate = p.ProjectSubmittedDate.Value
                     })
@@ -173,20 +173,21 @@ namespace ProjectManagementSystem.Controllers
                     return RedirectToAction("Dashboard");
                 }
 
-                var projects = await _context.Projects
-                    .Include(p => p.Company)
-                    .Include(p => p.ProjectType)
+                var Projects = await _context.Projects
+                    .Include(p => p.CompanyPk)
+                    .Include(p => p.ProjectTypePk)
                     .Include(p => p.ProjectMembers)
-                        .ThenInclude(pm => pm.Student)
+                        .ThenInclude(pm => pm.StudentPk)
                     .Where(p => p.ProjectSubmittedDate.HasValue &&
                            p.ProjectSubmittedDate.Value.Date == filterDate.Date &&
-                           (p.IsDeleted == null || !p.IsDeleted.Value))
+                           (p.IsDeleted == null || p.IsDeleted.Value == false))
                     .OrderByDescending(p => p.ProjectSubmittedDate)
                     .ToListAsync();
 
+                
                 return View("~/Views/ProjectApproval/Index.cshtml", new ProjectApprovalViewModel
                 {
-                    Projects = projects,
+                    Projects = Projects,
                     PageTitle = $"Projects Submitted on {filterDate.ToString("MMM dd, yyyy")}"
                 });
             }

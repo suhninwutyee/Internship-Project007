@@ -10,9 +10,9 @@ namespace ProjectManagementSystem.Controllers
 {
     public class CompanyController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly PMSDbContext _context;
 
-        public CompanyController(ApplicationDbContext context)
+        public CompanyController(PMSDbContext context)
         {
             _context = context;
         }

@@ -115,7 +115,9 @@
                                 <circle class="pulse" fill="#FF6B6B" cx="18" cy="5" r="3.2" />
                             </svg>
                             <span class="cute-badge" id="notificationBadge">
-                                await _viewComponentHelper.InvokeAsync(typeof(ProjectManagementSystem.ViewComponents.NotificationCountViewComponent));
+                                @{
+                                    //await _viewComponentHelper.InvokeAsync(typeof(ProjectManagementSystem.ViewComponents.NotificationCountViewComponent));
+                                }
                             </span>
                         </a>
 

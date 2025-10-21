@@ -7,37 +7,37 @@ public partial class Student
 {
     public int StudentPkId { get; set; }
 
-    public string PhoneNumber { get; set; } = null!;
+    public string? PhoneNumber { get; set; }
 
     public int NrcPkId { get; set; }
 
     public int NrctypePkId { get; set; }
 
-    public int Nrcnumber { get; set; }
+    public int? Nrcnumber { get; set; }
 
-    public bool IsDeleted { get; set; }
+    public bool? IsDeleted { get; set; }
 
-    public DateTime CreatedDate { get; set; }
+    public DateTime? CreatedDate { get; set; }
 
-    public string CreatedBy { get; set; } = null!;
+    public string? CreatedBy { get; set; }
 
     public int DepartmentPkId { get; set; }
 
-    public int? AcademicYearPkId { get; set; }
+    public int AcademicYearPkId { get; set; }
 
-    public int? EmailPkId { get; set; }
+    public int EmailPkId { get; set; }
 
-    public string StudentName { get; set; } = null!;
+    public string? StudentName { get; set; }
 
     public string? ProfilePhotoUrl { get; set; }
 
-    public virtual AcademicYear? AcademicYearPk { get; set; }
+    public virtual AcademicYear AcademicYearPk { get; set; } = null!;
 
     public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
 
     public virtual StudentDepartment DepartmentPk { get; set; } = null!;
 
-    public virtual Email? EmailPk { get; set; }
+    public virtual Email EmailPk { get; set; } = null!;
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 
