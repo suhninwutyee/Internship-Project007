@@ -22,12 +22,7 @@ public partial class Company
     public DateTime? CreatedDate { get; set; }
 
     public string? ImageFileName { get; set; }
-
-
-    //public virtual City? CityPk { get; set; } = null!;
-
     public virtual City CityPk { get; set; } = null!;
-
 
     public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
 }
