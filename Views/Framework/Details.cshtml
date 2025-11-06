@@ -1,4 +1,4 @@
-﻿@model ProjectManagementSystem.Models.Framework
+﻿@model ProjectManagementSystem.DBModels.Framework
 
 @{
     ViewData["Title"] = "Framework Details";
@@ -19,11 +19,11 @@
         <dd class="col-sm-9">@Model.FrameworkName</dd>
 
         <dt class="col-sm-3 fw-semibold">Language:</dt>
-        <dd class="col-sm-9">@Model.Language?.LanguageName ?? "<em>None</em>"</dd>
+        <dd class="col-sm-9">@Model.LanguagePk?.LanguageName ?? "<em>None</em>"</dd>
     </dl>
 
     <div class="mt-4">
-        <a asp-action="Edit" asp-route-id="@Model.Framework_pkId" class="btn btn-warning me-2">Edit</a>
+        <a asp-action="Edit" asp-route-id="@Model.FrameworkPkId" class="btn btn-warning me-2">Edit</a>
         <a asp-action="Index" class="btn btn-secondary">Back to List</a>
     </div>
 </div>

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MimeKit.Text;
 using MimeKit;
-using ProjectManagementSystem.Data;
+using ProjectManagementSystem.DBModels;
 using ProjectManagementSystem.Models;
 using ProjectManagementSystem.ViewModels;
 using X.PagedList;
@@ -26,19 +26,19 @@ namespace ProjectManagementSystem.Controllers.Public
         public async Task<IActionResult> ProjectIdeas(int? projectTypeId, int? languageId, string? searchTerm, int page = 1)
         {
             var projectsQuery = _context.Projects
-                .Include(p => p.ProjectType)
-                .Include(p => p.Language)
-                .Include(p => p.Files)
+                .Include(p => p.ProjectTypePk)
+                .Include(p => p.LanguagePk)
+                .Include(p => p.ProjectFiles)
                 .Where(p => (bool)!p.IsDeleted && p.Status == "Approved");
 
             if (projectTypeId.HasValue)
             {
-                projectsQuery = projectsQuery.Where(p => p.ProjectType_pkId == projectTypeId);
+                projectsQuery = projectsQuery.Where(p => p.ProjectTypePkId == projectTypeId);
             }
 
             if (languageId.HasValue)
             {
-                projectsQuery = projectsQuery.Where(p => p.Language_pkId == languageId);
+                projectsQuery = projectsQuery.Where(p => p.LanguagePkId == languageId);
             }
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
@@ -52,7 +52,7 @@ namespace ProjectManagementSystem.Controllers.Public
             var pageSize = 6;
 
             var paginatedProjects = await projectsQuery
-                .OrderByDescending(p => p.Project_pkId)
+                .OrderByDescending(p => p.ProjectPkId)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -63,16 +63,16 @@ namespace ProjectManagementSystem.Controllers.Public
                 ProjectTypes = await _context.ProjectTypes
                     .Select(pt => new SelectListItem
                     {
-                        Value = pt.ProjectType_pkId.ToString(),
+                        Value = pt.ProjectTypePkId.ToString(),
                         Text = pt.TypeName
                     }).ToListAsync(),
 
                 Languages = projectTypeId.HasValue
                     ? await _context.Languages
-                        .Where(l => l.ProjectType_pkId == projectTypeId)
+                        .Where(l => l.ProjectTypePkId == projectTypeId)
                         .Select(l => new SelectListItem
                         {
-                            Value = l.Language_pkId.ToString(),
+                            Value = l.LanguagePkId.ToString(),
                             Text = l.LanguageName
                         }).ToListAsync()
                     : new List<SelectListItem>(),
@@ -109,10 +109,10 @@ namespace ProjectManagementSystem.Controllers.Public
         public async Task<IActionResult> GetLanguagesByProjectTypeUsedInProjects(int projectTypeId)
         {
             var languages = await _context.Languages
-                .Where(l => l.ProjectType_pkId == projectTypeId)
+                .Where(l => l.ProjectTypePkId == projectTypeId)
                 .Select(l => new
                 {
-                    value = l.Language_pkId,
+                    value = l.LanguagePkId,
                     text = l.LanguageName
                 }).ToListAsync();
 
@@ -141,13 +141,13 @@ namespace ProjectManagementSystem.Controllers.Public
 
             // All cities that have at least one internship company
             var allCities = await _context.Cities
-                .Where(c => _context.Companies.Any(co => co.City_pkId == c.City_pkId))
+                .Where(c => _context.Companies.Any(co => co.CityPkId == c.CityPkId))
                 .OrderBy(c => c.CityName)
                 .ToListAsync();
 
             // Filter for display (if selected city is chosen)
             var filteredCities = selectedCityId.HasValue
-                ? allCities.Where(c => c.City_pkId == selectedCityId.Value).ToList()
+                ? allCities.Where(c => c.CityPkId == selectedCityId.Value).ToList()
                 : allCities;
 
             var pagedCities = filteredCities.ToPagedList(page, pageSize);
@@ -157,11 +157,11 @@ namespace ProjectManagementSystem.Controllers.Public
                 SelectedCityId = selectedCityId,
                 CityList = allCities.Select(c => new SelectListItem
                 {
-                    Value = c.City_pkId.ToString(),
+                    Value = c.CityPkId.ToString(),
                     Text = c.CityName
                 }),
                 TotalCities = filteredCities.Count,
-                Cities = pagedCities,
+                Cities = (IPagedList<DBModels.City>)pagedCities,
                 CurrentPage = page,
                 //TotalPages = pagedCities.PageCount
             };
@@ -180,14 +180,14 @@ namespace ProjectManagementSystem.Controllers.Public
 
             var city = await _context.Cities
                 .Include(c => c.Companies)
-                .FirstOrDefaultAsync(c => c.City_pkId == id);
+                .FirstOrDefaultAsync(c => c.CityPkId == id);
 
             if (city == null) return NotFound();
 
             var pagedCompanies = city.Companies.OrderBy(c => c.CompanyName).ToPagedList(page, pageSize);
 
             ViewBag.CityName = city.CityName;
-            ViewBag.CityId = city.City_pkId;
+            ViewBag.CityId = city.CityPkId;
             ViewBag.TotalCompanies = city.Companies.Count;
 
             return View(pagedCompanies);
@@ -196,14 +196,14 @@ namespace ProjectManagementSystem.Controllers.Public
         public async Task<IActionResult> Index()
         {
             var projects = await _context.Projects
-                .Include(p => p.Language)
-                .Include(p => p.ProjectType)
+                .Include(p => p.LanguagePk)
+                .Include(p => p.ProjectTypePk)
                 .ToListAsync();
 
             // Group languages by trimmed lowercase to avoid duplicates caused by casing/spaces
             var languageGroups = projects
-                .Where(p => p.Language != null)
-                .GroupBy(p => p.Language.LanguageName.Trim().ToLower())
+                .Where(p => p.LanguagePk != null)
+                .GroupBy(p => p.LanguagePk.LanguageName.Trim().ToLower())
                 .Select(g => new
                 {
                     LanguageName = Capitalize(g.Key),
@@ -213,8 +213,8 @@ namespace ProjectManagementSystem.Controllers.Public
 
             // Group project types normally
             var projectTypeGroups = projects
-                .Where(p => p.ProjectType != null)
-                .GroupBy(p => p.ProjectType.TypeName)
+                .Where(p => p.ProjectTypePk != null)
+                .GroupBy(p => p.ProjectTypePk.TypeName)
                 .Select(g => new
                 {
                     TypeName = g.Key,
@@ -235,7 +235,7 @@ namespace ProjectManagementSystem.Controllers.Public
                 ProjectTypeChartValues = projectTypeGroups.Select(x => x.Count).ToList(),
 
                 PopularProjects = projects
-                    .OrderByDescending(p => p.Project_pkId)
+                    .OrderByDescending(p => p.ProjectPkId)
                     .Take(6)
                     .Select(p => new ProjectIdea
                     {

@@ -16,6 +16,7 @@ public partial class Email
     public bool? IsDeleted { get; set; }
 
     public int AcademicYearPkId { get; set; }
+    public AcademicYear? AcademicYear { get; set; }
 
     public DateTimeOffset? CreatedDate { get; set; }
 

@@ -232,21 +232,21 @@ else
                         <h5 class="card-title fw-bold">@project.ProjectName</h5>
                         <h6 class="card-subtitle mb-2">Supervisor: @project.SupervisorName</h6>
                         <p class="card-text mb-2">
-                            <span class="badge bg-info text-dark">Type: @project.ProjectType?.TypeName</span>
+                            <span class="badge bg-info text-dark">Type: @project.ProjectTypePk?.TypeName</span>
                         </p>
                         <p class="card-text mb-2">
-                            <span class="badge bg-info text-dark">Type: @project.Language.LanguageName</span>
+                            <span class="badge bg-info text-dark">Type: @project.LanguagePk.LanguageName</span>
                         </p>
                         @* <p class="card-text flex-grow-1 text-truncate" style="max-height: 4.5rem; overflow: hidden;">
                             Description: @project.Description
                         </p> *@
 
-                        @if (project.Files != null && project.Files.Any())
+                        @if (project.ProjectFiles != null && project.ProjectFiles.Any())
                         {
                             <div class="mt-3">
                                 <strong>Files:</strong>
                                 <ul class="file-list ps-0 mt-1">
-                                    @foreach (var file in project.Files)
+                                    @foreach (var file in project.ProjectFiles)
                                     {
                                         <li>
                                             <i class="bi bi-file-earmark-text file-icon"></i>

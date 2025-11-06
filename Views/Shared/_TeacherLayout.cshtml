@@ -32,7 +32,7 @@
                 <span class="brand-name">Admin Panel</span>
             </div>
             <ul class="menu">
-                <li class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "Dashboard" ? "active" : "")">
+                <li class="menu-item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Dashboard" ? "active" : "")">
                     <a asp-area="" asp-controller="Teacher" asp-action="Dashboard">
                         <i class="bx bx-grid-alt"></i>
                         <span class="menu-text">Dashboard</span>
@@ -51,10 +51,10 @@
                         <i class="bx bx-chevron-right submenu-toggle"></i>
                     </div>
                     <ul class="submenu">
-                        <li class="submenu-item @(ViewContext.RouteData.Values["Action"].ToString() == "StudentManagement" ? "active" : "")">
+                        <li class="submenu-item @(ViewContext.RouteData.Values["Action"]?.ToString() == "StudentManagement" ? "active" : "")">
                             <a asp-area="" asp-controller="Email" asp-action="Index">Student Management</a>
                         </li>
-                        <li class="submenu-item @(ViewContext.RouteData.Values["Action"].ToString() == "Company" ? "active" : "")">
+                        <li class="submenu-item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Company" ? "active" : "")">
                             <a asp-area="" asp-controller="Company" asp-action="Index">Company</a>
                         </li>
                         @* <li class="submenu-item @(ViewContext.RouteData.Values["Action"].ToString() == "Tasks" ? "active" : "")">
@@ -62,7 +62,7 @@
                         </li> *@
                     </ul>
                 </li>
-                <li class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "SubmittedProjects" ? "active" : "")">
+                <li class="menu-item @(ViewContext.RouteData.Values["Action"]?.ToString() == "SubmittedProjects" ? "active" : "")">
                     <a asp-area="" asp-controller="ProjectApproval" asp-action="Index">
                         <i class="bx bx-folder-open"></i>
                         <span class="menu-text">Submitted Projects</span>
@@ -74,7 +74,7 @@
                         <span class="menu-text">Activity Log</span>
                     </a>
                 </li> *@
-                <li class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "Profile" ? "active" : "")">
+                <li class="menu-item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Profile" ? "active" : "")">
                     <a asp-area="" asp-controller="Admin" asp-action="MyProfile">
                         <i class="bx bx-user"></i>
                         <span class="menu-text">My Profile</span>

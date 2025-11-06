@@ -1,4 +1,4 @@
-﻿@model ProjectManagementSystem.Models.Company
+﻿@model ProjectManagementSystem.DBModels.Company
 @using Microsoft.AspNetCore.Mvc.Rendering
 
 @{
@@ -8,7 +8,7 @@
 
 <h2 class="mb-4">Add Company</h2>
 
-<form asp-action="Create" method="post" enctype="multipart/form-data">
+<form asp-action="Create" method="post" asp-controller="Company" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
 
     <div class="mb-3">
@@ -17,7 +17,7 @@
         <span asp-validation-for="CompanyName" class="text-danger"></span>
     </div>
 
-    @* <div class="mb-3">
+     @* <div class="mb-3">
         <label asp-for="Address" class="form-label"></label>
         <input asp-for="Address" class="form-control" />
         <span asp-validation-for="Address" class="text-danger"></span>
@@ -43,13 +43,13 @@
         </select>
         <span asp-validation-for="City_pkId" class="text-danger"></span>
     </div>
-
-    <!-- Company Image Upload -->
+ *@
+   @*  <!-- Company Image Upload -->
     <div class="mb-3">
         <label class="form-label">Company Photo</label>
         <input type="file" name="imageFile" class="form-control" />
-    </div>
- *@
+    </div> *@
+ 
     <button type="submit" class="btn btn-primary">Save</button>
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>

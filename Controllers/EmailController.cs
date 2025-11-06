@@ -21,7 +21,7 @@ namespace ProjectManagementSystem.Controllers
             int pageSize = 15;
 
             var query = _context.Emails
-                 .Include(e => e.AcademicYearPkId) // Include first
+                 .Include(e => e.AcademicYear) // Include first
         .Where(e => e.IsDeleted == false); // Include the AcademicYear navigation property
 
             if (!string.IsNullOrEmpty(selectedYear))
@@ -70,6 +70,7 @@ namespace ProjectManagementSystem.Controllers
             return View(emails);
         }
 
+
         private async Task<List<DBModels.AcademicYear>> GetAcademicYearsAsync()
         {
             return await _context.AcademicYears
@@ -78,51 +79,54 @@ namespace ProjectManagementSystem.Controllers
         }
 
         // GET: Email/Create
+        [HttpGet]
         public async Task<IActionResult> Create()
         {
             ViewBag.AcademicYears = await GetAcademicYearsAsync();
+            Console.WriteLine("create ------------");
+            Console.WriteLine(ViewBag.AcademicYears);
             return View();
         }
 
         // POST: Email/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("EmailAddress,RollNumber,AcademicYear_pkId")] DBModels.Email email)
+        public async Task<IActionResult> Create([Bind("EmailAddress,RollNumber,AcademicYearPkId")] DBModels.Email email)
         {
-                try
+            try
+            {
+                email.Class = "Final Year";
+                email.CreatedDate = DateTime.Now;
+                _context.Add(email);
+                await _context.SaveChangesAsync();
+
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
-                    email.Class = "Final Year";
-                    email.CreatedDate = DateTime.Now;
-                    _context.Add(email);
-                    await _context.SaveChangesAsync();
-
-                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new
                     {
-                        return Json(new
-                        {
-                            success = true,
-                            message = "Email created successfully!",
-                            redirectUrl = Url.Action("Index", new { selectedYear = _context.AcademicYears.Find(email.AcademicYearPkId)?.YearRange })
-                        });
-                    }
-
-                    TempData["SuccessMessage"] = "Email created successfully!";
-                    return RedirectToAction("Index", new { selectedYear = _context.AcademicYears.Find(email.AcademicYearPkId)?.YearRange });
+                        success = true,
+                        message = "Email created successfully!",
+                        redirectUrl = Url.Action("Index", new { selectedYear = _context.AcademicYears.Find(email.AcademicYearPkId)?.YearRange })
+                    });
                 }
-                catch (Exception ex)
+
+                TempData["SuccessMessage"] = "Email created successfully!";
+                return RedirectToAction("Index", new { selectedYear = _context.AcademicYears.Find(email.AcademicYearPkId)?.YearRange });
+            }
+            catch (Exception ex)
+            {
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
-                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new
                     {
-                        return Json(new
-                        {
-                            success = false,
-                            message = "Error creating email: " + ex.Message
-                        });
-                    }
-
-                    ModelState.AddModelError("", "Error creating email: " + ex.Message);
+                        success = false,
+                        message = "Error creating email: " + ex.Message
+                    });
                 }
-            
+
+                ModelState.AddModelError("", "Error creating email: " + ex.Message);
+            }
+
 
             // Handle errors for AJAX
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -154,7 +158,7 @@ namespace ProjectManagementSystem.Controllers
         // POST: Email/UploadBulk
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UploadBulk(IFormFile file, int academicYear_pkId)
+        public async Task<IActionResult> UploadBulk(IFormFile file, int AcademicYearPkId)
         {
             if (file == null || file.Length == 0)
             {
@@ -163,7 +167,7 @@ namespace ProjectManagementSystem.Controllers
                 return View();
             }
 
-            var academicYear = await _context.AcademicYears.FindAsync(academicYear_pkId);
+            var academicYear = await _context.AcademicYears.FindAsync(AcademicYearPkId);
             if (academicYear == null)
             {
                 TempData["Error"] = "Please select a valid academic year.";
@@ -198,7 +202,7 @@ namespace ProjectManagementSystem.Controllers
                         EmailAddress = emailAddress,
                         RollNumber = rollNumber,
                         Class = "Final Year",
-                        AcademicYearPkId = academicYear_pkId,
+                        AcademicYearPkId = AcademicYearPkId,
                         CreatedDate= DateTime.Now,
                     });
                 }

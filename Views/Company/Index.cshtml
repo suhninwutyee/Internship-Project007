@@ -1,7 +1,8 @@
 ﻿@model List<ProjectManagementSystem.Models.CompanyViewModel>
 @{
     ViewData["Title"] = "Companies";
-    Layout = "_Layout";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+}
 }
 
 <style>
@@ -291,7 +292,7 @@
 
     <!-- Add Company Form -->
     <div class="add-form">
-        <form id="createCompanyForm" asp-action="CreateCommpany" method="post" class="w-100">
+        <form id="createCompanyForm" asp-action="Create" asp-controller="Company" method="post" class="w-100">
             @Html.AntiForgeryToken()
             <input type="text" name="CompanyName" placeholder="Enter company name" required maxlength="100" />
             <button type="submit" class="btn btn-primary">

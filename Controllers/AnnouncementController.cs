@@ -78,6 +78,7 @@ namespace ProjectManagementSystem.Controllers
         }
 
         // GET: /Announcement/Create
+        [HttpGet]
         public IActionResult Create()
         {
             return View();

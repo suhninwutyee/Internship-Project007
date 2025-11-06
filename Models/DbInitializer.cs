@@ -1,7 +1,7 @@
 ﻿//using ProjectManagementSystem.Data;
 using ProjectManagementSystem.DBModels;
 
-namespace ProjectManagementSystem.Models
+namespace ProjectManagementSystem.DBModels
 {
     public static class DbInitializer
     {

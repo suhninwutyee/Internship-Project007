@@ -64,11 +64,11 @@ namespace ProjectManagementSystem.Controllers
                 {
                     // Add custom claims
                     var claims = new List<Claim>
-            {
-                new Claim("FullName", user.FullName),
-                new Claim("Initial", user.FullName.Substring(0, 1).ToUpper())
-            };
-
+                    {
+                        new Claim("FullName", user.FullName),
+                        new Claim("Initial", user.FullName.Substring(0, 1).ToUpper())
+                    };
+                    Console.WriteLine(claims);
                     await _userManager.AddClaimsAsync(user, claims);
 
                     await _activityLogger.LogActivityAsync(

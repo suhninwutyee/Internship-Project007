@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementSystem.Data;
+using ProjectManagementSystem.DBModels;
 using ProjectManagementSystem.Models;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,8 +17,8 @@ public class NotificationController : Controller
     public async Task<IActionResult> GetNotifications()
     {
         var notifications = await _context.Notifications
-            .Include(n => n.Project)
-            .Where(n => !n.IsRead)
+            .Include(n => n.ProjectPk)
+            .Where(n => n.IsRead == false)
             .OrderByDescending(n => n.CreatedAt)
             .Take(5)
             .ToListAsync();
@@ -40,14 +40,14 @@ public class NotificationController : Controller
         notification.IsRead = true;
         await _context.SaveChangesAsync();
 
-        var unreadCount = await _context.Notifications.CountAsync(n => !n.IsRead);
+        var unreadCount = await _context.Notifications.CountAsync(n => n.IsRead == false);
         return Json(new { success = true, unreadCount });
     }
 
     [HttpGet]
     public async Task<int> GetNotificationCount()
     {
-        return await _context.Notifications.CountAsync(n => !n.IsRead);
+        return await _context.Notifications.CountAsync(n => n.IsRead == false);
     }
 
     [HttpPost]
@@ -64,7 +64,7 @@ public class NotificationController : Controller
             _context.Notifications.Remove(notification);
             await _context.SaveChangesAsync();
 
-            var unreadCount = await _context.Notifications.CountAsync(n => !n.IsRead);
+            var unreadCount = await _context.Notifications.CountAsync(n => n.IsRead == false);
             return Json(new { success = true, unreadCount });
         }
         catch (System.Exception ex)

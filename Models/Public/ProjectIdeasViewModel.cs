@@ -7,7 +7,7 @@ namespace ProjectManagementSystem.ViewModels
 {
     public class ProjectIdeasViewModel
     {
-        public List<Project> Projects { get; set; } = new();
+        public List<ProjectManagementSystem.DBModels.Project> Projects { get; set; }
 
         public int CurrentPage { get; set; } = 1;
 

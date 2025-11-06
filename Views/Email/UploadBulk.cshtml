@@ -1,4 +1,4 @@
-﻿@model ProjectManagementSystem.Models.Email
+﻿@model ProjectManagementSystem.DBModels.Email
 @{
     ViewData["Title"] = "Upload Student Emails";
     Layout = "~/Views/Shared/_TeacherLayout.cshtml";
@@ -71,19 +71,19 @@
 
                         <!-- Academic Year -->
                         <div class="form-group mb-4">
-                            <label asp-for="AcademicYear_pkId" class="form-label fw-semibold text-primary mb-2">
+                            <label asp-for="AcademicYearPkId" class="form-label fw-semibold text-primary mb-2">
                                 <i class="fas fa-calendar-alt me-2"></i>Academic Year
                             </label>
                             <div class="input-group">
-                                <select asp-for="AcademicYear_pkId" class="form-select form-select-lg"
-                                        asp-items="@(new SelectList(ViewBag.AcademicYears, "AcademicYear_pkId", "YearRange"))">
+                                <select asp-for="AcademicYearPkId" class="form-select form-select-lg"
+                                        asp-items="@(new SelectList(ViewBag.AcademicYears, "AcademicYearPkId", "YearRange"))">
                                     <option value="">Select Academic Year</option>
                                 </select>
                                 <span class="input-group-text bg-primary text-white">
                                     <i class="fas fa-chevron-down"></i>
                                 </span>
                             </div>
-                            <span asp-validation-for="AcademicYear_pkId" class="text-danger small mt-2 d-block"></span>
+                            <span asp-validation-for="AcademicYearPkId" class="text-danger small mt-2 d-block"></span>
                         </div>
 
                         <!-- Hidden Field -->

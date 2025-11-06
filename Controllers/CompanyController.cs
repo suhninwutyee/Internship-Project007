@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementSystem.Data;
+using ProjectManagementSystem.DBModels;
 using ProjectManagementSystem.Models;
 using System;
 using System.Linq;
@@ -23,7 +23,7 @@ namespace ProjectManagementSystem.Controllers
                 .OrderBy(c => c.CompanyName)
                 .Select(c => new CompanyViewModel
                 {
-                    Company_pkId = c.Company_pkId,
+                    Company_pkId = c.CompanyPkId,
                     CompanyName = c.CompanyName
                 })
                 .ToListAsync();
@@ -46,9 +46,10 @@ namespace ProjectManagementSystem.Controllers
                 return Json(new { success = false, message = $"Company '{model.CompanyName}' already exists" });
             }
 
-            var company = new Company
+            var company = new DBModels.Company
             {
                 CompanyName = model.CompanyName.Trim(),
+                //CityPkId = model.CityPKkId,
                 Address = "To be added",
                 Contact = "To be added",
                 Description = "",
@@ -67,7 +68,7 @@ namespace ProjectManagementSystem.Controllers
                     message = "Company created successfully",
                     data = new
                     {
-                        company.Company_pkId,
+                        company.CompanyPkId,
                         company.CompanyName
                     }
                 });
@@ -96,7 +97,7 @@ namespace ProjectManagementSystem.Controllers
 
             if (await _context.Companies.AnyAsync(c =>
                 c.CompanyName.ToLower() == model.CompanyName.Trim().ToLower()
-                && c.Company_pkId != model.Company_pkId))
+                && c.CompanyPkId != model.Company_pkId))
             {
                 return Json(new { success = false, message = $"Company '{model.CompanyName}' already exists" });
             }
@@ -114,7 +115,7 @@ namespace ProjectManagementSystem.Controllers
                     message = "Company updated successfully",
                     data = new
                     {
-                        company.Company_pkId,
+                        company.CompanyPkId,
                         company.CompanyName
                     }
                 });

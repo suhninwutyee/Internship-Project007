@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementSystem.Data;
+using ProjectManagementSystem.DBModels;
 using ProjectManagementSystem.Models;
 using System.Linq;
 using System.Security.Claims;
@@ -29,14 +29,14 @@ namespace ProjectManagementSystem.Controllers
                 return RedirectToAction("Login", "StudentLogin");
             }
             var student = await _context.Students
-                .Include(s => s.Email)
-                .FirstOrDefaultAsync(s => s.Email.RollNumber == rollNumber);
+                .Include(s => s.EmailPk)
+                .FirstOrDefaultAsync(s => s.EmailPk.RollNumber == rollNumber);
 
             if (student == null)
                 return NotFound();
 
             var notifications = await _context.Notifications
-                .Where(n => n.UserId == student.Student_pkId)
+                .Where(n => n.UserId == student.StudentPkId)
                 .OrderByDescending(n => n.CreatedAt)
                 .ToListAsync();
 
@@ -64,14 +64,14 @@ namespace ProjectManagementSystem.Controllers
                 return Json(0);
 
             var student = await _context.Students
-                .Include(s => s.Email)
-                .FirstOrDefaultAsync(s => s.Email.RollNumber == rollNumber);
+                .Include(s => s.EmailPk)
+                .FirstOrDefaultAsync(s => s.EmailPk.RollNumber == rollNumber);
 
             if (student == null)
                 return Json(0);
 
             var count = await _context.Notifications
-                .CountAsync(n => n.UserId == student.Student_pkId && !n.IsRead);
+                .CountAsync(n => n.UserId == student.StudentPkId && n.IsRead == false);
 
             return Json(count);
         }
@@ -84,14 +84,14 @@ namespace ProjectManagementSystem.Controllers
                 return Json(new { success = false, count = 0 });
 
             var student = await _context.Students
-                .Include(s => s.Email)
-                .FirstOrDefaultAsync(s => s.Email.RollNumber == rollNumber);
+                .Include(s => s.EmailPk)
+                .FirstOrDefaultAsync(s => s.EmailPk.RollNumber == rollNumber);
 
             if (student == null)
                 return Json(new { success = false, count = 0 });
 
             var notifications = await _context.Notifications
-                .Where(n => n.UserId == student.Student_pkId && !n.IsRead)
+                .Where(n => n.UserId == student.StudentPkId && n.IsRead == false)
                 .ToListAsync();
 
             foreach (var notif in notifications)

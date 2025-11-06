@@ -7,7 +7,7 @@ namespace ProjectManagementSystem.ViewModels
 {
     public class CityListViewModel
     {
-        public IPagedList<City> Cities { get; set; }
+        public IPagedList<ProjectManagementSystem.DBModels.City> Cities { get; set; }
         public int? SelectedCityId { get; set; }
         public IEnumerable<SelectListItem> CityList { get; set; }
         public int TotalCities { get; set; }
