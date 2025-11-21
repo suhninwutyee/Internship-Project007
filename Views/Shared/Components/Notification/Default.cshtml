@@ -1,90 +1,13 @@
-﻿@using ProjectManagementSystem.ViewComponents
-@model List<NotificationViewModel>  // Make sure this matches what you're passing
+﻿@model List<ProjectManagementSystem.DBModels.NotificationViewModel>
 
-@if (Model.Any())
-{
-    
+<ul class="list-group">
+    @foreach (var n in Model)
     {
-        @foreach (var notification in Model)
-        {
-            <a class="notification-item @(notification.IsRead == true ? "" : "unread")"
-               asp-controller="ProjectApproval"
-               asp-action="Details"
-               asp-route-id="@notification.ProjectId"
-               data-notification-id="@notification.Id">
-                <div class="notification-content">
-                    @Html.Raw(notification.Message)
-                </div>
-                <div class="notification-time">
-                    @notification.CreatedAt.ToString("M/d/yyyy h:mm tt")
-                </div>
+        <li class="list-group-item @(n.IsRead==false ? "unread" : "")">
+            <a href="@Url.Action("Details","ProjectApproval", new { id = n.ProjectId })">
+                @n.Message
             </a>
-        }
-
+            <small>@n.CreatedAt.ToString("MMM dd, yyyy HH:mm")</small>
+        </li>
     }
-}
-else
-{
-    <div class="empty-notifications">
-        <i class="far fa-bell-slash"></i>
-        <p>No new notifications</p>
-    </div>
-
-}
-<style>
-    .notification-dropdown {
-        position: relative;
-    }
-
-        .notification-dropdown .dropdown-menu {
-            width: 350px;
-            padding: 0;
-        }
-
-    .notification-header {
-        padding: 10px 15px;
-        border-bottom: 1px solid #eee;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-        .notification-header h6 {
-            margin: 0;
-            font-weight: bold;
-        }
-
-    .view-all {
-        font-size: 0.8rem;
-    }
-
-    .notification-item {
-        padding: 10px 15px;
-        border-bottom: 1px solid #f5f5f5;
-        display: block;
-        color: #333;
-        text-decoration: none;
-    }
-
-        .notification-item:hover {
-            background-color: #f8f9fa;
-        }
-
-    .notification-content {
-        margin-bottom: 5px;
-    }
-
-    #notificationBadge {
-        position: absolute;
-        top: -5px;
-        right: -5px;
-        font-size: 0.6rem;
-    }
-
-    .notification-item.unread {
-        background-color: #f5f3ff;
-        font-weight: 500;
-        border-left: 4px solid #8C5DD1;
-    }
-
-</style>
+</ul>

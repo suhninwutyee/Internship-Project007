@@ -1,4 +1,4 @@
-﻿@model ProjectManagementSystem.Models.Project
+﻿@model ProjectManagementSystem.DBModels.Project
 @{
     ViewData["Title"] = "Create Project";
     Layout = "_Layout";
@@ -13,7 +13,7 @@
         <form asp-action="Create" method="post" enctype="multipart/form-data">
             @Html.AntiForgeryToken()
             <!-- Hidden fields -->
-            <input type="hidden" asp-for="SubmittedByStudent_pkId" value="@Context.Session.GetInt32("Student_pkId")" />
+            <input type="hidden" asp-for="SubmittedByStudentPkId" value="@Context.Session.GetInt32("StudentPkId")" />
             <input type="hidden" asp-for="CreatedDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
             
             <!-- Leader Information Section -->
@@ -63,37 +63,37 @@
                 </h6>
                 <div class="row mb-3 align-items-end">
                     <div class="col-md-6">
-                        <label asp-for="ProjectType_pkId" class="form-label required">Project Type</label>
+                        <label asp-for="ProjectTypePkId" class="form-label required">Project Type</label>
                         <div class="input-group">
-                            <select asp-for="ProjectType_pkId" class="form-select" style="border-radius: 0.5rem 0 0 0.5rem;" asp-items="ViewBag.ProjectTypes" required>
+                            <select asp-for="ProjectTypePkId" class="form-select" style="border-radius: 0.5rem 0 0 0.5rem;" asp-items="ViewBag.ProjectTypes" required>
                                 <option value="">-- Select Type --</option>
                             </select>
                             <a href="@Url.Action("Index", "ProjectType")" target="_blank" class="btn" style="background-color: #8c5dd1; color: white; border-radius: 0 0.5rem 0.5rem 0;">
                                 <i class="fas fa-plus"></i>
                             </a>
                         </div>
-                        <span asp-validation-for="ProjectType_pkId" class="text-danger small"></span>
+                        <span asp-validation-for="ProjectTypePkId" class="text-danger small"></span>
                     </div>
 
                     <div class="col-md-6">
-                        <label asp-for="Language_pkId" class="form-label required">Language</label>
+                        <label asp-for="LanguagePkId" class="form-label required">Language</label>
                         <div class="input-group">
-                            <select asp-for="Language_pkId" id="LanguageDropdown" class="form-select" style="border-radius: 0.5rem 0 0 0.5rem;" asp-items="ViewBag.Languages" required>
+                            <select asp-for="LanguagePkId" id="LanguageDropdown" class="form-select" style="border-radius: 0.5rem 0 0 0.5rem;" asp-items="ViewBag.Languages" required>
                                 <option value="">-- Select Language --</option>
                             </select>
                             <a href="@Url.Action("Index", "Language")" target="_blank" class="btn" style="background-color: #8c5dd1; color: white; border-radius: 0 0.5rem 0.5rem 0;">
                                 <i class="fas fa-plus"></i>
                             </a>
                         </div>
-                        <span asp-validation-for="Language_pkId" class="text-danger small"></span>
+                        <span asp-validation-for="LanguagePkId" class="text-danger small"></span>
                     </div>
                 </div>
 
                 <div class="row mb-3 align-items-end">
                     <div class="col-md-6">
-                        <label asp-for="Framework_pkId" class="form-label">Framework</label>
+                        <label asp-for="FrameworkPkId" class="form-label">Framework</label>
                         <div class="input-group">
-                            <select asp-for="Framework_pkId" id="FrameworkDropdown" class="form-select" style="border-radius: 0.5rem 0 0 0.5rem;" asp-items="ViewBag.Frameworks">
+                            <select asp-for="FrameworkPkId" id="FrameworkDropdown" class="form-select" style="border-radius: 0.5rem 0 0 0.5rem;" asp-items="ViewBag.Frameworks">
                                 <option value="">-- Select Framework --</option>
                             </select>
                             <a href="@Url.Action("Index", "Framework")" target="_blank" class="btn" style="background-color: #8c5dd1; color: white; border-radius: 0 0.5rem 0.5rem 0;">
@@ -103,8 +103,8 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label asp-for="Company_pkId" class="form-label">Company</label>
-                        <select asp-for="Company_pkId" id="CompanyDropdown" class="form-select" asp-items="ViewBag.Companies" style="border-radius: 0.5rem;">
+                        <label asp-for="CompanyPkId" class="form-label">Company</label>
+                        <select asp-for="CompanyPkId" id="CompanyDropdown" class="form-select" asp-items="ViewBag.Companies" style="border-radius: 0.5rem;">
                             <option value="">-- Select Company --</option>
                             <option value="0">+ Create New Company</option>
                         </select>

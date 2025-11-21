@@ -1,4 +1,5 @@
-﻿@model List<Announcement>
+﻿@using ProjectManagementSystem.DBModels
+@model List<Announcement>
 
 @if (Model.Any())
 {
@@ -9,12 +10,12 @@
         <div class="card-body">
             @foreach (var announcement in Model)
             {
-                <div class="mb-3 p-3 border rounded @(announcement.BlocksSubmissions ? "bg-warning" : "")">
+                <div class="mb-3 p-3 border rounded @(announcement.BlocksSubmissions==false ? "bg-warning" : "")">
                     <h6>@announcement.Title</h6>
                     <p class="mb-2">@announcement.Message</p>
                     <small class="text-muted">
-                        @announcement.CreatedDate.ToString("MMM dd, yyyy") |
-                        @(announcement.BlocksSubmissions ? "Submissions Blocked" : "")
+                        @announcement.CreatedDate?.ToString("MMM dd, yyyy") |
+                        @(announcement.BlocksSubmissions==false ? "Submissions Blocked" : "")
                     </small>
                 </div>
             }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using ProjectManagementSystem.Models;
+using ProjectManagementSystem.DBModels;
 
 namespace ProjectManagementSystem.ViewModels
 {

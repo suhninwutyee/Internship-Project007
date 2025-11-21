@@ -1,0 +1,21 @@
+﻿@model IEnumerable<ProjectManagementSystem.DBModels.NotificationViewModel>
+
+<h2>Your Notifications (Student)</h2>
+
+<div class="list-group">
+    @if (Model.Any())
+    {
+        @foreach (var notif in Model.OrderByDescending(n => n.CreatedAt))
+        {
+            var isUnread = !(notif.IsRead ?? false);
+            <div class="list-group-item @(isUnread ? "list-group-item-unread" : "")">
+                <strong>@notif.Title</strong> - @notif.Message <br />
+                <small>@notif.CreatedAt.ToString("MMM dd, yyyy HH:mm")</small>
+            </div>
+        }
+    }
+    else
+    {
+        <div>No notifications</div>
+    }
+</div>

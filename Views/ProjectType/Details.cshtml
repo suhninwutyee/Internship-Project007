@@ -1,4 +1,4 @@
-﻿@model ProjectType
+﻿@model ProjectManagementSystem.DBModels.ProjectType
 @{
     Layout = "_Layout";
 }
@@ -28,7 +28,7 @@
         <div class="detail-content">
             <div class="detail-field">
                 <label class="field-label">Type ID</label>
-                <div class="field-value">@Model.ProjectType_pkId</div>
+                <div class="field-value">@Model.ProjectTypePkId</div>
             </div>
 
             <div class="detail-field highlight">
@@ -45,7 +45,7 @@
         </div>
 
         <div class="detail-footer">
-            <a asp-action="Edit" asp-route-id="@Model.ProjectType_pkId" class="edit-button">
+            <a asp-action="Edit" asp-route-id="@Model.ProjectTypePkId" class="edit-button">
                 <span class="button-icon">✎</span>
                 <span class="button-text">Edit This Type</span>
             </a>

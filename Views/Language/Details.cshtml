@@ -1,4 +1,4 @@
-﻿@model ProjectManagementSystem.Models.Language
+﻿@model ProjectManagementSystem.DBModels.Language
 
 @{
     ViewData["Title"] = "Language Details";
@@ -17,18 +17,18 @@
     <div class="card shadow-sm p-4 rounded bg-white">
         <dl class="row mb-0">
             <dt class="col-sm-3">ID</dt>
-            <dd class="col-sm-9">@Model.Language_pkId</dd>
+            <dd class="col-sm-9">@Model.LanguagePkId</dd>
 
             <dt class="col-sm-3">Language Name</dt>
             <dd class="col-sm-9">@Model.LanguageName</dd>
 
             <dt class="col-sm-3">Project Type</dt>
-            <dd class="col-sm-9">@Model.ProjectType?.TypeName</dd>
+            <dd class="col-sm-9">@Model.ProjectTypePk?.TypeName</dd>
         </dl>
     </div>
 
     <div class="mt-4">
-        <a asp-action="Edit" asp-route-id="@Model.Language_pkId" class="btn btn-warning me-2">✏️ Edit</a>
+        <a asp-action="Edit" asp-route-id="@Model.LanguagePkId" class="btn btn-warning me-2">✏️ Edit</a>
         <a asp-action="Index" class="btn btn-secondary">🔙 Back</a>
     </div>
 </div>

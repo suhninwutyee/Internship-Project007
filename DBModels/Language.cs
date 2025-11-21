@@ -11,9 +11,9 @@ public partial class Language
 
     public int ProjectTypePkId { get; set; }
 
-    public int ProjectTypePkId1 { get; set; }
-
     public virtual ICollection<Framework> Frameworks { get; set; } = new List<Framework>();
+
+    public virtual ProjectType ProjectTypePk { get; set; } = null!;
 
     public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
 }

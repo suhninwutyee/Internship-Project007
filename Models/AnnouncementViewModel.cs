@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ProjectManagementSystem.Models
+namespace ProjectManagementSystem.DBModels
 {
     public class AnnouncementViewModel
     {
@@ -19,5 +19,7 @@ namespace ProjectManagementSystem.Models
         // Computed property
         public bool IsActive => (StartDate ?? DateTime.Now) <= DateTime.Now &&
                                 (ExpiryDate == null || ExpiryDate >= DateTime.Now);
+
+        public IFormFile Attachment { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿@model ProjectManagementSystem.Models.Student
+﻿@model ProjectManagementSystem.DBModels.Student
 
 @{
     ViewData["Title"] = "Confirm Delete";
@@ -27,7 +27,7 @@
  *@                        </tr>
                         <tr>
                             <th>Email</th>
-                            <td>@Model.Email</td>
+                            <td>@Model.EmailPk</td>
                         </tr>
                         <tr>
                             <th>Phone</th>
@@ -35,7 +35,7 @@
                         </tr>
                         <tr>
                             <th>Department</th>
-                            <td>@Model.StudentDepartment?.DepartmentName</td>
+                            <td>@Model.DepartmentPk?.DepartmentName</td>
                         </tr>
                         <tr>
                             <th>Academic Year</th>
@@ -44,14 +44,14 @@
                         <tr>
                             <th>NRC</th>
                             <td>
-                                @($"{Model.NRCTownship?.RegionCode_M}/{Model.NRCTownship?.TownshipCode_M}({Model.NRCType?.TypeCode}){ToMyanmarDigits(Model.NRCNumber.ToString())}")
+                                @($"{Model.NrcPk?.RegionCodeM}/{Model.NrcPk?.TownshipCodeM}({Model.NrctypePk?.TypeCode}){ToMyanmarDigits(Model.Nrcnumber.ToString())}")
                             </td>
                         </tr>
                     </table>
 
                     <form asp-action="Delete" method="post">
                         @Html.AntiForgeryToken()
-                        <input type="hidden" asp-for="Student_pkId" />
+                        <input type="hidden" asp-for="StudentPkId" />
 
                         <div class="d-flex justify-content-between">
                             <button type="submit" class="btn text-white px-4" style="background-color: #8c5dd1;">

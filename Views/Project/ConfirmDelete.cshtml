@@ -1,11 +1,11 @@
-﻿@model ProjectManagementSystem.Models.Project
+﻿@model ProjectManagementSystem.DBModels.Project
 
 <h3>Are you sure you want to delete this project?</h3>
 <p>Project Name: @Model.ProjectName</p>
 <p>Status: @Model.Status</p>
 
 <form asp-action="ConfirmDelete" method="post">
-    <input type="hidden" asp-for="Project_pkId" />
+    <input type="hidden" asp-for="ProjectPkId" />
     <button type="submit" class="btn btn-danger">Yes, Delete</button>
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 //using ProjectManagementSystem.DBModels;
-namespace ProjectManagementSystem.Models
+namespace ProjectManagementSystem.DBModels
 {
     public class CompanyViewModel
     {

@@ -1,4 +1,4 @@
-﻿@model ProjectManagementSystem.ViewModels.TeacherDashboardViewModel
+﻿@model ProjectManagementSystem.DBModels.TeacherDashboardViewModel
 @using System.Text.Json
 @using System.Text.Json.Serialization
 
@@ -147,7 +147,7 @@
     <!-- Stats Cards Row -->
     <div class="row mb-4 g-4">
         <!-- Total Projects -->
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="stat-card" onclick="window.location.href='@Url.Action("AllProjects","Teacher")'">
                 <div class="stat-icon bg-primary"><i class="bi bi-folder"></i></div>
                 <h3 class="stat-title">Total Projects</h3>
@@ -156,7 +156,7 @@
         </div>
 
         <!-- Pending Projects -->
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="stat-card" onclick="window.location.href='@Url.Action("PendingProjects","Teacher")'">
                 <div class="stat-icon bg-warning"><i class="bi bi-list-task"></i></div>
                 <h3 class="stat-title">Pending Tasks</h3>
@@ -165,12 +165,12 @@
         </div>
 
         <!-- Announcement Card -->
-        <div class="col-md-4">
+    @*     <div class="col-md-4">
             @{
                 var activeAnnouncement = Model.Announcements?.FirstOrDefault();
                 var isEffective = activeAnnouncement != null &&
-                activeAnnouncement.IsActive &&
-                DateTime.Now.Date >= activeAnnouncement.StartDate.Date &&
+                activeAnnouncement.IsActive==false &&
+                DateTime.Now.Date >= activeAnnouncement.StartDate?.Date &&
                 (activeAnnouncement.ExpiryDate == null || DateTime.Now.Date <= activeAnnouncement.ExpiryDate.Value.Date);
             }
             <div class="stat-card announcement-card @(isEffective && activeAnnouncement?.BlocksSubmissions == true ? "border-danger" : "")">
@@ -182,10 +182,10 @@
                 @if (activeAnnouncement != null)
                 {
                     <div class="mb-2">
-                        <span class="badge @(activeAnnouncement.BlocksSubmissions ? "bg-danger" : "bg-success")">
-                            @(activeAnnouncement.BlocksSubmissions ? "Submissions Blocked" : "Submissions Open")
+                        <span class="badge @(activeAnnouncement.BlocksSubmissions==false ? "bg-danger" : "bg-success")">
+                            @(activeAnnouncement.BlocksSubmissions==false ? "Submissions Blocked" : "Submissions Open")
                         </span>
-                        @if (!activeAnnouncement.IsActive)
+                        @if (!activeAnnouncement.IsActive==false)
                         {
                             <span class="badge bg-secondary ms-1">Disabled</span>
                         }
@@ -202,7 +202,7 @@
 
                     <small class="text-muted d-block">
                         <i class="bi bi-calendar"></i>
-                        @activeAnnouncement.StartDate.ToString("MMM dd")
+                        @activeAnnouncement.StartDate?.ToString("MMM dd")
                         @if (activeAnnouncement.ExpiryDate.HasValue)
                         {
                             <text>- @activeAnnouncement.ExpiryDate.Value.ToString("MMM dd")</text>
@@ -225,20 +225,19 @@
                                 <i class="bi bi-pencil"></i> Manage
                             </a>
                         }
-                    <a asp-area="Teacher" asp-controller="Announcements" asp-action="Create"
-                       class="btn btn-sm btn-outline-success ms-2">
-                        <i class="bi bi-plus"></i> Create New
-                    </a>
-
+                        <a asp-controller="Announcement" asp-action="Create"
+                           class="btn btn-sm btn-outline-success ms-2">
+                            <i class="bi bi-plus"></i> Create New
+                        </a>
                     </div>
                 }
-            </div>
+            </div> *@
         </div>
     </div>
 
     <!-- Charts Row -->
     <div class="row mb-4">
-        <div class="col-md-8">
+        <div class="col-md-12">
             <div class="chart-container">
                 <h5>Project Submissions (Last 7 Days)</h5>
                 <div style="height:300px;">

@@ -1,4 +1,4 @@
-﻿@model ProjectManagementSystem.Models.Project
+﻿@model ProjectManagementSystem.DBModels.Project
 @{
     ViewData["Title"] = "Upload Project";
     Layout = "_Layout";
@@ -9,7 +9,7 @@
 
     <form asp-action="Upload" method="post" onsubmit="return confirm('Are you sure you want to upload the project?');">
         @Html.AntiForgeryToken()
-        <input type="hidden" asp-for="Project_pkId" />
+        <input type="hidden" asp-for="ProjectPkId" />
 
         <div class="mb-3">
             <label class="form-label">Project Name</label>
@@ -32,22 +32,22 @@
                         <div class="col-md-6 mb-3">
                             <div class="team-member-card">
                                 <div class="member-avatar">
-                                    @member.Student?.StudentName?[0]
+                                    @member.StudentPk?.StudentName?[0]
                                 </div>
                                 <div class="member-info">
-                                    <h6>@member.Student?.StudentName</h6>
-                                    <p class="text-muted small mb-1">@member.Student.Email?.RollNumber</p> <!-- ✅ FIXED LINE -->
+                                    <h6>@member.StudentPk?.StudentName</h6>
+                                    <p class="text-muted small mb-1">@member.StudentPk.EmailPk?.RollNumber</p> <!-- ✅ FIXED LINE -->
                                     <div class="d-flex align-items-center mb-2">
                                         <span class="badge @(member.Role == "Leader" ? "bg-purple" : "bg-secondary") me-2">
                                             @member.Role
                                         </span>
                                         <span class="text-muted small">
-                                            @member.Student?.StudentDepartment?.DepartmentName
+                                            @member.StudentPk?.DepartmentPk?.DepartmentName
                                         </span>
                                     </div>
                                 </div>
                                 <div class="member-actions">
-                                    <a href="mailto:@member.Student?.Email" class="btn btn-sm btn-outline-purple me-1" title="Email">
+                                    <a href="mailto:@member.StudentPk?.EmailPk" class="btn btn-sm btn-outline-purple me-1" title="Email">
                                         <i class="fas fa-envelope"></i>
                                     </a>
                                 </div>
@@ -70,22 +70,22 @@
 
         <div class="mb-3">
             <label class="form-label">Project Type</label>
-            <input class="form-control" value="@Model.ProjectType?.TypeName" readonly />
+            <input class="form-control" value="@Model.ProjectTypePk?.TypeName" readonly />
         </div>
 
         <div class="mb-3">
             <label class="form-label">Language</label>
-            <input class="form-control" value="@Model.Language?.LanguageName" readonly />
+            <input class="form-control" value="@Model.LanguagePk?.LanguageName" readonly />
         </div>
 
         <div class="mb-3">
             <label class="form-label">Framework</label>
-            <input class="form-control" value="@Model.Framework?.FrameworkName" readonly />
+            <input class="form-control" value="@Model.FrameworkPk?.FrameworkName" readonly />
         </div>
 
         <div class="mb-3">
             <label class="form-label">Company</label>
-            <input class="form-control" value="@Model.Company?.CompanyName" readonly />
+            <input class="form-control" value="@Model.CompanyPk?.CompanyName" readonly />
         </div>
 
         <div class="mb-3">
@@ -95,10 +95,10 @@
 
         <div class="mb-3">
             <label class="form-label">Existing Files</label>
-            @if (Model.Files != null && Model.Files.Any())
+            @if (Model.ProjectFiles != null && Model.ProjectFiles.Any())
             {
                 <ul class="list-group">
-                    @foreach (var file in Model.Files)
+                    @foreach (var file in Model.ProjectFiles)
                     {
                         <li class="list-group-item">
                             <a href="@file.FilePath" target="_blank">@System.IO.Path.GetFileName(file.FilePath)</a>

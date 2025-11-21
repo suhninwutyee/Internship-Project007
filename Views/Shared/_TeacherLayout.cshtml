@@ -38,12 +38,7 @@
                         <span class="menu-text">Dashboard</span>
                     </a>
                 </li>
-                @* <li class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "Announcements" ? "active" : "")">
-                    <a asp-area="" asp-controller="Announcement" asp-action="Index">
-                        <i class="fas fa-bullhorn"></i>
-                        <span class="menu-text">Announcements</span>
-                    </a>
-                </li> *@
+             
                 <li class="menu-item has-submenu" id="managementMenu">
                     <div class="submenu-header">
                         <i class="bx bx-briefcase"></i>
@@ -62,10 +57,28 @@
                         </li> *@
                     </ul>
                 </li>
+                <!-- Announcement Menu -->
+                <li class="menu-item has-submenu" id="announcementMenu">
+                    <div class="submenu-header">
+                        <i class="bx bx-megaphone"></i>
+                        <span class="menu-text">Announcements</span>
+                        <i class="bx bx-chevron-right submenu-toggle"></i>
+                    </div>
+                    <ul class="submenu">
+                        <li class="submenu-item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")">
+                            <a asp-controller="Announcement" asp-action="Index">All Announcements</a>
+                        </li>
+                        <li class="submenu-item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Create" ? "active" : "")">
+                            <a asp-controller="Announcement" asp-action="Create">Create Announcement</a>
+                        </li>
+                    </ul>
+                </li>
+
+
                 <li class="menu-item @(ViewContext.RouteData.Values["Action"]?.ToString() == "SubmittedProjects" ? "active" : "")">
                     <a asp-area="" asp-controller="ProjectApproval" asp-action="Index">
                         <i class="bx bx-folder-open"></i>
-                        <span class="menu-text">Submitted Projects</span>
+                        <span class="menu-text">Project Approval</span>
                     </a>
                 </li>
                @*  <li class="menu-item @(ViewContext.RouteData.Values["Action"].ToString() == "ActivityLog" ? "active" : "")">
@@ -107,7 +120,7 @@
                 </div>
 
                 <div class="nav-icons-container">
-                    <!-- Notification Bell -->
+                   @*  <!-- Notification Bell -->
                     <div class="cute-notifications">
                         <a class="cute-bell" href="#" id="notificationDropdown">
                             <svg class="bell-icon" viewBox="0 0 24 24">
@@ -136,7 +149,31 @@
                             </div>
                             
                         </div>
-                    </div>
+                    </div> *@
+                    <div class="cute-notifications">
+                        <a class="cute-bell" href="@Url.Action("IndexTeacher","Notifications")" id="notificationDropdown">
+                            <svg class="bell-icon" viewBox="0 0 24 24">
+                                <path fill="#8C5DD1" d="M12,22A2,2 0 0,0 14,20H10A2,2 0 0,0 12,22M18,16V11C18,7.93 16.36,5.36 13.5,4.68V4A1.5,1.5 0 0,0 12,2.5A1.5,1.5 0 0,0 10.5,4V4.68C7.63,5.36 6,7.92 6,11V16L4,18V19H20V18L18,16Z" />
+                                <circle class="pulse" fill="#FF6B6B" cx="18" cy="5" r="3.2" />
+                            </svg>
+                            <span class="cute-badge" id="notificationBadge">
+                                @await Component.InvokeAsync("Notification", new { role = "Teacher" })
+                            </span>
+                        </a>
+                        <!-- Notification Dropdown -->
+                        <div class="cute-notification-box">
+                            <div class="notification-header">
+                                <div class="header-left">
+                                    <h6 class="cute-title">My Notifications</h6>
+                                </div>
+                                <button class="mark-all-read btn btn-sm btn-outline-primary" id="markAllRead">Mark All Read</button>
+                            </div>
+
+                            <div class="notification-list">
+                                @await Component.InvokeAsync("Notification", new { role = "Teacher" })
+                            </div>
+                        </div>
+                        </div>
 
                     <div class="profile-container">
                         <span class="avatar">@User.FindFirst("Initial")?.Value</span>
@@ -153,6 +190,32 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+        //Noti
+                $(document).ready(function() {
+
+            // Mark all as read
+            $('#markAllRead').click(function() {
+                $.post('@Url.Action("MarkAllAsRead", "Notifications")')
+                .done(function(data){
+                    if(data.success){
+                        $('.notification-list .list-group-item').removeClass('unread');
+                        $('#notificationBadge').text('0');
+                    }
+                });
+            });
+
+            // Update badge count periodically
+            function updateNotificationCount(){
+                $.get('@Url.Action("GetUnreadCount", "Notifications")')
+                .done(function(count){
+                    $('#notificationBadge').text(count);
+                });
+            }
+
+            setInterval(updateNotificationCount, 30000);
+        });
+        //Noti
+
                 $(document).ready(function () {
                     // --- SIDEBAR AND MENU LOGIC ---
 

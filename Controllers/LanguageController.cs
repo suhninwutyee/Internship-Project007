@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementSystem.Data;
+using ProjectManagementSystem.DBModels;
 using ProjectManagementSystem.Models;
 using System.Threading.Tasks;
 using System.Linq;
@@ -25,8 +25,8 @@ namespace ProjectManagementSystem.Controllers
             int pageNumber = page ?? 1;     // Current page number (default 1)
 
             var languages = await _context.Languages
-                .Include(l => l.ProjectType)
-                                .OrderBy(l => l.Language_pkId)
+                .Include(l => l.ProjectTypePk)
+                                .OrderBy(l => l.LanguagePkId)
                                 .ToPagedListAsync(pageNumber, pageSize);
 
             return View(languages);
@@ -39,7 +39,7 @@ namespace ProjectManagementSystem.Controllers
                 return NotFound();
 
             var language = await _context.Languages
-                .FirstOrDefaultAsync(m => m.Language_pkId == id);
+                .FirstOrDefaultAsync(m => m.LanguagePkId == id);
 
             if (language == null)
                 return NotFound();
@@ -50,16 +50,16 @@ namespace ProjectManagementSystem.Controllers
         // GET: Language/Create
         public IActionResult Create()
         {
-            ViewBag.ProjectTypes = new SelectList(_context.ProjectTypes.OrderBy(t => t.TypeName), "ProjectType_pkId", "TypeName");
+            ViewBag.ProjectTypes = new SelectList(_context.ProjectTypes.OrderBy(t => t.TypeName), "ProjectTypePkId", "TypeName");
             return View();
         }
 
         // POST: Language/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Language language)
+        public async Task<IActionResult> Create(DBModels.Language language)
         {
-            if (ModelState.IsValid) // Fix: Validate properly
+            if (!ModelState.IsValid) // Fix: Validate properly
             {
                 _context.Languages.Add(language);
                 await _context.SaveChangesAsync();
@@ -67,7 +67,7 @@ namespace ProjectManagementSystem.Controllers
             }
 
             // Reload ProjectTypes if validation fails
-            ViewBag.ProjectTypes = new SelectList(_context.ProjectTypes.OrderBy(t => t.TypeName), "ProjectType_pkId", "TypeName", language.ProjectType_pkId);
+            ViewBag.ProjectTypes = new SelectList(_context.ProjectTypes.OrderBy(t => t.TypeName), "ProjectTypePkId", "TypeName", language.ProjectTypePkId);
             return View(language);
         }
 
@@ -79,16 +79,16 @@ namespace ProjectManagementSystem.Controllers
             var language = await _context.Languages.FindAsync(id);
             if (language == null) return NotFound();
 
-            ViewBag.ProjectTypes = new SelectList(_context.ProjectTypes.OrderBy(t => t.TypeName), "ProjectType_pkId", "TypeName", language.ProjectType_pkId);
+            ViewBag.ProjectTypes = new SelectList(_context.ProjectTypes.OrderBy(t => t.TypeName), "ProjectTypePkId", "TypeName", language.ProjectTypePkId);
             return View(language);
         }
 
         // POST: Language/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Language language)
+        public async Task<IActionResult> Edit(int id, DBModels.Language language)
         {
-            if (id != language.Language_pkId)
+            if (id != language.LanguagePkId)
                 return NotFound();
 
             if (ModelState.IsValid) // Fix: run update only if valid
@@ -101,7 +101,7 @@ namespace ProjectManagementSystem.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_context.Languages.Any(e => e.Language_pkId == language.Language_pkId))
+                    if (!_context.Languages.Any(e => e.LanguagePkId == language.LanguagePkId))
                         return NotFound();
                     else
                         throw;
@@ -109,7 +109,7 @@ namespace ProjectManagementSystem.Controllers
             }
 
             // Reload ProjectTypes dropdown if validation fails
-            ViewBag.ProjectTypes = new SelectList(_context.ProjectTypes.OrderBy(t => t.TypeName), "ProjectType_pkId", "TypeName", language.ProjectType_pkId);
+            ViewBag.ProjectTypes = new SelectList(_context.ProjectTypes.OrderBy(t => t.TypeName), "ProjectTypePkId", "TypeName", language.ProjectTypePkId);
             return View(language);
         }
 

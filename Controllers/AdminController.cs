@@ -179,7 +179,7 @@ namespace ProjectManagementSystem.Controllers
                 return NotFound();
             }
 
-            var model = new ProjectManagementSystem.Models.MyProfileViewModel
+            var model = new ProjectManagementSystem.DBModels.MyProfileViewModel
             {
                 FullName = user.FullName,
                 Email = user.Email,

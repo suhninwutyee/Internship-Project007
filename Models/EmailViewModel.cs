@@ -1,5 +1,5 @@
 ﻿// Models/EmailViewModel.cs
-namespace ProjectManagementSystem.Models
+namespace ProjectManagementSystem.DBModels
 {
     public class EmailViewModel
     {

@@ -1,4 +1,4 @@
-﻿@model ProjectManagementSystem.Models.Project
+﻿@model ProjectManagementSystem.DBModels.Project
 
 @{
     ViewData["Title"] = "Reject Project";
@@ -15,12 +15,12 @@
             <dd class="col-sm-9">@Model.ProjectName</dd>
 
             <dt class="col-sm-3">Company</dt>
-            <dd class="col-sm-9">@Model.Company?.CompanyName</dd>
+            <dd class="col-sm-9">@Model.CompanyPk?.CompanyName</dd>
         </dl>
 
         <form asp-action="Reject">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Project_pkId" />
+            <input type="hidden" asp-for="ProjectPkId" />
 
             <div class="form-group">
                 <label asp-for="AdminComment" class="control-label">Rejection Reason</label>

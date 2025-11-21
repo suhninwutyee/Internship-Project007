@@ -70,12 +70,14 @@ public partial class PMSDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<StudentDepartment> StudentDepartments { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=203.81.89.218; Database=InternPMS; User Id=internadmin; Password=intern@dmin123;Trust Server Certificate=true");
+        //=> optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=InternPMS;Trusted_Connection=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<AcademicYear>(entity =>
         {
             entity.HasKey(e => e.AcademicYearPkId);
@@ -189,9 +191,7 @@ public partial class PMSDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.ImageFileName).HasMaxLength(200);
             entity.Property(e => e.Incharge).HasMaxLength(100);
 
-            entity.HasOne(d => d.CityPk).WithMany(p => p.Companies)
-                .HasForeignKey(d => d.CityPkId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            entity.HasOne(d => d.CityPk).WithMany(p => p.Companies).HasForeignKey(d => d.CityPkId);
         });
 
         modelBuilder.Entity<Email>(entity =>
@@ -225,7 +225,11 @@ public partial class PMSDbContext : IdentityDbContext<ApplicationUser>
 
             entity.Property(e => e.LanguagePkId).HasColumnName("Language_pkId");
             entity.Property(e => e.ProjectTypePkId).HasColumnName("ProjectType_pkId");
-            entity.Property(e => e.ProjectTypePkId1).HasColumnName("ProjectType_pkId1");
+
+            entity.HasOne(d => d.ProjectTypePk).WithMany(p => p.Languages)
+                .HasForeignKey(d => d.ProjectTypePkId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Languages_ProjectTypes");
         });
 
         modelBuilder.Entity<Notification>(entity =>

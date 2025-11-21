@@ -1,4 +1,5 @@
-﻿@model Project
+﻿@using ProjectManagementSystem.DBModels
+@model Project
 @{
     ViewData["Title"] = "Project Details";
     Layout = "~/Views/Shared/_TeacherLayout.cshtml";
@@ -314,22 +315,22 @@
 
         <div class="detail-row">
             <div class="detail-label">Project Type:</div>
-            <div class="detail-value">@Model.ProjectType?.TypeName</div>
+            <div class="detail-value">@Model.ProjectTypePk?.TypeName</div>
         </div>
 
         <div class="detail-row">
             <div class="detail-label">Company:</div>
-            <div class="detail-value">@Model.Company?.CompanyName</div>
+            <div class="detail-value">@Model.CompanyPk?.CompanyName</div>
         </div>
 
         <div class="detail-row">
             <div class="detail-label">Language:</div>
-            <div class="detail-value">@Model.Language?.LanguageName</div>
+            <div class="detail-value">@Model.LanguagePk?.LanguageName</div>
         </div>
 
         <div class="detail-row">
             <div class="detail-label">Framework:</div>
-            <div class="detail-value">@Model.Framework?.FrameworkName</div>
+            <div class="detail-value">@Model.FrameworkPk?.FrameworkName</div>
         </div>
 
         <div class="detail-row">
@@ -345,9 +346,9 @@
                     var leader = Model.ProjectMembers?.FirstOrDefault(pm => pm.Role == "Leader");
                 }
 
-                @if (leader != null && leader.Student != null)
+                @if (leader != null && leader.StudentPk != null)
                 {
-                    @leader.Student.StudentName
+                    @leader.StudentPk.StudentName
                 }
                 else
                 {
@@ -363,7 +364,7 @@
                 @if (Model.ProjectMembers != null)
                 {
                     var members = Model.ProjectMembers
-                    .Where(pm => pm.Role == "Member" && pm.Student != null)
+                    .Where(pm => pm.Role == "Member" && pm.StudentPk != null)
                     .ToList();
 
                     if (members.Any())
@@ -371,7 +372,7 @@
                         <ul class="mb-0" style="padding-left: 18px;">
                             @foreach (var member in members)
                             {
-                                <li>@member.Student.StudentName</li>
+                                <li>@member.StudentPk.StudentName</li>
                             }
                         </ul>
                     }
@@ -397,16 +398,16 @@
     </div>
 
     <!-- Files Section -->
-    @if (Model.Files != null && Model.Files.Any())
+    @if (Model.ProjectFiles != null && Model.ProjectFiles.Any())
     {
         <div class="details-section">
             <h3 class="section-title">Attached Files</h3>
             <ul class="files-list">
-                @foreach (var file in Model.Files)
+                @foreach (var file in Model.ProjectFiles)
                 {
                     <li class="file-item">
                         <i class="fas fa-file-alt file-icon"></i>
-                        <a href="@Url.Action("Download", "Files", new { id = file.ProjectFile_pkId })" target="_blank">
+                        <a href="@Url.Action("Download", "Files", new { id = file.ProjectFilePkId })" target="_blank">
                             @file.FilePath
                         </a>
                     </li>
@@ -424,9 +425,9 @@
                 @foreach (var member in Model.ProjectMembers)
                 {
                     <div class="member-card">
-                       <div><strong>@member.Student?.StudentName</strong></div>  <!-- Access through Student navigation property -->
+                       <div><strong>@member.StudentPk?.StudentName</strong></div>  <!-- Access through Student navigation property -->
                         <div>@member.Role</div>
-                        <div>@member.Student?.Email</div> <!-- If you need email -->
+                        <div>@member.StudentPk?.EmailPk</div> <!-- If you need email -->
                     </div>
                 }
             </div>
@@ -449,13 +450,13 @@
 
         <div class="action-buttons">
             <button type="button" class="btn-approve"
-                    data-id="@Model.Project_pkId"
+                    data-id="@Model.ProjectPkId"
                     data-name="@Model.ProjectName">
                 <i class="fas fa-check"></i> Approve Project
             </button>
 
             <button type="button" class="btn-reject"
-                    data-id="@Model.Project_pkId"
+                    data-id="@Model.ProjectPkId"
                     data-name="@Model.ProjectName">
                 <i class="fas fa-times"></i> Reject Project
             </button>

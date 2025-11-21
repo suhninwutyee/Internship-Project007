@@ -1,6 +1,7 @@
 ﻿using X.PagedList;
+using ProjectManagementSystem.Models;
 
-namespace ProjectManagementSystem.Models
+namespace ProjectManagementSystem.DBModels
 {
     public class StudentDashboardViewModel
     {

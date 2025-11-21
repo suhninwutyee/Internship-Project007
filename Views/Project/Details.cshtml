@@ -1,4 +1,4 @@
-﻿@model ProjectManagementSystem.Models.Project
+﻿@model ProjectManagementSystem.DBModels.Project
 
 @{
     ViewData["Title"] = "Project Details";
@@ -73,19 +73,19 @@
             </tr>
             <tr>
                 <th>Project Type</th>
-                <td>@Model.ProjectType?.TypeName</td>
+                <td>@Model.ProjectTypePk?.TypeName</td>
             </tr>
             <tr>
                 <th>Language</th>
-                <td>@Model.Language?.LanguageName</td>
+                <td>@Model.LanguagePk?.LanguageName</td>
             </tr>
             <tr>
                 <th>Framework</th>
-                <td>@Model.Framework?.FrameworkName</td>
+                <td>@Model.FrameworkPk?.FrameworkName</td>
             </tr>
             <tr>
                 <th>Company</th>
-                <td>@Model.Company?.CompanyName</td>
+                <td>@Model.CompanyPk?.CompanyName</td>
             </tr>
 
             <tr>
@@ -93,10 +93,10 @@
                 <td>
                     @{
                         var leader = Model.ProjectMembers?
-                        .FirstOrDefault(pm => pm.Role == "Leader" && !pm.IsDeleted && pm.Student != null);
+                        .FirstOrDefault(pm => pm.Role == "Leader" && pm.IsDeleted==false && pm.StudentPk != null);
                         if (leader != null)
                         {
-                            <span>@leader.Student.StudentName </span>
+                            <span>@leader.StudentPk.StudentName </span>
                         }
                         else
                         {
@@ -111,13 +111,13 @@
                 <td>
                     @{
                         var members = Model.ProjectMembers?
-                        .Where(pm => pm.Role == "Member" && !pm.IsDeleted && pm.Student != null)
+                        .Where(pm => pm.Role == "Member" && pm.IsDeleted==false && pm.StudentPk != null)
                         .ToList();
                         if (members != null && members.Any())
                         {
                             foreach (var member in members)
                             {
-                                <div>@member.Student.StudentName</div>
+                                <div>@member.StudentPk.StudentName</div>
                             }
                         }
                         else
@@ -174,29 +174,29 @@
             </div>
         }
 
-        @if (Model.Company != null)
+        @if (Model.CompanyPk != null)
         {
             <div class="company-card mt-4">
-                @if (!string.IsNullOrEmpty(Model.Company.ImageFileName))
+                @if (!string.IsNullOrEmpty(Model.CompanyPk.ImageFileName))
                 {
-                    <img class="company-image" src="~/images/companies/@Model.Company.ImageFileName" alt="Company Image" />
+                    <img class="company-image" src="~/images/companies/@Model.CompanyPk.ImageFileName" alt="Company Image" />
                 }
                 <div class="p-3">
-                    <h5>@Model.Company.CompanyName</h5>
-                    <p><strong>Address:</strong> @Model.Company.Address</p>
-                    <p><strong>Contact:</strong> @Model.Company.Contact</p>
-                    <p><strong>Description:</strong> @Model.Company.Description</p>
-                    <p><strong>City:</strong> @Model.Company.City?.CityName</p>
+                    <h5>@Model.CompanyPk.CompanyName</h5>
+                    <p><strong>Address:</strong> @Model.CompanyPk.Address</p>
+                    <p><strong>Contact:</strong> @Model.CompanyPk.Contact</p>
+                    <p><strong>Description:</strong> @Model.CompanyPk.Description</p>
+                    <p><strong>City:</strong> @Model.CompanyPk.CityPk?.CityName</p>
                 </div>
             </div>
         }
 
-        @if (Model.Files != null && Model.Files.Any())
+        @if (Model.ProjectFiles != null && Model.ProjectFiles.Any())
         {
             <hr />
             <h5 class="mt-4">📎 Project Files</h5>
             <ul class="list-group">
-                @foreach (var file in Model.Files)
+                @foreach (var file in Model.ProjectFiles)
                 {
                     <li class="list-group-item d-flex justify-content-between align-items-center">
                         <a href="@file.FilePath" target="_blank">Download @file.FileType file</a>

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementSystem.Data;
+using ProjectManagementSystem.DBModels;
 using ProjectManagementSystem.Models;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,8 +27,8 @@ public class FrameworkController : Controller
         int pageNumber = page ?? 1;
 
         var frameworks = await _context.Frameworks
-            .Include(f => f.Language)
-            .OrderBy(f => f.Framework_pkId)
+            .Include(f => f.LanguagePk)
+            .OrderBy(f => f.FrameworkPkId)
             .ToPagedListAsync(pageNumber, pageSize);
 
         return View(frameworks);
@@ -40,8 +40,8 @@ public class FrameworkController : Controller
         if (id == null) return NotFound();
 
         var framework = await _context.Frameworks
-            .Include(f => f.Language) // Include the related Language
-            .FirstOrDefaultAsync(f => f.Framework_pkId == id);
+            .Include(f => f.LanguagePk) // Include the related Language
+            .FirstOrDefaultAsync(f => f.FrameworkPkId == id);
 
         if (framework == null) return NotFound();
 
@@ -55,7 +55,7 @@ public class FrameworkController : Controller
         var languages = await _context.Languages
             .Select(l => new SelectListItem
             {
-                Value = l.Language_pkId.ToString(),
+                Value = l.LanguagePkId.ToString(),
                 Text = l.LanguageName
             })
             .ToListAsync();
@@ -79,17 +79,17 @@ public class FrameworkController : Controller
             model.Languages = await _context.Languages
                 .Select(l => new SelectListItem
                 {
-                    Value = l.Language_pkId.ToString(),
+                    Value = l.LanguagePkId.ToString(),
                     Text = l.LanguageName
                 })
                 .ToListAsync();
             return View(model);
         }
 
-        var framework = new Framework
+        var framework = new ProjectManagementSystem.DBModels.Framework
         {
             FrameworkName = model.FrameworkName,
-            Language_pkId = model.SelectedLanguageId
+            LanguagePkId = model.SelectedLanguageId
         };
 
         _context.Frameworks.Add(framework);
@@ -109,16 +109,16 @@ public class FrameworkController : Controller
         var viewModel = new FrameworkCreateViewModel
         {
             FrameworkName = framework.FrameworkName,
-            SelectedLanguageId = framework.Language_pkId,
+            SelectedLanguageId = framework.LanguagePkId,
             Languages = await _context.Languages
                 .Select(l => new SelectListItem
                 {
-                    Value = l.Language_pkId.ToString(),
+                    Value = l.LanguagePkId.ToString(),
                     Text = l.LanguageName
                 }).ToListAsync()
         };
 
-        ViewBag.FrameworkId = framework.Framework_pkId;
+        ViewBag.FrameworkId = framework.FrameworkPkId;
         return View(viewModel);
     }
 
@@ -133,7 +133,7 @@ public class FrameworkController : Controller
             model.Languages = await _context.Languages
                 .Select(l => new SelectListItem
                 {
-                    Value = l.Language_pkId.ToString(),
+                    Value = l.LanguagePkId.ToString(),
                     Text = l.LanguageName
                 }).ToListAsync();
 
@@ -145,7 +145,7 @@ public class FrameworkController : Controller
         if (framework == null) return NotFound();
 
         framework.FrameworkName = model.FrameworkName;
-        framework.Language_pkId = model.SelectedLanguageId;
+        framework.LanguagePkId = model.SelectedLanguageId;
 
         _context.Update(framework);
         await _context.SaveChangesAsync();
@@ -158,8 +158,8 @@ public class FrameworkController : Controller
         if (id == null) return NotFound();
 
         var framework = await _context.Frameworks
-            .Include(f => f.Language)
-            .FirstOrDefaultAsync(f => f.Framework_pkId == id);
+            .Include(f => f.LanguagePk)
+            .FirstOrDefaultAsync(f => f.FrameworkPkId == id);
 
         if (framework == null) return NotFound();
 

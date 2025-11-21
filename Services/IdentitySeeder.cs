@@ -3,6 +3,7 @@ using ProjectManagementSystem.Models;
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using ProjectManagementSystem.DBModels;
 
 public static class IdentitySeeder
 {

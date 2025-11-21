@@ -1,4 +1,5 @@
-﻿@model MyProfileViewModel
+﻿@using ProjectManagementSystem.DBModels
+@model MyProfileViewModel
 @{
     ViewData["Title"] = "My Profile";
     Layout = "~/Views/Shared/_TeacherLayout.cshtml";
@@ -32,9 +33,9 @@
         }
 
         body {
-            background-color: #F1F5F9;
-            color: var(--dark);
-            line-height: 1.6;
+            background: linear-gradient(135deg, #e4eefd);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .profile-container {

@@ -1,4 +1,5 @@
-﻿ @model NRCFormViewModel
+﻿@using ProjectManagementSystem.DBModels
+ @model NRCFormViewModel
 @functions {
     // Convert Myanmar digit string like "၁" or "၁၂" to int
     int MyanmarDigitsToInt(string myanmarNumber)
@@ -261,9 +262,9 @@
                                         <label class="form-label">Roll Number</label>
                                         <div class="input-icon">
                                             <i class="fas fa-id-card"></i>
-                                            <input asp-for="Student.Email.RollNumber" class="form-control" placeholder="Enter roll number" />
+                                            <input asp-for="Student.EmailPk.RollNumber" class="form-control" placeholder="Enter roll number" />
                                         </div>
-                                        <span asp-validation-for="Student.Email.RollNumber" class="text-danger"></span>
+                                        <span asp-validation-for="Student.EmailPk.RollNumber" class="text-danger"></span>
                                     </div>
                                 </div>
 
@@ -272,9 +273,9 @@
                                         <label class="form-label">Email Address</label>
                                         <div class="input-icon">
                                             <i class="fas fa-envelope"></i>
-                                            <input asp-for="Student.Email.EmailAddress" class="form-control" placeholder="Enter email" />
+                                            <input asp-for="Student.EmailPk.EmailAddress" class="form-control" placeholder="Enter email" />
                                         </div>
-                                        <span asp-validation-for="Student.Email.EmailAddress" class="text-danger"></span>
+                                        <span asp-validation-for="Student.EmailPk.EmailAddress" class="text-danger"></span>
                                     </div>
                                 </div>
 
@@ -315,22 +316,22 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label asp-for="Student.AcademicYear_pkId" class="form-label">Academic Year</label>
-                                        <select asp-for="Student.AcademicYear_pkId" class="form-select" asp-items="@(new SelectList(Model.AcademicYearList, "AcademicYear_pkId", "YearRange"))">
+                                        <label asp-for="Student.AcademicYearPkId" class="form-label">Academic Year</label>
+                                        <select asp-for="Student.AcademicYearPkId" class="form-select" asp-items="@(new SelectList(Model.AcademicYearList, "AcademicYearPkId", "YearRange"))">
                                             <option value="">-- Select Academic Year --</option>
                                         </select>
-                                        <span asp-validation-for="Student.AcademicYear_pkId" class="text-danger"></span>
+                                        <span asp-validation-for="Student.AcademicYearPkId" class="text-danger"></span>
                                     </div>
                                 </div>
                              
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="form-label">Department</label>
-                                        <select asp-for="Student.Department_pkID" class="form-select"
-                                                asp-items="@(new SelectList(Model.DepartmentList, "Department_pkID", "DepartmentName"))">
+                                        <select asp-for="Student.DepartmentPkId" class="form-select"
+                                                asp-items="@(new SelectList(Model.DepartmentList, "DepartmentPkId", "DepartmentName"))">
                                             <option value="">-- Select Department --</option>
                                         </select>
-                                        <span asp-validation-for="Student.Department_pkID" class="text-danger"></span>
+                                        <span asp-validation-for="Student.DepartmentPkId" class="text-danger"></span>
                                     </div>
                                 </div>
                             </div>
@@ -361,10 +362,10 @@
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label class="form-label">Township</label>
-                                        <select asp-for="Student.NRC_pkId" class="form-select" id="township" data-township-selector>
+                                        <select asp-for="Student.NrcPkId" class="form-select" id="township" data-township-selector>
                                             <option value="">-- Select Township --</option>
                                         </select>
-                                        <span asp-validation-for="Student.NRC_pkId" class="text-danger"></span>
+                                        <span asp-validation-for="Student.NrcPkId" class="text-danger"></span>
                                     </div>
                                 </div>
 
@@ -372,14 +373,14 @@
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label class="form-label">NRC Type</label>
-                                        <select asp-for="Student.NRCType_pkId" class="form-select">
+                                        <select asp-for="Student.NrctypePkId" class="form-select">
                                             <option value="">-- Select Type --</option>
                                             @foreach (var type in Model.NRCTypeList)
                                             {
-                                                <option value="@type.NRCType_pkId">@type.TypeCode</option>
+                                                <option value="@type.NrctypePkId">@type.TypeCode</option>
                                             }
                                         </select>
-                                        <span asp-validation-for="Student.NRCType_pkId" class="text-danger"></span>
+                                        <span asp-validation-for="Student.NrctypePkId" class="text-danger"></span>
                                     </div>
                                 </div>
                               
@@ -387,8 +388,8 @@
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label class="form-label">NRC Number</label>
-                                        <input asp-for="Student.NRCNumber" class="form-control" maxlength="6" placeholder="Enter NRC Number" />
-                                        <span asp-validation-for="Student.NRCNumber" class="text-danger"></span>
+                                        <input asp-for="Student.Nrcnumber" class="form-control" maxlength="6" placeholder="Enter NRC Number" />
+                                        <span asp-validation-for="Student.Nrcnumber" class="text-danger"></span>
                                     </div>
                                 </div>
                             </div>

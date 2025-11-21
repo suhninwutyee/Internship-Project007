@@ -1,4 +1,4 @@
-﻿@model ProjectManagementSystem.Models.ProjectMember
+﻿@model ProjectManagementSystem.DBModels.ProjectMember
 
 @{
     ViewData["Title"] = "Delete Project Member";
@@ -11,7 +11,7 @@
 
 
 <form asp-action="DeleteConfirmed" method="post">
-    <input type="hidden" asp-for="ProjectMember_pkId" />
+    <input type="hidden" asp-for="ProjectMemberPkId" />
     <button type="submit" class="btn btn-danger">Yes, Delete</button>
     <a asp-action="Index" class="btn btn-secondary">Cancel</a>
 </form>

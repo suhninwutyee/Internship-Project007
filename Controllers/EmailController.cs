@@ -90,7 +90,7 @@ namespace ProjectManagementSystem.Controllers
         // POST: Email/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("EmailAddress,RollNumber,AcademicYear_pkId")] DBModels.Email email)
+        public async Task<IActionResult> Create([Bind("EmailAddress,RollNumber,AcademicYearPkId")] DBModels.Email email)
         {
             try
             {

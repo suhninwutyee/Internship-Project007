@@ -2,13 +2,16 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-public class FrameworkCreateViewModel
+namespace ProjectManagementSystem.DBModels
 {
-    [Required]
-    public string FrameworkName { get; set; }
+    public class FrameworkCreateViewModel
+    {
+        [Required]
+        public string FrameworkName { get; set; }
 
-    [Required]
-    [Display(Name = "Language")]
-    public int SelectedLanguageId { get; set; }
-    public IEnumerable<SelectListItem> Languages { get; set; }
+        [Required]
+        [Display(Name = "Language")]
+        public int SelectedLanguageId { get; set; }
+        public IEnumerable<SelectListItem> Languages { get; set; }
+    }
 }

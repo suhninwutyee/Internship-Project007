@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementSystem.Data;
+using ProjectManagementSystem.DBModels;
 using ProjectManagementSystem.Models;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,15 +23,19 @@ namespace ProjectManagementSystem.Controllers
 
         public IActionResult Create()
         {
-            var nrcTypes = _context.NRCTypes.ToList();
-            var townships = _context.NRCTownships.ToList();
-            var regionCodes = townships.Select(t => t.RegionCode_M).Distinct().ToList();
+            var nrcTypes = _context.Nrctypes.ToList();
+            var townships = _context.Nrctownships.ToList();
+            var regionCodes = townships.Select(t => t.RegionCodeM).Distinct().ToList();
             var departments = _context.StudentDepartments.OrderBy(d => d.DepartmentName).ToList();
             var years = _context.AcademicYears.OrderByDescending(y => y.YearRange).ToList();
 
             var viewModel = new NRCFormViewModel
             {
-                Student = new Student(),
+                Student = new DBModels.Student
+                {
+                    EmailPk=new DBModels.Email()
+                },
+                
                 NRCTypeList = nrcTypes,
                 RegionCodeMList = regionCodes,
                 TownshipList = townships,
@@ -44,99 +48,44 @@ namespace ProjectManagementSystem.Controllers
             var email = HttpContext.Session.GetString("EmailAddress");
             var role = HttpContext.Session.GetString("UserRole");
 
+            if (string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(roll))
+            {
+                var emailEntry = _context.Emails
+                    .FirstOrDefault(e => e.RollNumber == roll && (e.IsDeleted ?? false) == false);
+                if (emailEntry != null)
+                {
+                    email = emailEntry.EmailAddress;
+                    HttpContext.Session.SetString("EmailAddress", email);
+                }
+            }
+
             if (!string.IsNullOrEmpty(role) && role == "Leader")
             {
                 // Initialize Email object if null to avoid NullReferenceException
-                if (viewModel.Student.Email == null)
+                if (viewModel.Student.EmailPk == null)
                 {
-                    viewModel.Student.Email = new Email();
+                    viewModel.Student.EmailPk = new DBModels.Email();
                    
                 }
 
-                viewModel.Student.Email.RollNumber = roll;
-                viewModel.Student.Email.EmailAddress = email;
+                viewModel.Student.EmailPk.RollNumber = roll;
+                viewModel.Student.EmailPk.EmailAddress = email;
                 ViewBag.NextAction = "CreateProject"; // redirect target for Leader
             }
 
             return View(viewModel);
         }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create(NRCFormViewModel model, IFormFile? ProfilePhoto, string? nextAction)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        // Reload dropdowns if validation fails
-        //        model.NRCTypeList = _context.NRCTypes.ToList();
-        //        model.RegionCodeMList = _context.NRCTownships.Select(t => t.RegionCode_M).Distinct().ToList();
-        //        model.TownshipList = _context.NRCTownships.ToList();
-        //        model.DepartmentList = _context.StudentDepartments.OrderBy(d => d.DepartmentName).ToList();
-        //        model.AcademicYearList = _context.AcademicYears.OrderByDescending(y => y.YearRange).ToList();
-        //        return View(model);
-        //    }
-
-        //    if (ProfilePhoto != null && ProfilePhoto.Length > 0)
-        //    {
-        //        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/students");
-
-        //        if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
-
-        //        var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(ProfilePhoto.FileName);
-        //        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-        //        using (var fileStream = new FileStream(filePath, FileMode.Create))
-        //        {
-        //            await ProfilePhoto.CopyToAsync(fileStream);
-        //        }
-
-        //        model.Student.ProfilePhotoUrl = "/uploads/students/" + uniqueFileName;
-        //    }
-
-        //    // Set additional fields
-        //    model.Student.CreatedDate = DateTime.Now;
-        //    model.Student.IsDeleted = false;
-
-        //    // Get RollNumber and Email from session
-        //    var roll = HttpContext.Session.GetString("RollNumber");
-        //    var email = HttpContext.Session.GetString("EmailAddress");
-
-        //    var emailEntry = _context.Emails.FirstOrDefault(e =>
-        //        e.RollNumber == roll && e.EmailAddress == email && !e.IsDeleted);
-
-        //    if (emailEntry == null)
-        //    {
-        //        TempData["Error"] = "Email record not found. Please log in again.";
-        //        return RedirectToAction("Login", "StudentLogin");
-        //    }
-
-        //    model.Student.Email_PkId = emailEntry.Email_PkId;
-        //    model.Student.CreatedBy = roll;
-
-        //    _context.Students.Add(model.Student);
-        //    await _context.SaveChangesAsync();
-
-        //    // Save student pkId in session if needed later
-        //    HttpContext.Session.SetInt32("Student_pkId", model.Student.Student_pkId);
-
-        //    // Redirect Leader to Project Creation page after Student creation
-        //    if (!string.IsNullOrEmpty(nextAction) && nextAction == "CreateProject")
-        //    {
-        //        return RedirectToAction("Create", "Project");
-        //    }
-
-        //    // For other roles, redirect to Student Dashboard or appropriate page
-        //    return RedirectToAction("Dashboard", "Student");
-        //}
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(NRCFormViewModel model, IFormFile? ProfilePhoto, string? nextAction)
         {
             if (ModelState.IsValid)
             {
-                model.NRCTypeList = _context.NRCTypes.ToList();
-                model.RegionCodeMList = _context.NRCTownships.Select(t => t.RegionCode_M).Distinct().ToList();
-                model.TownshipList = _context.NRCTownships.ToList();
+                model.NRCTypeList = _context.Nrctypes.ToList();
+                model.RegionCodeMList = _context.Nrctownships.Select(t => t.RegionCodeM).Distinct().ToList();
+                model.TownshipList = _context.Nrctownships.ToList();
                 model.DepartmentList = _context.StudentDepartments.OrderBy(d => d.DepartmentName).ToList();
                 model.AcademicYearList = _context.AcademicYears.OrderByDescending(y => y.YearRange).ToList();
 
@@ -180,28 +129,55 @@ namespace ProjectManagementSystem.Controllers
             model.Student.CreatedDate = DateTime.Now;
             model.Student.IsDeleted = false;
 
-            // Get RollNumber and Email from session
+            //// Get RollNumber and Email from session
+            //var roll = HttpContext.Session.GetString("RollNumber");
+            //var email = HttpContext.Session.GetString("EmailAddress");
+
+            //Console.WriteLine($"Roll: {roll}, Email: {email}");
+
+            //var emailEntry = _context.Emails.FirstOrDefault(e =>
+            //    e.RollNumber == roll && e.EmailAddress == email && e.IsDeleted==false);
+
+
+            //if (emailEntry == null)
+            //{
+            //    TempData["Error"] = "Email record not found. Please log in again.";
+            //    return RedirectToAction("Login", "StudentLogin");
+            //}
+
+            //model.Student.EmailPkId = emailEntry.EmailPkId;
+            //model.Student.CreatedBy = roll;
             var roll = HttpContext.Session.GetString("RollNumber");
             var email = HttpContext.Session.GetString("EmailAddress");
 
-            var emailEntry = _context.Emails.FirstOrDefault(e =>
-                e.RollNumber == roll && e.EmailAddress == email && !e.IsDeleted);
+            // Email session null ဖြစ်ရင် DB ကနေယူ
+            if (string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(roll))
+            {
+                var emailDb = _context.Emails.FirstOrDefault(e => e.RollNumber == roll && (e.IsDeleted ?? false) == false);
+                if (emailDb != null)
+                {
+                    email = emailDb.EmailAddress;
+                    HttpContext.Session.SetString("EmailAddress", email);
+                }
+            }
 
-            if (emailEntry == null)
+            if (string.IsNullOrEmpty(email))
             {
                 TempData["Error"] = "Email record not found. Please log in again.";
                 return RedirectToAction("Login", "StudentLogin");
             }
 
-            model.Student.Email_PkId = emailEntry.Email_PkId;
-            model.Student.CreatedBy = roll;
+            // DB query
+            var emailEntry = _context.Emails.FirstOrDefault(e =>
+                e.RollNumber == roll && e.EmailAddress == email && e.IsDeleted == false);
+
 
             // Save student to DB
             _context.Students.Add(model.Student);
             await _context.SaveChangesAsync();
 
             // Save student id to session
-            HttpContext.Session.SetInt32("Student_pkId", model.Student.Student_pkId);
+            HttpContext.Session.SetInt32("StudentPkId", model.Student.StudentPkId);
 
             // Redirect by role or next action
             if (!string.IsNullOrEmpty(nextAction) && nextAction == "CreateProject")
@@ -223,13 +199,13 @@ namespace ProjectManagementSystem.Controllers
                 return Json(new List<object>());
             }
 
-            var townships = _context.NRCTownships
-                .Where(t => t.RegionCode_M == regionCode)
+            var townships = _context.Nrctownships
+                .Where(t => t.RegionCodeM == regionCode)
                 .Select(t => new
                 {
-                    nRC_pkId = t.NRC_pkId,
-                    townshipCode_M = t.TownshipCode_M,
-                    townshipCode_E = t.TownshipCode_E,
+                    nRC_pkId = t.NrcPkId,
+                    townshipCode_M = t.TownshipCodeM,
+                    townshipCode_E = t.TownshipCodeE,
                     townshipName = t.TownshipName
                 })
                 .OrderBy(t => t.townshipCode_M)
@@ -240,12 +216,12 @@ namespace ProjectManagementSystem.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var student = await _context.Students
-                .Include(s => s.Email)
-                .Include(s => s.NRCTownship)
-                .Include(s => s.NRCType)
-                .Include(s => s.StudentDepartment)
+                .Include(s => s.EmailPk)
+                .Include(s => s.NrcPk)
+                .Include(s => s.NrctypePk)
+                .Include(s => s.DepartmentPk)
                 
-                .FirstOrDefaultAsync(s => s.Student_pkId == id);
+                .FirstOrDefaultAsync(s => s.StudentPkId == id);
 
             if (student == null)
             {
@@ -255,12 +231,12 @@ namespace ProjectManagementSystem.Controllers
             var viewModel = new NRCFormViewModel
             {
                 Student = student,
-                NRCTypeList = _context.NRCTypes.ToList(),
-                RegionCodeMList = _context.NRCTownships.Select(t => t.RegionCode_M).Distinct().ToList(),
-                TownshipList = _context.NRCTownships.ToList(),
+                NRCTypeList = _context.Nrctypes.ToList(),
+                RegionCodeMList = _context.Nrctownships.Select(t => t.RegionCodeM).Distinct().ToList(),
+                TownshipList = _context.Nrctownships.ToList(),
                 DepartmentList = _context.StudentDepartments.OrderBy(d => d.DepartmentName).ToList(),
                 AcademicYearList = _context.AcademicYears.OrderByDescending(a => a.YearRange).ToList(),
-                ProjectMembers = _context.ProjectMembers.Where(pm => !pm.IsDeleted).ToList()
+                ProjectMembers = _context.ProjectMembers.Where(pm => !pm.IsDeleted == false).ToList()
             };
 
             return View(viewModel);
@@ -394,13 +370,13 @@ namespace ProjectManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, NRCFormViewModel model)
         {
-            if (id != model.Student.Student_pkId)
+            if (id != model.Student.StudentPkId)
                 return NotFound();
 
             // Reload dropdown lists regardless of ModelState
-            model.NRCTypeList = _context.NRCTypes.ToList();
-            model.RegionCodeMList = _context.NRCTownships.Select(t => t.RegionCode_M).Distinct().ToList();
-            model.TownshipList = _context.NRCTownships.ToList();
+            model.NRCTypeList = _context.Nrctypes.ToList();
+            model.RegionCodeMList = _context.Nrctownships.Select(t => t.RegionCodeM).Distinct().ToList();
+            model.TownshipList = _context.Nrctownships.ToList();
             model.DepartmentList = _context.StudentDepartments.OrderBy(d => d.DepartmentName).ToList();
             model.AcademicYearList = _context.AcademicYears.OrderByDescending(a => a.YearRange).ToList();
 
@@ -419,13 +395,13 @@ namespace ProjectManagementSystem.Controllers
                 // Update student fields
                 //studentInDb.StudentName = model.Student.StudentName;
                 //studentInDb.RollNumber = model.Student.RollNumber;
-                studentInDb.Email = model.Student.Email;
+                studentInDb.EmailPk = model.Student.EmailPk;
                 studentInDb.PhoneNumber = model.Student.PhoneNumber;
-                studentInDb.Department_pkID = model.Student.Department_pkID;
-                studentInDb.AcademicYear_pkId = model.Student.AcademicYear_pkId;
-                studentInDb.NRCType_pkId = model.Student.NRCType_pkId;
-                studentInDb.NRC_pkId = model.Student.NRC_pkId;
-                studentInDb.NRCNumber = model.Student.NRCNumber;
+                studentInDb.DepartmentPkId = model.Student.DepartmentPkId;
+                studentInDb.AcademicYearPkId = model.Student.AcademicYearPkId;
+                studentInDb.NrctypePkId = model.Student.NrctypePkId;
+                studentInDb.NrcPkId = model.Student.NrcPkId;
+                studentInDb.Nrcnumber = model.Student.Nrcnumber;
                 studentInDb.CreatedBy = model.Student.CreatedBy;
 
                 // ---------------------------
@@ -469,7 +445,7 @@ namespace ProjectManagementSystem.Controllers
         public async Task<IActionResult> Dashboard()
         {
             // 1. Authentication and Session Check
-            var studentId = HttpContext.Session.GetInt32("Student_pkId");
+            var studentId = HttpContext.Session.GetInt32("StudentPkId");
             if (studentId == null)
             {
                 TempData["Error"] = "Session expired. Please log in again.";
@@ -478,12 +454,12 @@ namespace ProjectManagementSystem.Controllers
 
             // 2. Load Student with Related Data
             var student = await _context.Students
-                .Include(s => s.Email)
-                .Include(s => s.StudentDepartment)
-                .Include(s => s.NRCTownship)
-                .Include(s => s.NRCType)
-                .Include(s => s.AcademicYear)
-                .FirstOrDefaultAsync(s => s.Student_pkId == studentId);
+                .Include(s => s.EmailPk)
+                .Include(s => s.DepartmentPk)
+                .Include(s => s.NrcPk)
+                .Include(s => s.NrctypePk)
+                .Include(s => s.AcademicYearPk)
+                .FirstOrDefaultAsync(s => s.StudentPkId == studentId);
 
             if (student == null)
             {
@@ -492,14 +468,14 @@ namespace ProjectManagementSystem.Controllers
             }
 
             var projects = await _context.Projects
-                .Where(p => p.SubmittedByStudent_pkId == studentId ||
-                           p.ProjectMembers.Any(pm => pm.Student_pkId == studentId && !pm.IsDeleted))
+                .Where(p => p.SubmittedByStudentPkId == studentId ||
+                           p.ProjectMembers.Any(pm => pm.StudentPkId == studentId && pm.IsDeleted==false))
                 //.Include(p => p.ProjectType)
-                .Include(p => p.Language)
-                .Include(p => p.Framework)
-                .Include(p => p.Company)
-                    .ThenInclude(c => c.City)
-                .Include(p => p.Files)
+                .Include(p => p.LanguagePk)
+                .Include(p => p.FrameworkPk)
+                .Include(p => p.CompanyPk)
+                    .ThenInclude(c => c.CityPk)
+                .Include(p => p.ProjectFiles)
                 //.Include(p => p.ProjectMembers)
                     //.ThenInclude(pm => pm.Student)
                         //.ThenInclude(s => s.Email)
@@ -512,25 +488,25 @@ namespace ProjectManagementSystem.Controllers
 
             // 4. Load All Team Members for Leader Projects
             var leaderProjectIds = projects
-                .Where(p => p.SubmittedByStudent_pkId == studentId)
-                .Select(p => p.Project_pkId)
+                .Where(p => p.SubmittedByStudentPkId == studentId)
+                .Select(p => p.ProjectPkId)
                 .ToList();
 
             var allTeamMembers = await _context.ProjectMembers
-                .Where(pm => leaderProjectIds.Contains((int)pm.Project_pkId) && !pm.IsDeleted)
-                .Include(pm => pm.Student)
-                    .ThenInclude(s => s.Email)
-                .Include(pm => pm.Student)
-                    .ThenInclude(s => s.StudentDepartment)
+                .Where(pm => leaderProjectIds.Contains((int)pm.ProjectPkId) && pm.IsDeleted==false)
+                .Include(pm => pm.StudentPk)
+                    .ThenInclude(s => s.EmailPk)
+                .Include(pm => pm.StudentPk)
+                    .ThenInclude(s => s.DepartmentPk)
                 .AsNoTracking()
                 .ToListAsync();
 
             // 5. Mark Leader Role in Teams
-            foreach (var project in projects.Where(p => p.SubmittedByStudent_pkId == studentId))
+            foreach (var project in projects.Where(p => p.SubmittedByStudentPkId == studentId))
             {
                 var leaderMember = allTeamMembers.FirstOrDefault(m =>
-                    m.Project_pkId == project.Project_pkId &&
-                    m.Student_pkId == studentId);
+                    m.ProjectPkId == project.ProjectPkId &&
+                    m.StudentPkId == studentId);
 
                 if (leaderMember != null)
                 {
@@ -551,17 +527,17 @@ namespace ProjectManagementSystem.Controllers
             };
 
             var notifications = await _context.Notifications
-              .Where(n => n.UserId == student.Student_pkId)
+              .Where(n => n.UserId == student.StudentPkId)
               .OrderByDescending(n => n.CreatedAt)
               .ToListAsync();
 
             // 7. Determine if the logged-in student is a member
             var memberInfo = await _context.ProjectMembers
-                .Include(pm => pm.Project)
+                .Include(pm => pm.ProjectPk)
                 .ThenInclude(p => p.ProjectMembers)
-                    .ThenInclude(m => m.Student)
-                    .ThenInclude(s => s.Email)
-                .FirstOrDefaultAsync(pm => pm.Student_pkId == studentId && !pm.IsDeleted);
+                    .ThenInclude(m => m.StudentPk)
+                    .ThenInclude(s => s.EmailPk)
+                .FirstOrDefaultAsync(pm => pm.StudentPkId == studentId && !pm.IsDeleted==false);
 
             bool isMember = false;
             string? memberProjectName = null;
@@ -569,20 +545,20 @@ namespace ProjectManagementSystem.Controllers
             string? leaderName = null;
             string? leaderEmail = null;
 
-            if (memberInfo != null && memberInfo.Project != null)
+            if (memberInfo != null && memberInfo.ProjectPk != null)
             {
                 isMember = true;
-                memberProjectName = memberInfo.Project.ProjectName;
+                memberProjectName = memberInfo.ProjectPk.ProjectName;
                 memberResponsibility = memberInfo.RoleDescription;
 
                 // Find the Leader of this project
-                var leader = memberInfo.Project.ProjectMembers
-                    .FirstOrDefault(m => m.Role == "Leader" && !m.IsDeleted);
+                var leader = memberInfo.ProjectPk.ProjectMembers
+                    .FirstOrDefault(m => m.Role == "Leader" && !m.IsDeleted==false);
 
                 if (leader != null)
                 {
-                    leaderName = leader.Student?.StudentName;
-                    leaderEmail = leader.Student?.Email?.EmailAddress;
+                    leaderName = leader.StudentPk?.StudentName;
+                    leaderEmail = leader.StudentPk?.EmailPk?.EmailAddress;
                 }
             }
 
@@ -593,7 +569,7 @@ namespace ProjectManagementSystem.Controllers
                 TeamMembers = allTeamMembers,
                 SubmissionStatus = submissionStatus,
                 Notifications = notifications,
-                LeaderProjects = projects.Where(p => p.SubmittedByStudent_pkId == studentId).ToList(),
+                LeaderProjects = projects.Where(p => p.SubmittedByStudentPkId == studentId).ToList(),
                 IsMember = isMember,
                 MemberProjectName = memberProjectName,
                 MemberResponsibility = memberResponsibility,
@@ -611,12 +587,12 @@ namespace ProjectManagementSystem.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var student = await _context.Students
-                .Include(s => s.StudentDepartment)
+                .Include(s => s.DepartmentPk)
                 .Include(s => s.ProjectMembers)
-                .Include(s => s.NRCTownship)
-                .Include(s => s.NRCType)
-                .Where(s => !s.IsDeleted)
-                .FirstOrDefaultAsync(s => s.Student_pkId == id);
+                .Include(s => s.NrcPk)
+                .Include(s => s.NrctypePk)
+                .Where(s => !s.IsDeleted== false)
+                .FirstOrDefaultAsync(s => s.StudentPkId == id);
 
             if (student == null)
             {

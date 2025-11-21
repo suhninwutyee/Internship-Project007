@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ProjectManagementSystem.Models.Project>
+﻿@model IEnumerable<ProjectManagementSystem.DBModels.Project>
 
 @{
     ViewData["Title"] = "Rejected Projects";
@@ -23,8 +23,8 @@
         {
             <tr>
                 <td>@Html.DisplayFor(modelItem => item.ProjectName)</td>
-                <td>@Html.DisplayFor(modelItem => item.Company.CompanyName)</td>
-                <td>@Html.DisplayFor(modelItem => item.ProjectType.TypeName)</td>
+                <td>@Html.DisplayFor(modelItem => item.CompanyPk.CompanyName)</td>
+                <td>@Html.DisplayFor(modelItem => item.ProjectTypePk.TypeName)</td>
                 <td>@Html.DisplayFor(modelItem => item.AdminComment)</td>
                 <td>
                     @(item.ProjectSubmittedDate.HasValue
@@ -33,7 +33,7 @@
                 </td>
 
                 <td>
-                    <a asp-controller="Projects" asp-action="Details" asp-route-id="@item.Project_pkId" class="btn btn-sm btn-info">Details</a>
+                    <a asp-controller="Projects" asp-action="Details" asp-route-id="@item.ProjectPkId" class="btn btn-sm btn-info">Details</a>
                 </td>
             </tr>
         }

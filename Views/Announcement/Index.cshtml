@@ -1,6 +1,8 @@
-﻿@model IEnumerable<Announcement>
+﻿@using ProjectManagementSystem.DBModels
+@model IEnumerable<Announcement>
 @{
     ViewData["Title"] = "Manage Announcements";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
 }
 
 <h2>📢 Announcements</h2>
@@ -22,10 +24,10 @@
         {
             <tr>
                 <td>@item.Title</td>
-                <td>@item.StartDate.ToShortDateString()</td>
+                <td>@item.StartDate?.ToShortDateString()</td>
                 <td>@(item.ExpiryDate?.ToShortDateString() ?? "-")</td>
-                <td>@(item.BlocksSubmissions ? "✅" : "❌")</td>
-                <td>@(item.IsActive ? "🟢 Active" : "🔴 Inactive")</td>
+                <td>@(item.BlocksSubmissions==false ? "✅" : "❌")</td>
+                <td>@(item.IsActive==false ? "🟢 Active" : "🔴 Inactive")</td>
                 <td>
                     <a asp-action="Detail" asp-route-id="@item.AnnouncementId" class="btn btn-sm btn-outline-info">
                         <i class="bi bi-eye"></i> View

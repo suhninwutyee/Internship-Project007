@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementSystem.Data;
+using ProjectManagementSystem.DBModels;
 using ProjectManagementSystem.Models;
 
 namespace ProjectManagementSystem.Controllers
@@ -24,7 +24,7 @@ namespace ProjectManagementSystem.Controllers
             if (id == null) return NotFound();
 
             var projectType = await _context.ProjectTypes
-                .FirstOrDefaultAsync(m => m.ProjectType_pkId == id);
+                .FirstOrDefaultAsync(m => m.ProjectTypePkId == id);
             if (projectType == null) return NotFound();
 
             return View(projectType);
@@ -38,7 +38,7 @@ namespace ProjectManagementSystem.Controllers
         
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TypeName")] ProjectType projectType)
+        public async Task<IActionResult> Create([Bind("TypeName")] DBModels.ProjectType projectType)
         {
             //if (ModelState.IsValid)
             //{
@@ -61,7 +61,7 @@ namespace ProjectManagementSystem.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(int id, ProjectType projectType)
+        public IActionResult Edit(int id, DBModels.ProjectType projectType)
         {
             var ptype = _context.ProjectTypes.Find(id);
 

@@ -1,7 +1,7 @@
 ﻿// File: ViewComponents/NotificationCountViewComponent.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementSystem.Data;
+using ProjectManagementSystem.DBModels;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -33,7 +33,7 @@ namespace ProjectManagementSystem.ViewComponents
                     return Content("0");
 
                 var count = await _context.Notifications
-                    .CountAsync(n => n.UserId == userIdInt && !n.IsRead);
+                    .CountAsync(n => n.UserId == userIdInt && !n.IsRead==false);
 
                 return Content(count.ToString());
             }

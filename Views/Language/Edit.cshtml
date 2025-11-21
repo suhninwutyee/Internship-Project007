@@ -1,4 +1,4 @@
-﻿@model ProjectManagementSystem.Models.Language
+﻿@model ProjectManagementSystem.DBModels.Language
 
 @{
     ViewData["Title"] = "Edit Language";
@@ -18,7 +18,7 @@
         @Html.AntiForgeryToken()
 
         <!-- Hidden field for primary key -->
-        <input type="hidden" asp-for="Language_pkId" />
+        <input type="hidden" asp-for="LanguagePkId" />
 
         <div class="mb-3">
             <label asp-for="LanguageName" class="form-label fw-semibold">Language Name</label>
@@ -27,11 +27,11 @@
         </div>
 
         <div class="mb-3">
-            <label asp-for="ProjectType_pkId" class="form-label fw-semibold">Project Type</label>
-            <select asp-for="ProjectType_pkId" class="form-select" asp-items="ViewBag.ProjectTypes">
+            <label asp-for="ProjectTypePkId" class="form-label fw-semibold">Project Type</label>
+            <select asp-for="ProjectTypePkId" class="form-select" asp-items="ViewBag.ProjectTypes">
                 <option value="">-- Select Project Type --</option>
             </select>
-            <span asp-validation-for="ProjectType_pkId" class="text-danger small"></span>
+            <span asp-validation-for="ProjectTypePkId" class="text-danger small"></span>
         </div>
 
         <div class="d-flex justify-content-between mt-4">

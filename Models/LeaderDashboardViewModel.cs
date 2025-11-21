@@ -1,4 +1,4 @@
-﻿namespace ProjectManagementSystem.Models
+﻿namespace ProjectManagementSystem.DBModels
 {
     public class LeaderDashboardViewModel
     {

@@ -1,4 +1,4 @@
-﻿@model ProjectManagementSystem.Models.Project
+﻿@model ProjectManagementSystem.DBModels.Project
 
 @{
     ViewData["Title"] = "Approve Project";
@@ -14,7 +14,7 @@
         <dd class="col-sm-10">@Model.ProjectName</dd>
 
         <dt class="col-sm-2">Company</dt>
-        <dd class="col-sm-10">@Model.Company?.CompanyName</dd>
+        <dd class="col-sm-10">@Model.CompanyPk?.CompanyName</dd>
 
         <dt class="col-sm-2">Submitted</dt>
         <dd class="col-sm-10">
@@ -26,7 +26,7 @@
     </dl>
 
     <form asp-action="ApproveConfirmed">
-        <input type="hidden" asp-for="Project_pkId" />
+        <input type="hidden" asp-for="ProjectPkId" />
         <input type="submit" value="Confirm Approval" class="btn btn-success" />
         <a asp-action="Pending" class="btn btn-secondary">Back to List</a>
     </form>

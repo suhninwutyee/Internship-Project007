@@ -1,7 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Create Project Submission";
-    var students = ViewBag.Students as List<ProjectManagementSystem.Models.Student>;
-    var projects = ViewBag.Projects as List<ProjectManagementSystem.Models.Project>;
+    var students = ViewBag.Students as List<ProjectManagementSystem.DBModels.Student>;
+    var projects = ViewBag.Projects as List<ProjectManagementSystem.DBModels.Project>;
 }
 <div>
     <partial name="_ProgressBarPartial" />
@@ -25,7 +25,7 @@
                     <option value="" disabled selected></option>
                     @foreach (var project in projects)
                     {
-                        <option value="@project.Project_pkId">@project.ProjectName</option>
+                        <option value="@project.ProjectPkId">@project.ProjectName</option>
                     }
                 </select>
                 <label for="projectId">Select Project</label>
@@ -47,15 +47,15 @@
                     @foreach (var student in students)
                     {
                         <div class="member-option">
-                            <input type="checkbox" id="student-@student.Student_pkId"
-                                   name="selectedStudentIds" value="@student.Student_pkId">
-                            <label for="student-@student.Student_pkId">
+                            <input type="checkbox" id="student-@student.StudentPkId"
+                                   name="selectedStudentIds" value="@student.StudentPkId">
+                            <label for="student-@student.StudentPkId">
                                 <div class="member-avatar">
                                     <i class="fas fa-user"></i>
                                 </div>
                                 <div class="member-info">
 @*                                     <span class="member-name">@student.StudentName</span>
- *@                                    <span class="member-email">@student.Email</span>
+ *@                                    <span class="member-email">@student.EmailPk</span>
                                 </div>
                             </label>
                         </div>

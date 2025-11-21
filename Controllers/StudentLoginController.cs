@@ -42,11 +42,17 @@ namespace ProjectManagementSystem.Controllers
             string email = model.EmailAddress?.Trim().ToLower();
 
             // First check if credentials exist at all
+            //var emailRecord = await _context.Emails
+            //    .FirstOrDefaultAsync(e =>
+            //        e.RollNumber.Trim().ToLower() == rollNo &&
+            //        e.EmailAddress.Trim().ToLower() == email &&
+            //        e.IsDeleted == false);
             var emailRecord = await _context.Emails
-                .FirstOrDefaultAsync(e =>
-                    e.RollNumber.Trim().ToLower() == rollNo &&
-                    e.EmailAddress.Trim().ToLower() == email &&
-                    e.IsDeleted == false);
+            .FirstOrDefaultAsync(e =>
+                e.RollNumber.Trim().ToLower() == rollNo.Trim().ToLower() &&
+                e.EmailAddress.Trim().ToLower() == email.Trim().ToLower() &&
+                (e.IsDeleted ?? false) == false);
+
 
             if (emailRecord == null)
             {
@@ -71,7 +77,7 @@ namespace ProjectManagementSystem.Controllers
             }
 
             // If student exists, proceed with OTP
-            return await ProcessOtpForUser(student.EmailPk .RollNumber, student.EmailPk.EmailAddress);
+            return await ProcessOtpForUser(student.EmailPk.RollNumber, student.EmailPk.EmailAddress);
         }
 
         private async Task<IActionResult> ProcessOtpForUser(string rollNumber, string emailAddress)
@@ -134,7 +140,7 @@ namespace ProjectManagementSystem.Controllers
             }
         }
 
-       
+
 
         public IActionResult VerifyOtp()
         {
@@ -182,7 +188,7 @@ namespace ProjectManagementSystem.Controllers
                 var student = _context.Students
                     .Include(s => s.EmailPk)
                     .FirstOrDefault(s => s.EmailPk.RollNumber == model.RollNumber && s.IsDeleted == false);
-                Console.WriteLine("here student nul?........................" + (student == null));
+                Console.WriteLine("here student null?........................" + (student == null));
                 if (student != null)
                 {
                     Console.WriteLine("here student not null.........................");
@@ -211,7 +217,7 @@ namespace ProjectManagementSystem.Controllers
             return View(model);
         }
 
-    
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -338,7 +344,7 @@ namespace ProjectManagementSystem.Controllers
                     TempData["NextAction"] = "CreateProject";
                     return RedirectToAction("Create", "Student");
                 }
-                HttpContext.Session.SetInt32("Student_pkId", student.StudentPkId);
+                HttpContext.Session.SetInt32("StudentPkId", student.StudentPkId);
 
                 Console.WriteLine("here is leader...............................");
                 return RedirectToAction("Dashboard", "Student");
@@ -375,7 +381,7 @@ namespace ProjectManagementSystem.Controllers
                     return RedirectToAction("Create", "Student");
                 }
 
-                HttpContext.Session.SetInt32("Student_pkId", student.StudentPkId);
+                HttpContext.Session.SetInt32("StudentPkId", student.StudentPkId);
 
                 var hasProject = _context.ProjectMembers
                     .Any(pm => pm.StudentPkId == student.StudentPkId &&
@@ -397,7 +403,7 @@ namespace ProjectManagementSystem.Controllers
                     return RedirectToAction("Create", "Student");
                 }
 
-                HttpContext.Session.SetInt32("Student_pkId", student.StudentPkId);
+                HttpContext.Session.SetInt32("StudentPkId", student.StudentPkId);
 
                 var isInProject = _context.ProjectMembers
                     .Any(pm => pm.StudentPkId == student.StudentPkId && pm.IsDeleted == false);

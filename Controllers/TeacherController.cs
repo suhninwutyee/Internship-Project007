@@ -27,7 +27,7 @@ namespace ProjectManagementSystem.Controllers
                 var date = DateTime.Now.Date;
                 var submissionStats = await GetSubmissionStatsAsync(date);
 
-                var model = new TeacherDashboardViewModel
+                var model = new DBModels.TeacherDashboardViewModel
                 {
                     PendingProjectsCount = await _context.Projects
                         .Where(p => p.Status == "Pending" && (p.IsDeleted == null || !p.IsDeleted.Value))

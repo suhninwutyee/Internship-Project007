@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ProjectManagementSystem.Models
+//using ProjectManagementSystem.Models;
+
+namespace ProjectManagementSystem.DBModels
 {
     public class AddMemberViewModel
     {

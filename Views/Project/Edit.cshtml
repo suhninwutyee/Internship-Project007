@@ -1,4 +1,4 @@
-﻿@model ProjectManagementSystem.Models.Project
+﻿@model ProjectManagementSystem.DBModels.Project
 
 @{
     ViewData["Title"] = "Edit Project";
@@ -13,7 +13,7 @@
     <div class="card-body small py-3 px-4">
         <form asp-action="Edit" method="post" enctype="multipart/form-data">
             @Html.AntiForgeryToken()
-            <input type="hidden" asp-for="Project_pkId" />
+            <input type="hidden" asp-for="ProjectPkId" />
 
             <div class="row mb-3">
                 <div class="col-md-6">
@@ -36,9 +36,9 @@
 
             <div class="row mb-3 align-items-end">
                 <div class="col-md-6">
-                    <label asp-for="ProjectType_pkId" class="form-label">Project Type</label>
+                    <label asp-for="ProjectTypePkId" class="form-label">Project Type</label>
                     <div class="input-group">
-                        <select asp-for="ProjectType_pkId" id="ProjectTypeDropdown" class="form-select" asp-items="ViewBag.ProjectTypes">
+                        <select asp-for="ProjectTypePkId" id="ProjectTypeDropdown" class="form-select" asp-items="ViewBag.ProjectTypes">
                             <option value="">-- Select Type --</option>
                         </select>
                         <a href="@Url.Action("Index", "ProjectType")" target="_blank" class="btn btn-outline-success btn-sm">+</a>
@@ -46,9 +46,9 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label asp-for="Language_pkId" class="form-label">Language</label>
+                    <label asp-for="LanguagePkId" class="form-label">Language</label>
                     <div class="input-group">
-                        <select asp-for="Language_pkId" id="LanguageDropdown" class="form-select" asp-items="ViewBag.Languages">
+                        <select asp-for="LanguagePkId" id="LanguageDropdown" class="form-select" asp-items="ViewBag.Languages">
                             <option value="">-- Select Language --</option>
                         </select>
                         <a href="@Url.Action("Index", "Language")" target="_blank" class="btn btn-outline-success btn-sm">+</a>
@@ -58,9 +58,9 @@
 
             <div class="row mb-3 align-items-end">
                 <div class="col-md-6">
-                    <label asp-for="Framework_pkId" class="form-label">Framework</label>
+                    <label asp-for="FrameworkPkId" class="form-label">Framework</label>
                     <div class="input-group">
-                        <select asp-for="Framework_pkId" id="FrameworkDropdown" class="form-select" asp-items="ViewBag.Frameworks">
+                        <select asp-for="FrameworkPkId" id="FrameworkDropdown" class="form-select" asp-items="ViewBag.Frameworks">
                             <option value="">-- Select Framework --</option>
                         </select>
                         <a href="@Url.Action("Index", "Framework")" target="_blank" class="btn btn-outline-success btn-sm">+</a>
@@ -68,9 +68,9 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label asp-for="Company_pkId" class="form-label">Company</label>
+                    <label asp-for="CompanyPkId" class="form-label">Company</label>
                     <div class="input-group">
-                        <select asp-for="Company_pkId" id="CompanyDropdown" class="form-select" asp-items="ViewBag.Companies">
+                        <select asp-for="CompanyPkId" id="CompanyDropdown" class="form-select" asp-items="ViewBag.Companies">
                             <option value="">-- Select Company --</option>
                         </select>
                     </div>
@@ -81,25 +81,25 @@
                 <h6>Company Information</h6>
                 <div class="mb-3">
                     <label for="CompanyAddress" class="form-label">Address</label>
-                    <input type="text" id="CompanyAddress" name="CompanyAddress" class="form-control form-control-sm" value="@Model.Company?.Address" />
+                    <input type="text" id="CompanyAddress" name="CompanyAddress" class="form-control form-control-sm" value="@Model.CompanyPk?.Address" />
                 </div>
                 <div class="mb-3">
                     <label for="CompanyContact" class="form-label">Contact</label>
-                    <input type="text" id="CompanyContact" name="CompanyContact" class="form-control form-control-sm" value="@Model.Company?.Contact" />
+                    <input type="text" id="CompanyContact" name="CompanyContact" class="form-control form-control-sm" value="@Model.CompanyPk?.Contact" />
                 </div>
                 <div class="mb-3">
                     <label for="CompanyDescription" class="form-label">Description</label>
-                    <textarea id="CompanyDescription" name="CompanyDescription" class="form-control form-control-sm">@Model.Company?.Description</textarea>
+                    <textarea id="CompanyDescription" name="CompanyDescription" class="form-control form-control-sm">@Model.CompanyPk?.Description</textarea>
                 </div>
 
-                @if (Model.Company != null && !string.IsNullOrEmpty(Model.Company.ImageFileName))
+                @if (Model.CompanyPk != null && !string.IsNullOrEmpty(Model.CompanyPk.ImageFileName))
                 {
                     <div class="mb-3">
                         <label class="form-label">Current Company Photo:</label><br />
-                        <img src="~/images/companies/@Model.Company.ImageFileName" alt="Company Photo" style="max-width: 180px; max-height: 120px; border: 1px solid #ccc;" />
+                        <img src="~/images/companies/@Model.CompanyPk.ImageFileName" alt="Company Photo" style="max-width: 180px; max-height: 120px; border: 1px solid #ccc;" />
                     </div>
                 }
-                <select id="CompanyDropdown" name="Company_pkId" class="form-select" asp-for="Company_pkId" asp-items="ViewBag.Companies">
+                <select id="CompanyDropdown" name="Company_pkId" class="form-select" asp-for="CompanyPkId" asp-items="ViewBag.Companies">
                     <option value="">-- Select Company --</option>
                 </select>
 
@@ -119,16 +119,16 @@
                 <small class="form-text text-muted">You can upload multiple files.</small>
             </div>
 
-            @if (Model.Files != null && Model.Files.Any())
+            @if (Model.ProjectFiles != null && Model.ProjectFiles.Any())
             {
                 <div class="mb-3">
                     <label class="form-label">Previously Uploaded Files</label>
                     <ul class="list-group">
-                        @foreach (var file in Model.Files)
+                        @foreach (var file in Model.ProjectFiles)
                         {
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <a href="@file.FilePath" target="_blank">@System.IO.Path.GetFileName(file.FilePath)</a>
-                                <a href="@Url.Action("DeleteProjectFile", "Project", new { id = file.ProjectFile_pkId })"
+                                <a href="@Url.Action("DeleteProjectFile", "Project", new { id = file.ProjectFilePkId})"
                                    class="btn btn-sm btn-outline-danger"
                                    onclick="return confirm('Are you sure you want to delete this file?');">Delete</a>
                             </li>

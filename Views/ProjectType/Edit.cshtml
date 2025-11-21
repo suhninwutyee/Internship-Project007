@@ -1,4 +1,4 @@
-﻿@model ProjectType
+﻿@model ProjectManagementSystem.DBModels.ProjectType
 
 @{
     ViewData["Title"] = "Edit ProjectType";
@@ -14,7 +14,7 @@
         </div>
 
         <form asp-action="Edit">
-            <input type="hidden" asp-for="ProjectType_pkId" />
+            <input type="hidden" asp-for="ProjectTypePkId" />
 
             <div class="mb-3">
                 <label asp-for="TypeName" class="form-label fw-semibold" style="color: #8C5DD1;"></label>

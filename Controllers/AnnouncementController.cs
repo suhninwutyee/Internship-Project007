@@ -1,53 +1,8 @@
-﻿//using Microsoft.AspNetCore.Authorization;
-//using Microsoft.AspNetCore.Mvc;
-//using ProjectManagementSystem.Data;
-
-//[Authorize(Roles = "Admin,Teacher")]
-//public class AnnouncementController : Controller
-//{
-//    private readonly ApplicationDbContext _context;
-
-//    public AnnouncementController(ApplicationDbContext context)
-//    {
-//        _context = context;
-//    }
-
-//    public IActionResult Edit()
-//    {
-//        var announcement = _context.Announcements.FirstOrDefault() ?? new Announcement();
-//        return View(announcement);
-//    }
-
-//    [HttpPost]
-//    [ValidateAntiForgeryToken]
-//    public IActionResult Edit(Announcement model)
-//    {
-//        if (ModelState.IsValid)
-//        {
-//            // Ensure we only have one announcement
-//            model.AnnouncementId = 1;
-
-//            if (_context.Announcements.Any())
-//            {
-//                _context.Update(model);
-//            }
-//            else
-//            {
-//                _context.Add(model);
-//            }
-
-//            _context.SaveChanges();
-//            TempData["SuccessMessage"] = "Announcement updated successfully";
-//            return RedirectToAction("Dashboard", "Teacher");
-//        }
-//        return View(model);
-//    }
-//}
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementSystem.Data;
+using ProjectManagementSystem.DBModels;
 using ProjectManagementSystem.Models;
 using System;
 using System.IO;
@@ -56,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace ProjectManagementSystem.Controllers
 {
-    [Authorize(Roles = "Admin,Teacher")] // Teacher + Admin only
+    //[Authorize(Roles = "Admin,Teacher")] // Teacher + Admin only
     public class AnnouncementController : Controller
     {
         private readonly PMSDbContext _context;
@@ -69,6 +24,7 @@ namespace ProjectManagementSystem.Controllers
         }
 
         // GET: /Announcement
+        [AllowAnonymous]
         public IActionResult Index()
         {
             var announcements = _context.Announcements
@@ -78,6 +34,7 @@ namespace ProjectManagementSystem.Controllers
         }
 
         // GET: /Announcement/Create
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult Create()
         {
@@ -119,12 +76,67 @@ namespace ProjectManagementSystem.Controllers
 
         //    return View(model);
         //}
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //[AllowAnonymous]
+        //public async Task<IActionResult> Create(AnnouncementViewModel model)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        if (model.Attachment != null)
+        //        {
+        //            string uploadsFolder = Path.Combine(_env.WebRootPath, "uploads/announcements");
+        //            if (!Directory.Exists(uploadsFolder))
+        //                Directory.CreateDirectory(uploadsFolder);
+
+        //            string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(model.Attachment.FileName);
+        //            string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+        //            using (var stream = new FileStream(filePath, FileMode.Create))
+        //            {
+        //                await model.Attachment.CopyToAsync(stream);
+        //            }
+
+        //            model.FilePath = "/uploads/announcements/" + uniqueFileName;
+        //        }
+
+        //        model.CreatedDate = DateTime.Now;
+        //        _context.Add(model);
+        //        await _context.SaveChangesAsync();
+
+
+        //        var allStudents = await _context.Students.ToListAsync();
+        //        foreach (var student in allStudents)
+        //        {
+        //            var notification = new DBModels.Notification
+        //            {
+        //                UserId = student.StudentPkId,
+        //                Title = "New Announcement",
+        //                Message = model.Title, // Short message
+        //                NotificationType = "Announcement",
+        //                CreatedAt = DateTime.Now,
+        //               // ProjectPkId = null // If announcement is related to project, link it here
+        //            };
+        //            _context.Notifications.Add(notification);
+        //        }
+        //        await _context.SaveChangesAsync();
+        //        // ===========================
+
+        //        TempData["Success"] = "Announcement created successfully!";
+        //        return RedirectToAction(nameof(Index));
+        //    }
+
+        //    return View(model);
+        //}
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Announcement model)
+        [AllowAnonymous]
+        public async Task<IActionResult> Create(AnnouncementViewModel model)
         {
             if (ModelState.IsValid)
             {
+                // File upload
+                string filePath = null;
                 if (model.Attachment != null)
                 {
                     string uploadsFolder = Path.Combine(_env.WebRootPath, "uploads/announcements");
@@ -132,39 +144,56 @@ namespace ProjectManagementSystem.Controllers
                         Directory.CreateDirectory(uploadsFolder);
 
                     string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(model.Attachment.FileName);
-                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+                    filePath = "/uploads/announcements/" + uniqueFileName;
+                    string fullPath = Path.Combine(uploadsFolder, uniqueFileName);
 
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    using (var stream = new FileStream(fullPath, FileMode.Create))
                     {
                         await model.Attachment.CopyToAsync(stream);
                     }
-
-                    model.FilePath = "/uploads/announcements/" + uniqueFileName;
                 }
 
-                model.CreatedDate = DateTime.Now;
-                _context.Add(model);
+                // ViewModel → Entity mapping
+                var entity = new Announcement
+                {
+                    Title = model.Title,
+                    Message = model.Message,
+                    StartDate = model.StartDate,
+                    ExpiryDate = model.ExpiryDate,
+                    BlocksSubmissions = model.BlocksSubmissions,
+                    FilePath = filePath,
+                    CreatedDate = DateTime.Now
+                };
+
+                // DB save
+                _context.Announcements.Add(entity);
                 await _context.SaveChangesAsync();
 
-                // ===========================
-                // Auto-create notifications for all students
-                // ===========================
+                // Notifications
                 var allStudents = await _context.Students.ToListAsync();
                 foreach (var student in allStudents)
                 {
+                    var projectId = student.ProjectMembers
+                                           .Select(pm => pm.ProjectPkId)
+                                           .FirstOrDefault();
+
+                    if (projectId == 0 || projectId == null)
+                    {
+                        continue; 
+                    }
+
                     var notification = new Notification
                     {
-                        UserId = student.Student_pkId,
+                        UserId = student.StudentPkId,
                         Title = "New Announcement",
-                        Message = model.Title, // Short message
+                        Message = entity.Title,
                         NotificationType = "Announcement",
                         CreatedAt = DateTime.Now,
-                        Project_pkId = null // If announcement is related to project, link it here
+                        ProjectPkId = projectId
                     };
                     _context.Notifications.Add(notification);
                 }
                 await _context.SaveChangesAsync();
-                // ===========================
 
                 TempData["Success"] = "Announcement created successfully!";
                 return RedirectToAction(nameof(Index));
@@ -172,9 +201,6 @@ namespace ProjectManagementSystem.Controllers
 
             return View(model);
         }
-
-
-        // GET: /Announcement/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -182,60 +208,138 @@ namespace ProjectManagementSystem.Controllers
             var announcement = await _context.Announcements.FindAsync(id);
             if (announcement == null) return NotFound();
 
-            return View(announcement);
-        }
+            var vm = new AnnouncementViewModel
+            {
+                AnnouncementId = announcement.AnnouncementId,
+                Title = announcement.Title,
+                Message = announcement.Message,
+                FilePath = announcement.FilePath
+            };
 
-        // POST: /Announcement/Edit/5
+            return View(vm); // MUST return ViewModel
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Announcement model)
+        public async Task<IActionResult> Edit(int id, AnnouncementViewModel model)
         {
             if (id != model.AnnouncementId) return NotFound();
 
             if (ModelState.IsValid)
+                return View(model);
+
+            var announcement = await _context.Announcements.FindAsync(id);
+            if (announcement == null) return NotFound();
+
+            try
             {
-                try
+                // File upload
+                if (model.Attachment != null)
                 {
-                    // Handle new file upload
-                    if (model.Attachment != null)
+                    string uploadsFolder = Path.Combine(_env.WebRootPath, "uploads/announcements");
+                    if (!Directory.Exists(uploadsFolder))
+                        Directory.CreateDirectory(uploadsFolder);
+
+                    string uniqueFileName = Guid.NewGuid() + "_" + Path.GetFileName(model.Attachment.FileName);
+                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        string uploadsFolder = Path.Combine(_env.WebRootPath, "uploads/announcements");
-                        if (!Directory.Exists(uploadsFolder))
-                            Directory.CreateDirectory(uploadsFolder);
-
-                        string uniqueFileName = Guid.NewGuid() + "_" + Path.GetFileName(model.Attachment.FileName);
-                        string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await model.Attachment.CopyToAsync(stream);
-                        }
-
-                        // Delete old file if exists
-                        if (!string.IsNullOrEmpty(model.FilePath))
-                        {
-                            string oldFile = Path.Combine(_env.WebRootPath, model.FilePath.TrimStart('/').Replace("/", "\\"));
-                            if (System.IO.File.Exists(oldFile))
-                                System.IO.File.Delete(oldFile);
-                        }
-
-                        model.FilePath = "/uploads/announcements/" + uniqueFileName;
+                        await model.Attachment.CopyToAsync(stream);
                     }
 
-                    _context.Update(model);
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = "Announcement updated successfully!";
-                }
-                catch (Exception ex)
-                {
-                    TempData["Error"] = "Error updating announcement: " + ex.Message;
+                    // delete old file
+                    if (!string.IsNullOrEmpty(announcement.FilePath))
+                    {
+                        string oldFile = Path.Combine(_env.WebRootPath,
+                            announcement.FilePath.TrimStart('/').Replace("/", "\\"));
+
+                        if (System.IO.File.Exists(oldFile))
+                            System.IO.File.Delete(oldFile);
+                    }
+
+                    announcement.FilePath = "/uploads/announcements/" + uniqueFileName;
                 }
 
-                return RedirectToAction(nameof(Index));
+                // Update fields
+                announcement.Title = model.Title;
+                announcement.Message = model.Message;
+
+                _context.Update(announcement);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = "Announcement updated successfully!";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error updating announcement: " + ex.Message;
             }
 
-            return View(model);
+            return RedirectToAction(nameof(Index));
         }
+
+
+        // GET: /Announcement/Edit/5
+        //public async Task<IActionResult> Edit(int? id)
+        //{
+        //    if (id == null) return NotFound();
+
+        //    var announcement = await _context.Announcements.FindAsync(id);
+        //    if (announcement == null) return NotFound();
+
+        //    return View(announcement);
+        //}
+
+        //// POST: /Announcement/Edit/5
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Edit(int id, AnnouncementViewModel model)
+        //{
+        //    if (id != model.AnnouncementId) return NotFound();
+
+        //    if (ModelState.IsValid)
+        //    {
+        //        try
+        //        {
+        //            // Handle new file upload
+        //            if (model.Attachment != null)
+        //            {
+        //                string uploadsFolder = Path.Combine(_env.WebRootPath, "uploads/announcements");
+        //                if (!Directory.Exists(uploadsFolder))
+        //                    Directory.CreateDirectory(uploadsFolder);
+
+        //                string uniqueFileName = Guid.NewGuid() + "_" + Path.GetFileName(model.Attachment.FileName);
+        //                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+        //                using (var stream = new FileStream(filePath, FileMode.Create))
+        //                {
+        //                    await model.Attachment.CopyToAsync(stream);
+        //                }
+
+        //                // Delete old file if exists
+        //                if (!string.IsNullOrEmpty(model.FilePath))
+        //                {
+        //                    string oldFile = Path.Combine(_env.WebRootPath, model.FilePath.TrimStart('/').Replace("/", "\\"));
+        //                    if (System.IO.File.Exists(oldFile))
+        //                        System.IO.File.Delete(oldFile);
+        //                }
+
+        //                model.FilePath = "/uploads/announcements/" + uniqueFileName;
+        //            }
+
+        //            _context.Update(model);
+        //            await _context.SaveChangesAsync();
+        //            TempData["Success"] = "Announcement updated successfully!";
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            TempData["Error"] = "Error updating announcement: " + ex.Message;
+        //        }
+
+        //        return RedirectToAction(nameof(Index));
+        //    }
+
+        //    return View(model);
+        //}
 
         // GET: /Announcement/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -288,14 +392,36 @@ namespace ProjectManagementSystem.Controllers
             return View(announcement);
         }
 
-        // Student view: only active announcements
+        //// Student view: only active announcements
+        //[AllowAnonymous]
+        //public IActionResult StudentView()
+        //{
+        //    var activeAnnouncements = _context.Announcements
+        //        .AsEnumerable() // important: bring to memory to use IsActive property
+        //        .Where(a => a.IsActive == false)
+        //        .OrderByDescending(a => a.StartDate)
+        //        .ToList();
+
+        //    return View(activeAnnouncements);
+        //}
         [AllowAnonymous]
         public IActionResult StudentView()
         {
             var activeAnnouncements = _context.Announcements
-                .AsEnumerable() // important: bring to memory to use IsActive property
-                .Where(a => a.IsActive)
+                .Where(a => a.IsActive == true) // ViewModel ရဲ့ IsActive logic နဲ့ ကိုက်အောင်
                 .OrderByDescending(a => a.StartDate)
+                .Select(a => new AnnouncementViewModel
+                {
+                    AnnouncementId = a.AnnouncementId,
+                    Title = a.Title,
+                    Message = a.Message,           // DB field mapping
+                    CreatedDate = a.CreatedDate,
+                    StartDate = a.StartDate,
+                    ExpiryDate = a.ExpiryDate,
+                    BlocksSubmissions = a.BlocksSubmissions,
+                    FilePath = a.FilePath,
+                    AdminActivityLogId = a.AdminActivityLogId
+                })
                 .ToList();
 
             return View(activeAnnouncements);

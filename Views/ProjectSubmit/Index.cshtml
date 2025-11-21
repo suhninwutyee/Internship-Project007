@@ -1,4 +1,4 @@
-﻿@model List<ProjectManagementSystem.Models.ProjectSubmitViewModel>
+﻿@model List<ProjectManagementSystem.DBModels.ProjectSubmitViewModel>
 <div>
     <partial name="_ProgressBarPartial" />
 </div>
@@ -26,7 +26,7 @@
             }
             @foreach (var project in Model)
             {
-                <tr class="project-row" data-project-id="@project.Project_pkId">
+                <tr class="project-row" data-project-id="@project.ProjectPkId">
                     <td class="row-number">@rowNumber</td>
                     <td class="project-title">@project.ProjectName</td>
                     <td class="project-description">
@@ -45,7 +45,7 @@
                             <ul class="list-unstyled member-list">
                                 @foreach (var member in project.Members)
                                 {
-                                    <li class="member-item" data-member-id="@member.Student_pkId">@member.StudentName (@member.Email)</li>
+                                    <li class="member-item" data-member-id="@member.StudentPkId">@member.StudentName (@member.Email)</li>
                                 }
                             </ul>
                         }

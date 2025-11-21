@@ -73,73 +73,76 @@
 
 //    }
 //}
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace ProjectManagementSystem.Models
-{
-    public class Project
-    {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Project_pkId { get; set; }
 
-        [Required(ErrorMessage = "Project name is required")]
-        [StringLength(200)]
-        public string? ProjectName { get; set; } = "";
 
-        [Required(ErrorMessage = "Supervisor Name is required")]
-        [StringLength(1000)]
-        public string? SupervisorName { get; set; } = "";
+//using System;
+//using System.Collections.Generic;
+//using System.ComponentModel.DataAnnotations;
+//using System.ComponentModel.DataAnnotations.Schema;
 
-        [Required(ErrorMessage = "Description is required")]
-        [StringLength(1000)]
-        public string? Description { get; set; } = "";
+//namespace ProjectManagementSystem.Models
+//{
+//    public class Project
+//    {
+//        [Key]
+//        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+//        public int Project_pkId { get; set; }
 
-        [ForeignKey(nameof(ProjectType))]
-        public int? ProjectType_pkId { get; set; }
-        public virtual ProjectType? ProjectType { get; set; }
+//        [Required(ErrorMessage = "Project name is required")]
+//        [StringLength(200)]
+//        public string? ProjectName { get; set; } = "";
 
-        [ForeignKey(nameof(Language))]
-        public int? Language_pkId { get; set; }
-        public virtual Language? Language { get; set; }
+//        [Required(ErrorMessage = "Supervisor Name is required")]
+//        [StringLength(1000)]
+//        public string? SupervisorName { get; set; } = "";
 
-        [ForeignKey(nameof(Framework))]
-        public int? Framework_pkId { get; set; }
-        public virtual Framework? Framework { get; set; }
+//        [Required(ErrorMessage = "Description is required")]
+//        [StringLength(1000)]
+//        public string? Description { get; set; } = "";
 
-        [ForeignKey(nameof(Company))]
-        public int? Company_pkId { get; set; }
-        public virtual Company? Company { get; set; }
+//        [ForeignKey(nameof(ProjectType))]
+//        public int? ProjectType_pkId { get; set; }
+//        public virtual ProjectType? ProjectType { get; set; }
 
-        public DateTime? ProjectSubmittedDate { get; set; } = DateTime.Now;
-        public bool IsApprovedByTeacher { get; set; }
+//        [ForeignKey(nameof(Language))]
+//        public int? Language_pkId { get; set; }
+//        public virtual Language? Language { get; set; }
 
-        [Required]
-        [StringLength(50)]
-        public string? Status { get; set; } = "Pending";
+//        [ForeignKey(nameof(Framework))]
+//        public int? Framework_pkId { get; set; }
+//        public virtual Framework? Framework { get; set; }
 
-        public bool? IsDeleted { get; set; } = false;
-        public DateTime? CreatedDate { get; set; } = DateTime.Now;
+//        [ForeignKey(nameof(Company))]
+//        public int? Company_pkId { get; set; }
+//        public virtual Company? Company { get; set; }
 
-        [Required(ErrorMessage = "Creator name is required")]
-        [StringLength(100)]
-        public string? CreatedBy { get; set; } = "";
+//        public DateTime? ProjectSubmittedDate { get; set; } = DateTime.Now;
+//        public bool IsApprovedByTeacher { get; set; }
 
-        public virtual ICollection<ProjectFile>? Files { get; set; }
-        public virtual ICollection<ProjectMember>? ProjectMembers { get; set; }
+//        [Required]
+//        [StringLength(50)]
+//        public string? Status { get; set; } = "Pending";
 
-        [StringLength(500)]
-        public string? AdminComment { get; set; }
+//        public bool? IsDeleted { get; set; } = false;
+//        public DateTime? CreatedDate { get; set; } = DateTime.Now;
 
-        public DateTime? ApprovedDate { get; set; }
-        public DateTime? RejectedDate { get; set; }
+//        [Required(ErrorMessage = "Creator name is required")]
+//        [StringLength(100)]
+//        public string? CreatedBy { get; set; } = "";
 
-        // The student who submitted the project
-        [ForeignKey(nameof(SubmittedByStudent))]
-        public int? SubmittedByStudent_pkId { get; set; }
-        public virtual Student? SubmittedByStudent { get; set; }
-    }
-}
+//        public virtual ICollection<ProjectFile>? Files { get; set; }
+//        public virtual ICollection<ProjectMember>? ProjectMembers { get; set; }
+
+//        [StringLength(500)]
+//        public string? AdminComment { get; set; }
+
+//        public DateTime? ApprovedDate { get; set; }
+//        public DateTime? RejectedDate { get; set; }
+
+//        // The student who submitted the project
+//        [ForeignKey(nameof(SubmittedByStudent))]
+//        public int? SubmittedByStudent_pkId { get; set; }
+//        public virtual Student? SubmittedByStudent { get; set; }
+//    }
+//}
