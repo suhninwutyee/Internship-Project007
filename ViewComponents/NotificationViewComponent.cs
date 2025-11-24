@@ -39,7 +39,10 @@ namespace ProjectManagementSystem.ViewComponents
                     Message = n.Message,
                     CreatedAt = n.CreatedAt ?? System.DateTime.Now,
                     ProjectId = n.ProjectPkId,
-                    ProjectName = n.ProjectPk != null ? n.ProjectPk.ProjectName : "No Project",
+                    ProjectName = n.ProjectPkId == null
+                     ? "No Project"
+                     : (n.ProjectPk != null ? n.ProjectPk.ProjectName : "No Project"),
+                    //ProjectName = n.ProjectPk != null ? n.ProjectPk.ProjectName : "No Project",
                     IsRead = n.IsRead
                 })
                 .ToListAsync();

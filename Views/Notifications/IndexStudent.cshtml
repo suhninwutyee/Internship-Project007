@@ -1,16 +1,53 @@
 ﻿@model IEnumerable<ProjectManagementSystem.DBModels.NotificationViewModel>
 
-<h2>Your Notifications (Student)</h2>
+<h2 class="mb-3">Your Notifications (Student)</h2>
 
+<!-- === COUNTERS + ACTION BUTTON === -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+
+    <div>
+        <span class="fw-bold">Unread:</span>
+        <span id="unreadCount" class="badge bg-danger">0</span>
+
+        <span class="ms-3 fw-bold">Read:</span>
+        <span id="readCount" class="badge bg-success">0</span>
+    </div>
+
+    <button class="btn btn-primary btn-sm" onclick="markAllAsRead()">
+        Mark All As Read
+    </button>
+</div>
+
+
+<!-- === NOTIFICATION LIST === -->
 <div class="list-group">
     @if (Model.Any())
     {
-        @foreach (var notif in Model.OrderByDescending(n => n.CreatedAt))
+        foreach (var notif in Model.OrderByDescending(n => n.CreatedAt))
         {
-            var isUnread = !(notif.IsRead ?? false);
-            <div class="list-group-item @(isUnread ? "list-group-item-unread" : "")">
-                <strong>@notif.Title</strong> - @notif.Message <br />
-                <small>@notif.CreatedAt.ToString("MMM dd, yyyy HH:mm")</small>
+            bool isUnread = !(notif.IsRead ?? false);
+
+            <div class="list-group-item @(isUnread ? "list-group-item-unread" : "")" id="notif-@notif.Id">
+
+                <div>
+                    <strong>@notif.Title</strong> - @notif.Message <br />
+
+                    @if (!string.IsNullOrEmpty(notif.DeadlineStatus))
+                    {
+                        <span class="badge bg-danger">@notif.DeadlineStatus</span>
+                    }
+
+                    <br />
+                    <small>@notif.CreatedAt.ToString("MMM dd, yyyy HH:mm")</small>
+                </div>
+
+                @if (isUnread)
+                {
+                    <button class="btn btn-sm btn-outline-primary mt-2"
+                            onclick="confirmRead(@notif.Id)">
+                        Confirm Read
+                    </button>
+                }
             </div>
         }
     }
@@ -19,3 +56,70 @@
         <div>No notifications</div>
     }
 </div>
+
+
+<!-- === STYLE === -->
+<style>
+    .list-group-item-unread {
+        background-color: #f8d7da !important;
+        font-weight: bold;
+    }
+</style>
+
+<!-- === SCRIPTS === -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+
+    // Load counters when page loads
+    $(document).ready(function () {
+        loadUnreadCount();
+        loadReadCount();
+    });
+
+    function loadUnreadCount() {
+        $.get('/Notifications/GetUnreadCount', function (count) {
+            $("#unreadCount").text(count);
+        });
+    }
+
+    function loadReadCount() {
+        $.get('/Notifications/GetReadCount', function (count) {
+            $("#readCount").text(count);
+        });
+    }
+
+    // Individual confirm button
+    function confirmRead(id) {
+        $.post('/Notifications/MarkAsRead', { id: id }, function () {
+
+            // Update UI: remove background + button
+            $("#notif-" + id).removeClass("list-group-item-unread");
+            $("#notif-" + id + " button").remove();
+
+            // Update counts
+            loadUnreadCount();
+            loadReadCount();
+        });
+    }
+
+    // Mark all as read
+    function markAllAsRead() {
+        $.post('/Notifications/MarkAllAsRead', function (response) {
+
+            if (response.success) {
+
+                // Remove all unread styles + buttons
+                $(".list-group-item-unread")
+                    .removeClass("list-group-item-unread");
+
+                $(".list-group-item button").remove();
+
+                // Refresh counters
+                loadUnreadCount();
+                loadReadCount();
+            }
+        });
+    }
+
+</script>

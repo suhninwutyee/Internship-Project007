@@ -130,8 +130,11 @@ namespace ProjectManagementSystem.Controllers
             var notifications = await _context.Notifications
                 .Include(n => n.ProjectPk)
                 .Where(n => n.UserId == userId &&
-                            n.IsDeleted==false &&
-                            (n.NotificationType == "Announcement" || n.NotificationType == "Response"))
+                            n.IsDeleted == false &&
+                            (n.NotificationType == "Announcement" ||
+                             n.NotificationType == "Response" ||
+                             n.NotificationType == "Schedule" ||
+                             n.NotificationType == "Meeting"))
                 .OrderByDescending(n => n.CreatedAt)
                 .Select(n => new NotificationViewModel
                 {
@@ -139,14 +142,34 @@ namespace ProjectManagementSystem.Controllers
                     Title = n.Title ?? "",
                     Message = n.Message ?? "",
                     IsRead = n.IsRead ?? false,
-                    CreatedAt = n.CreatedAt ?? System.DateTime.Now,
+                    CreatedAt = n.CreatedAt ?? DateTime.Now,
                     ProjectId = n.ProjectPkId,
-                    NotificationType = n.NotificationType ?? ""
+                    ProjectName = n.ProjectPk.ProjectName ?? "",
+                    NotificationType = n.NotificationType ?? "",
+                    //DeadlineStatus = (n.NotificationType == "Meeting" && n.ProjectPk.MeetingTime != null)
+                    //                 ? GetDeadlineStatus(n.ProjectPk.MeetingTime.Value)
+                    //                 : ""
                 })
                 .ToListAsync();
 
             return View("IndexStudent", notifications);
         }
+
+        //Helper method to calculate deadline status
+        private string GetDeadlineStatus(DateTime meetingTime)
+        {
+            var hoursLeft = (meetingTime - DateTime.Now).TotalHours;
+            if (hoursLeft <= 1 && hoursLeft > 0)
+                return "Starting Soon";
+            else if (hoursLeft <= 24 && hoursLeft > 1)
+                return "Tomorrow";
+            else if (hoursLeft <= 0)
+                return "Missed";
+            else
+                return "";
+        }
+
+
 
         // ---------------------
         // Teacher Notifications
@@ -160,7 +183,7 @@ namespace ProjectManagementSystem.Controllers
             var notifications = await _context.Notifications
                 .Include(n => n.ProjectPk)
                 .Where(n => n.UserId == userId &&
-                            n.IsDeleted==false &&
+                            n.IsDeleted == false &&
                             n.NotificationType == "ProjectSubmitted")
                 .OrderByDescending(n => n.CreatedAt)
                 .Select(n => new NotificationViewModel
@@ -193,6 +216,7 @@ namespace ProjectManagementSystem.Controllers
             return Ok();
         }
 
+        // MARK ALL AS READ
         [HttpPost]
         public async Task<IActionResult> MarkAllAsRead()
         {
@@ -201,7 +225,7 @@ namespace ProjectManagementSystem.Controllers
                 return Json(new { success = false, count = 0 });
 
             var notifications = await _context.Notifications
-                .Where(n => n.UserId == userId && n.IsRead == false && n.IsDeleted == false)
+                .Where(n => n.UserId == userId && !(n.IsRead ?? false) && !(n.IsDeleted ?? false))
                 .ToListAsync();
 
             foreach (var notif in notifications)
@@ -211,17 +235,118 @@ namespace ProjectManagementSystem.Controllers
             return Json(new { success = true, count = notifications.Count });
         }
 
+        // GET UNREAD COUNT
         public async Task<IActionResult> GetUnreadCount()
         {
             var userId = HttpContext.Session.GetInt32("UserPkId");
-            if (userId == null)
-                return Json(0);
+            if (userId == null) return Json(0);
 
             var count = await _context.Notifications
-                .Where(n => n.UserId == userId && n.IsRead == false && n.IsDeleted == false)
+                .Where(n => n.UserId == userId && !(n.IsRead ?? false) && !(n.IsDeleted ?? false))
                 .CountAsync();
 
             return Json(count);
         }
+
+        // GET READ COUNT
+        public async Task<IActionResult> GetReadCount()
+        {
+            var userId = HttpContext.Session.GetInt32("UserPkId");
+            if (userId == null) return Json(0);
+
+            var count = await _context.Notifications
+                .Where(n => n.UserId == userId && !(n.IsRead ?? false) && !(n.IsDeleted ?? false))
+                .CountAsync();
+
+            return Json(count);
+        }
+
+
+
+        [HttpPost]
+        public async Task<IActionResult> AssignSchedule([FromBody] AssignDto dto)
+        {
+            var project = await _context.Projects
+                .Include(p => p.ProjectMembers)
+                .FirstOrDefaultAsync(p => p.ProjectPkId == dto.ProjectId);
+
+            if (project == null) return Json(new { success = false, message = "Project not found." });
+
+            if (!DateTime.TryParse(dto.DateTime, out var parsed))
+                return Json(new { success = false, message = "Invalid date/time." });
+
+            project.ScheduleTime = parsed;
+            await _context.SaveChangesAsync();
+
+            // Notify all members
+            foreach (var m in project.ProjectMembers)
+            {
+                var notif = new Notification
+                {
+                    UserId = m.StudentPkId,
+                    ProjectPkId = project.ProjectPkId,
+                    Title = "Schedule Assigned",
+                    Message = $"Schedule: {parsed:dd MMM yyyy, hh:mm tt}",
+                    NotificationType = "Schedule",
+                    IsRead = false,
+                    IsDeleted = false,
+                    CreatedAt = DateTime.Now
+                };
+                _context.Notifications.Add(notif);
+            }
+
+            await _context.SaveChangesAsync();
+            return Json(new { success = true, message = "Schedule assigned and members notified." });
+        }
+
+        // -----------------------------
+        // Assign Meeting
+        // -----------------------------
+        [HttpPost]
+        public async Task<IActionResult> AssignMeeting([FromBody] AssignDto dto)
+        {
+            var project = await _context.Projects
+                .Include(p => p.ProjectMembers)
+                .FirstOrDefaultAsync(p => p.ProjectPkId == dto.ProjectId);
+
+            if (project == null) return Json(new { success = false, message = "Project not found." });
+
+            if (!DateTime.TryParse(dto.DateTime, out var parsed))
+                return Json(new { success = false, message = "Invalid date/time." });
+
+            project.MeetingTime = parsed;
+            await _context.SaveChangesAsync();
+
+            // Notify all members
+            foreach (var m in project.ProjectMembers)
+            {
+                var notif = new Notification
+                {
+                    UserId = m.StudentPkId,
+                    ProjectPkId = project.ProjectPkId,
+                    Title = "Meeting Scheduled",
+                    Message = $"Meeting: {parsed:dd MMM yyyy, hh:mm tt}",
+                    NotificationType = "Meeting",
+                    IsRead = false,
+                    IsDeleted = false,
+                    CreatedAt = DateTime.Now
+                };
+                _context.Notifications.Add(notif);
+            }
+
+            await _context.SaveChangesAsync();
+            return Json(new { success = true, message = "Meeting assigned and members notified." });
+        }
+
+        // -----------------------------
+        // DTO Class
+        // -----------------------------
+        public class AssignDto
+        {
+            public int ProjectId { get; set; }
+            public string DateTime { get; set; } = string.Empty; // sent from client
+        }
     }
+
 }
+

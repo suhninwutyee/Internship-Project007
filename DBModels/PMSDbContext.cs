@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using ProjectManagementSystem.Models;
 
 namespace ProjectManagementSystem.DBModels;
 
@@ -70,9 +69,8 @@ public partial class PMSDbContext : IdentityDbContext<ApplicationUser>
     public virtual DbSet<StudentDepartment> StudentDepartments { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=203.81.89.218; Database=InternPMS; User Id=internadmin; Password=intern@dmin123;Trust Server Certificate=true");
-        //=> optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=InternPMS;Trusted_Connection=True;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -242,9 +240,7 @@ public partial class PMSDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.ProjectPkId).HasColumnName("Project_pkId");
             entity.Property(e => e.Title).HasMaxLength(100);
 
-            entity.HasOne(d => d.ProjectPk).WithMany(p => p.Notifications)
-                .HasForeignKey(d => d.ProjectPkId)
-                .OnDelete(DeleteBehavior.ClientSetNull);
+            entity.HasOne(d => d.ProjectPk).WithMany(p => p.Notifications).HasForeignKey(d => d.ProjectPkId);
 
             entity.HasOne(d => d.User).WithMany(p => p.Notifications).HasForeignKey(d => d.UserId);
         });
@@ -296,8 +292,10 @@ public partial class PMSDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.IsApprovedByTeacher).HasDefaultValue(false);
             entity.Property(e => e.IsDeleted).HasDefaultValue(false);
             entity.Property(e => e.LanguagePkId).HasColumnName("Language_pkId");
+            entity.Property(e => e.MeetingTime).HasColumnType("datetime");
             entity.Property(e => e.ProjectName).HasMaxLength(200);
             entity.Property(e => e.ProjectTypePkId).HasColumnName("ProjectType_pkId");
+            entity.Property(e => e.ScheduleTime).HasColumnType("datetime");
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .HasDefaultValue("");

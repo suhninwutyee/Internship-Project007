@@ -12,7 +12,7 @@ namespace ProjectManagementSystem.DBModels
 
         public List<Project> LeaderProjects { get; set; }
 
-        public List<Notification> Notifications { get; set; } = new List<Notification>();
+        public List<NotificationViewModel> Notifications { get; set; } = new List<NotificationViewModel>();
 
         public bool IsMember { get; set; }
         public string? MemberProjectName { get; set; }

@@ -43,6 +43,10 @@ public partial class Project
 
     public bool? IsApprovedByTeacher { get; set; }
 
+    public DateTime? ScheduleTime { get; set; }
+
+    public DateTime? MeetingTime { get; set; }
+
     public virtual Company CompanyPk { get; set; } = null!;
 
     public virtual Framework FrameworkPk { get; set; } = null!;

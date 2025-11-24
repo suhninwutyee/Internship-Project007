@@ -21,11 +21,11 @@ public partial class Notification
 
     public DateTime? DeletedDate { get; set; }
 
-    public int ProjectPkId { get; set; }
+    public int? ProjectPkId { get; set; }
 
     public DateTime? CreatedAt { get; set; }
 
-    public virtual Project ProjectPk { get; set; } = null!;
+    public virtual Project? ProjectPk { get; set; }
 
     public virtual Student User { get; set; } = null!;
 }

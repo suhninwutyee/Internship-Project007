@@ -444,140 +444,161 @@ namespace ProjectManagementSystem.Controllers
 
         public async Task<IActionResult> Dashboard()
         {
-            // 1. Authentication and Session Check
-            var studentId = HttpContext.Session.GetInt32("StudentPkId");
-            if (studentId == null)
-            {
-                TempData["Error"] = "Session expired. Please log in again.";
-                return RedirectToAction("Login", "StudentLogin");
-            }
-
-            // 2. Load Student with Related Data
-            var student = await _context.Students
-                .Include(s => s.EmailPk)
-                .Include(s => s.DepartmentPk)
-                .Include(s => s.NrcPk)
-                .Include(s => s.NrctypePk)
-                .Include(s => s.AcademicYearPk)
-                .FirstOrDefaultAsync(s => s.StudentPkId == studentId);
-
-            if (student == null)
-            {
-                TempData["Error"] = "Student not found.";
-                return RedirectToAction("Login", "StudentLogin");
-            }
-
-            var projects = await _context.Projects
-                .Where(p => p.SubmittedByStudentPkId == studentId ||
-                           p.ProjectMembers.Any(pm => pm.StudentPkId == studentId && pm.IsDeleted==false))
-                //.Include(p => p.ProjectType)
-                .Include(p => p.LanguagePk)
-                .Include(p => p.FrameworkPk)
-                .Include(p => p.CompanyPk)
-                    .ThenInclude(c => c.CityPk)
-                .Include(p => p.ProjectFiles)
-                //.Include(p => p.ProjectMembers)
-                    //.ThenInclude(pm => pm.Student)
-                        //.ThenInclude(s => s.Email)
-                //.Include(p => p.ProjectMembers)
-                //    .ThenInclude(pm => pm.Student)
-                //        .ThenInclude(s => s.StudentDepartment)
-                .OrderByDescending(p => p.ProjectSubmittedDate)
-                .AsNoTracking()
-                .ToListAsync();
-
-            // 4. Load All Team Members for Leader Projects
-            var leaderProjectIds = projects
-                .Where(p => p.SubmittedByStudentPkId == studentId)
-                .Select(p => p.ProjectPkId)
-                .ToList();
-
-            var allTeamMembers = await _context.ProjectMembers
-                .Where(pm => leaderProjectIds.Contains((int)pm.ProjectPkId) && pm.IsDeleted==false)
-                .Include(pm => pm.StudentPk)
-                    .ThenInclude(s => s.EmailPk)
-                .Include(pm => pm.StudentPk)
-                    .ThenInclude(s => s.DepartmentPk)
-                .AsNoTracking()
-                .ToListAsync();
-
-            // 5. Mark Leader Role in Teams
-            foreach (var project in projects.Where(p => p.SubmittedByStudentPkId == studentId))
-            {
-                var leaderMember = allTeamMembers.FirstOrDefault(m =>
-                    m.ProjectPkId == project.ProjectPkId &&
-                    m.StudentPkId == studentId);
-
-                if (leaderMember != null)
+           
+                // 1. Authentication and Session Check
+                var studentId = HttpContext.Session.GetInt32("StudentPkId");
+                if (studentId == null)
                 {
-                    leaderMember.Role = "Leader";
-                    //leaderMember.RoleDescription = leaderMember.RoleDescription ?? "Manage project and assign members";
+                    TempData["Error"] = "Session expired. Please log in again.";
+                    return RedirectToAction("Login", "StudentLogin");
                 }
-            }
 
-            // 6. Calculate Submission Status
-            var submissionStatus = new ProjectSubmissionStatus
-            {
-                TotalProjects = projects.Count,
-                DraftProjects = projects.Count(p => p.Status == "Draft"),
-                PendingProjects = projects.Count(p => p.Status == "Pending"),
-                ApprovedProjects = projects.Count(p => p.Status == "Approved"),
-                RejectedProjects = projects.Count(p => p.Status == "Rejected"),
-                RevisionRequired = projects.Count(p => p.Status == "Revision Required")
-            };
+                // 2. Load Student with Related Data
+                var student = await _context.Students
+                    .Include(s => s.EmailPk)
+                    .Include(s => s.DepartmentPk)
+                    .Include(s => s.NrcPk)
+                    .Include(s => s.NrctypePk)
+                    .Include(s => s.AcademicYearPk)
+                    .FirstOrDefaultAsync(s => s.StudentPkId == studentId);
 
+                if (student == null)
+                {
+                    TempData["Error"] = "Student not found.";
+                    return RedirectToAction("Login", "StudentLogin");
+                }
+
+                var projects = await _context.Projects
+                    .Where(p => p.SubmittedByStudentPkId == studentId ||
+                               p.ProjectMembers.Any(pm => pm.StudentPkId == studentId && pm.IsDeleted == false))
+                    //.Include(p => p.ProjectType)
+                    .Include(p => p.LanguagePk)
+                    .Include(p => p.FrameworkPk)
+                    .Include(p => p.CompanyPk)
+                        .ThenInclude(c => c.CityPk)
+                    .Include(p => p.ProjectFiles)
+                    //.Include(p => p.ProjectMembers)
+                    //.ThenInclude(pm => pm.Student)
+                    //.ThenInclude(s => s.Email)
+                    //.Include(p => p.ProjectMembers)
+                    //    .ThenInclude(pm => pm.Student)
+                    //        .ThenInclude(s => s.StudentDepartment)
+                    .OrderByDescending(p => p.ProjectSubmittedDate)
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                // 4. Load All Team Members for Leader Projects
+                var leaderProjectIds = projects
+                    .Where(p => p.SubmittedByStudentPkId == studentId)
+                    .Select(p => p.ProjectPkId)
+                    .ToList();
+
+                var allTeamMembers = await _context.ProjectMembers
+                    .Where(pm => leaderProjectIds.Contains((int)pm.ProjectPkId) && pm.IsDeleted == false)
+                    .Include(pm => pm.StudentPk)
+                        .ThenInclude(s => s.EmailPk)
+                    .Include(pm => pm.StudentPk)
+                        .ThenInclude(s => s.DepartmentPk)
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                // 5. Mark Leader Role in Teams
+                foreach (var project in projects.Where(p => p.SubmittedByStudentPkId == studentId))
+                {
+                    var leaderMember = allTeamMembers.FirstOrDefault(m =>
+                        m.ProjectPkId == project.ProjectPkId &&
+                        m.StudentPkId == studentId);
+
+                    if (leaderMember != null)
+                    {
+                        leaderMember.Role = "Leader";
+                        //leaderMember.RoleDescription = leaderMember.RoleDescription ?? "Manage project and assign members";
+                    }
+                }
+
+                // 6. Calculate Submission Status
+                var submissionStatus = new ProjectSubmissionStatus
+                {
+                    TotalProjects = projects.Count,
+                    DraftProjects = projects.Count(p => p.Status == "Draft"),
+                    PendingProjects = projects.Count(p => p.Status == "Pending"),
+                    ApprovedProjects = projects.Count(p => p.Status == "Approved"),
+                    RejectedProjects = projects.Count(p => p.Status == "Rejected"),
+                    RevisionRequired = projects.Count(p => p.Status == "Revision Required")
+                };
             var notifications = await _context.Notifications
-              .Where(n => n.UserId == student.StudentPkId)
-              .OrderByDescending(n => n.CreatedAt)
-              .ToListAsync();
+            .Where(n => n.UserId == student.StudentPkId)
+            .OrderByDescending(n => n.CreatedAt)
+            .Select(n => new NotificationViewModel
+            {
+                Id = n.NotificationPkId,
+                Title = n.Title ?? "",
+                Message = n.Message ?? "",
+                NotificationType = n.NotificationType ?? "",
+                CreatedAt = n.CreatedAt ?? DateTime.Now,
+                IsRead = n.IsRead ?? false,
+
+                ProjectId = n.ProjectPkId,   // ⭐ FIX
+
+                ProjectName = n.ProjectPk != null
+                    ? n.ProjectPk.ProjectName
+                    : "No Project"               // ⭐ FIX
+
+            })
+            .ToListAsync();
+            //var notifications = await _context.Notifications
+            //  .Where(n => n.UserId == student.StudentPkId)
+            //  .OrderByDescending(n => n.CreatedAt)
+            //  .ToListAsync();
 
             // 7. Determine if the logged-in student is a member
             var memberInfo = await _context.ProjectMembers
-                .Include(pm => pm.ProjectPk)
-                .ThenInclude(p => p.ProjectMembers)
-                    .ThenInclude(m => m.StudentPk)
-                    .ThenInclude(s => s.EmailPk)
-                .FirstOrDefaultAsync(pm => pm.StudentPkId == studentId && !pm.IsDeleted==false);
+                    .Include(pm => pm.ProjectPk)
+                    .ThenInclude(p => p.ProjectMembers)
+                        .ThenInclude(m => m.StudentPk)
+                        .ThenInclude(s => s.EmailPk)
+                    .FirstOrDefaultAsync(pm => pm.StudentPkId == studentId && !pm.IsDeleted == false);
 
-            bool isMember = false;
-            string? memberProjectName = null;
-            string? memberResponsibility = null;
-            string? leaderName = null;
-            string? leaderEmail = null;
+                bool isMember = false;
+                string? memberProjectName = null;
+                string? memberResponsibility = null;
+                string? leaderName = null;
+                string? leaderEmail = null;
 
-            if (memberInfo != null && memberInfo.ProjectPk != null)
-            {
-                isMember = true;
-                memberProjectName = memberInfo.ProjectPk.ProjectName;
-                memberResponsibility = memberInfo.RoleDescription;
-
-                // Find the Leader of this project
-                var leader = memberInfo.ProjectPk.ProjectMembers
-                    .FirstOrDefault(m => m.Role == "Leader" && !m.IsDeleted==false);
-
-                if (leader != null)
+                if (memberInfo != null && memberInfo.ProjectPk != null)
                 {
-                    leaderName = leader.StudentPk?.StudentName;
-                    leaderEmail = leader.StudentPk?.EmailPk?.EmailAddress;
+                    isMember = true;
+                    memberProjectName = memberInfo.ProjectPk.ProjectName;
+                    memberResponsibility = memberInfo.RoleDescription;
+
+                    // Find the Leader of this project
+                    var leader = memberInfo.ProjectPk.ProjectMembers
+                        .FirstOrDefault(m => m.Role == "Leader" && !m.IsDeleted == false);
+
+                    if (leader != null)
+                    {
+                        leaderName = leader.StudentPk?.StudentName;
+                        leaderEmail = leader.StudentPk?.EmailPk?.EmailAddress;
+                    }
                 }
-            }
 
-            var dashboardViewModel = new StudentDashboardViewModel
-            {
-                Student = student,
-                Projects = projects,
-                TeamMembers = allTeamMembers,
-                SubmissionStatus = submissionStatus,
-                Notifications = notifications,
-                LeaderProjects = projects.Where(p => p.SubmittedByStudentPkId == studentId).ToList(),
-                IsMember = isMember,
-                MemberProjectName = memberProjectName,
-                MemberResponsibility = memberResponsibility,
-                LeaderName = leaderName,
-                LeaderEmail = leaderEmail
-            };
+                var dashboardViewModel = new StudentDashboardViewModel
+                {
+                    Student = student,
+                    Projects = projects,
+                    TeamMembers = allTeamMembers,
+                    SubmissionStatus = submissionStatus,
+                    Notifications = notifications,
+                    LeaderProjects = projects.Where(p => p.SubmittedByStudentPkId == studentId).ToList(),
+                    IsMember = isMember,
+                    MemberProjectName = memberProjectName,
+                    MemberResponsibility = memberResponsibility,
+                    LeaderName = leaderName,
+                    LeaderEmail = leaderEmail
+                };
 
-            return View(dashboardViewModel);
+                return View(dashboardViewModel);
+            
         }
 
      
