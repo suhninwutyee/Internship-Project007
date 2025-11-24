@@ -204,6 +204,7 @@ namespace ProjectManagementSystem.Controllers
         // ---------------------
         // Shared Actions
         // ---------------------
+        // Mark a single notification as read
         [HttpPost]
         public async Task<IActionResult> MarkAsRead(int id)
         {
@@ -216,11 +217,11 @@ namespace ProjectManagementSystem.Controllers
             return Ok();
         }
 
-        // MARK ALL AS READ
+        // Mark all notifications as read
         [HttpPost]
         public async Task<IActionResult> MarkAllAsRead()
         {
-            var userId = HttpContext.Session.GetInt32("UserPkId");
+            var userId = HttpContext.Session.GetInt32("StudentPkId"); // use correct session key
             if (userId == null)
                 return Json(new { success = false, count = 0 });
 
@@ -235,10 +236,10 @@ namespace ProjectManagementSystem.Controllers
             return Json(new { success = true, count = notifications.Count });
         }
 
-        // GET UNREAD COUNT
+        // Get count of unread notifications
         public async Task<IActionResult> GetUnreadCount()
         {
-            var userId = HttpContext.Session.GetInt32("UserPkId");
+            var userId = HttpContext.Session.GetInt32("StudentPkId");
             if (userId == null) return Json(0);
 
             var count = await _context.Notifications
@@ -248,18 +249,20 @@ namespace ProjectManagementSystem.Controllers
             return Json(count);
         }
 
-        // GET READ COUNT
+        // Get count of read notifications
         public async Task<IActionResult> GetReadCount()
         {
-            var userId = HttpContext.Session.GetInt32("UserPkId");
+            var userId = HttpContext.Session.GetInt32("StudentPkId");
             if (userId == null) return Json(0);
 
             var count = await _context.Notifications
-                .Where(n => n.UserId == userId && !(n.IsRead ?? false) && !(n.IsDeleted ?? false))
+                .Where(n => n.UserId == userId && (n.IsRead ?? false) && !(n.IsDeleted ?? false))
                 .CountAsync();
 
             return Json(count);
         }
+
+
 
 
 

@@ -2,22 +2,16 @@
 
 <h2 class="mb-3">Your Notifications (Student)</h2>
 
-<!-- === COUNTERS + ACTION BUTTON === -->
+<!-- === COUNTERS + MARK ALL BUTTON === -->
 <div class="d-flex justify-content-between align-items-center mb-3">
-
     <div>
         <span class="fw-bold">Unread:</span>
         <span id="unreadCount" class="badge bg-danger">0</span>
-
         <span class="ms-3 fw-bold">Read:</span>
         <span id="readCount" class="badge bg-success">0</span>
     </div>
-
-    <button class="btn btn-primary btn-sm" onclick="markAllAsRead()">
-        Mark All As Read
-    </button>
+    <button class="btn btn-primary btn-sm" onclick="markAllAsRead()">Mark All As Read</button>
 </div>
-
 
 <!-- === NOTIFICATION LIST === -->
 <div class="list-group">
@@ -27,24 +21,23 @@
         {
             bool isUnread = !(notif.IsRead ?? false);
 
-            <div class="list-group-item @(isUnread ? "list-group-item-unread" : "")" id="notif-@notif.Id">
+            <div class="list-group-item @(isUnread ? "list-group-item-unread" : "list-group-item-read")"
+                 id="notif-@notif.Id">
 
                 <div>
                     <strong>@notif.Title</strong> - @notif.Message <br />
-
                     @if (!string.IsNullOrEmpty(notif.DeadlineStatus))
                     {
                         <span class="badge bg-danger">@notif.DeadlineStatus</span>
                     }
-
                     <br />
                     <small>@notif.CreatedAt.ToString("MMM dd, yyyy HH:mm")</small>
                 </div>
 
+                @* Only show Confirm Read button for unread notifications *@
                 @if (isUnread)
                 {
-                    <button class="btn btn-sm btn-outline-primary mt-2"
-                            onclick="confirmRead(@notif.Id)">
+                    <button class="btn btn-sm btn-outline-primary mt-2" onclick="confirmRead(@notif.Id)">
                         Confirm Read
                     </button>
                 }
@@ -57,47 +50,33 @@
     }
 </div>
 
-
 <!-- === STYLE === -->
 <style>
     .list-group-item-unread {
-        background-color: #f8d7da !important;
+        background-color: #f8d7da !important; /* light red */
         font-weight: bold;
     }
+
+    .list-group-item-read {
+        background-color: #d1e7dd !important; /* light green */
+        font-weight: normal;
+    }
 </style>
-
-<!-- === SCRIPTS === -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <script>
-
-    // Load counters when page loads
     $(document).ready(function () {
         loadUnreadCount();
         loadReadCount();
     });
 
-    function loadUnreadCount() {
-        $.get('/Notifications/GetUnreadCount', function (count) {
-            $("#unreadCount").text(count);
-        });
-    }
-
-    function loadReadCount() {
-        $.get('/Notifications/GetReadCount', function (count) {
-            $("#readCount").text(count);
-        });
-    }
-
-    // Individual confirm button
+    // Confirm single notification
     function confirmRead(id) {
         $.post('/Notifications/MarkAsRead', { id: id }, function () {
+            $("#notif-" + id)
+                .removeClass("list-group-item-unread")
+                .addClass("list-group-item-read"); // Change color to read
 
-            // Update UI: remove background + button
-            $("#notif-" + id).removeClass("list-group-item-unread");
-            $("#notif-" + id + " button").remove();
-
-            // Update counts
+            $("#notif-" + id + " button").remove(); // Remove button
             loadUnreadCount();
             loadReadCount();
         });
@@ -106,20 +85,29 @@
     // Mark all as read
     function markAllAsRead() {
         $.post('/Notifications/MarkAllAsRead', function (response) {
-
             if (response.success) {
-
-                // Remove all unread styles + buttons
                 $(".list-group-item-unread")
-                    .removeClass("list-group-item-unread");
+                    .removeClass("list-group-item-unread")
+                    .addClass("list-group-item-read");
 
                 $(".list-group-item button").remove();
-
-                // Refresh counters
                 loadUnreadCount();
                 loadReadCount();
             }
         });
     }
 
+    // Load unread count
+    function loadUnreadCount() {
+        $.get('/Notifications/GetUnreadCount', function (count) {
+            $("#unreadCount").text(count);
+        });
+    }
+
+    // Load read count
+    function loadReadCount() {
+        $.get('/Notifications/GetReadCount', function (count) {
+            $("#readCount").text(count);
+        });
+    }
 </script>

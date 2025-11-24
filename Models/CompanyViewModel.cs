@@ -6,6 +6,11 @@ namespace ProjectManagementSystem.DBModels
     {
         public int Company_pkId { get; set; }
         public string CompanyName { get; set; }
+        public int StudentCount { get; set; }
+        public string Address { get; set; }
+        public string Contact { get; set; }
+        public string Description { get; set; }
+        public string ImageFileName { get; set; }
     }
 
     public class CompanyNameModel

@@ -178,20 +178,45 @@ namespace ProjectManagementSystem.Controllers.Public
 
             int pageSize = 3;
 
+            // Load city and its companies with projects and project members
             var city = await _context.Cities
                 .Include(c => c.Companies)
+                    .ThenInclude(comp => comp.Projects)
+                        .ThenInclude(p => p.ProjectMembers)
                 .FirstOrDefaultAsync(c => c.CityPkId == id);
 
             if (city == null) return NotFound();
 
-            var pagedCompanies = city.Companies.OrderBy(c => c.CompanyName).ToPagedList(page, pageSize);
+            // Map to CompanyViewModel including StudentCount and other fields
+            var companyList = city.Companies
+                .Select(c => new CompanyViewModel
+                {
+                    Company_pkId = c.CompanyPkId,
+                    CompanyName = c.CompanyName ?? "",
+                    StudentCount = c.Projects.Sum(p => p.ProjectMembers.Count),
+                    Address = c.Address ?? "",
+                    Contact = c.Contact ?? "",
+                    Description = c.Description ?? "",
+                    ImageFileName = c.ImageFileName ?? ""
+                })
+                .OrderBy(c => c.CompanyName)
+                .ToPagedList(page, pageSize);
 
             ViewBag.CityName = city.CityName;
             ViewBag.CityId = city.CityPkId;
             ViewBag.TotalCompanies = city.Companies.Count;
+            ViewBag.TotalStudents = city.Companies
+        .SelectMany(c => c.Projects)
+        .SelectMany(p => p.ProjectMembers)
+        .Count();
 
-            return View(pagedCompanies);
+            return View(companyList);
         }
+
+
+
+
+
 
         public async Task<IActionResult> Index()
         {
