@@ -262,10 +262,6 @@ namespace ProjectManagementSystem.Controllers
             return Json(count);
         }
 
-
-
-
-
         [HttpPost]
         public async Task<IActionResult> AssignSchedule([FromBody] AssignDto dto)
         {

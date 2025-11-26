@@ -62,52 +62,78 @@
         font-weight: normal;
     }
 </style>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@* <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+ *@
 <script>
-    $(document).ready(function () {
+    document.addEventListener("DOMContentLoaded", function () {
         loadUnreadCount();
         loadReadCount();
     });
 
     // Confirm single notification
     function confirmRead(id) {
-        $.post('/Notifications/MarkAsRead', { id: id }, function () {
-            $("#notif-" + id)
-                .removeClass("list-group-item-unread")
-                .addClass("list-group-item-read"); // Change color to read
+        fetch('/Notifications/MarkAsRead', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: id })
+        })
+        .then(res => res.json())
+        .then(() => {
+            const notif = document.getElementById("notif-" + id);
+            if (notif) {
+                notif.classList.remove("list-group-item-unread");
+                notif.classList.add("list-group-item-read");
 
-            $("#notif-" + id + " button").remove(); // Remove button
+                // Remove button inside notification
+                const button = notif.querySelector("button");
+                if (button) button.remove();
+            }
             loadUnreadCount();
             loadReadCount();
-        });
+        })
+        .catch(err => console.error("Error marking notification as read:", err));
     }
 
     // Mark all as read
     function markAllAsRead() {
-        $.post('/Notifications/MarkAllAsRead', function (response) {
+        fetch('/Notifications/MarkAllAsRead', { method: 'POST' })
+        .then(res => res.json())
+        .then(response => {
             if (response.success) {
-                $(".list-group-item-unread")
-                    .removeClass("list-group-item-unread")
-                    .addClass("list-group-item-read");
+                document.querySelectorAll(".list-group-item-unread").forEach(item => {
+                    item.classList.remove("list-group-item-unread");
+                    item.classList.add("list-group-item-read");
+                });
 
-                $(".list-group-item button").remove();
+                document.querySelectorAll(".list-group-item button").forEach(btn => btn.remove());
+
                 loadUnreadCount();
                 loadReadCount();
             }
-        });
+        })
+        .catch(err => console.error("Error marking all notifications as read:", err));
     }
 
     // Load unread count
     function loadUnreadCount() {
-        $.get('/Notifications/GetUnreadCount', function (count) {
-            $("#unreadCount").text(count);
-        });
+        fetch('/Notifications/GetUnreadCount')
+        .then(res => res.json())
+        .then(count => {
+            const unreadElem = document.getElementById("unreadCount");
+            if (unreadElem) unreadElem.textContent = count;
+        })
+        .catch(err => console.error("Error loading unread count:", err));
     }
 
     // Load read count
     function loadReadCount() {
-        $.get('/Notifications/GetReadCount', function (count) {
-            $("#readCount").text(count);
-        });
+        fetch('/Notifications/GetReadCount')
+        .then(res => res.json())
+        .then(count => {
+            const readElem = document.getElementById("readCount");
+            if (readElem) readElem.textContent = count;
+        })
+        .catch(err => console.error("Error loading read count:", err));
     }
 </script>
+
