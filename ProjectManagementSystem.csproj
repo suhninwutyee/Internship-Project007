@@ -38,6 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\Resources\xlsx\" />
     <Folder Include="wwwroot\uploads\students\" />
   </ItemGroup>
 
