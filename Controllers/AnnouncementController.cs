@@ -170,7 +170,11 @@ namespace ProjectManagementSystem.Controllers
                 await _context.SaveChangesAsync();
 
                 // Notifications
-                var allStudents = await _context.Students.ToListAsync();
+                //var allStudents = await _context.Students.ToListAsync();
+                var allStudents = await _context.Students
+                .Include(s => s.ProjectMembers)
+                .ThenInclude(pm => pm.ProjectPk)
+                .ToListAsync();
                 foreach (var student in allStudents)
                 {
                     var projectId = student.ProjectMembers

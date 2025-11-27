@@ -150,7 +150,6 @@ namespace ProjectManagementSystem.Controllers
             var roll = HttpContext.Session.GetString("RollNumber");
             var email = HttpContext.Session.GetString("EmailAddress");
 
-            // Email session null ဖြစ်ရင် DB ကနေယူ
             if (string.IsNullOrEmpty(email) && !string.IsNullOrEmpty(roll))
             {
                 var emailDb = _context.Emails.FirstOrDefault(e => e.RollNumber == roll && (e.IsDeleted ?? false) == false);
@@ -557,7 +556,7 @@ namespace ProjectManagementSystem.Controllers
                     .ThenInclude(p => p.ProjectMembers)
                         .ThenInclude(m => m.StudentPk)
                         .ThenInclude(s => s.EmailPk)
-                    .FirstOrDefaultAsync(pm => pm.StudentPkId == studentId && !pm.IsDeleted == false);
+                    .FirstOrDefaultAsync(pm => pm.StudentPkId == studentId && pm.IsDeleted == false);
 
                 bool isMember = false;
                 string? memberProjectName = null;
@@ -573,7 +572,7 @@ namespace ProjectManagementSystem.Controllers
 
                     // Find the Leader of this project
                     var leader = memberInfo.ProjectPk.ProjectMembers
-                        .FirstOrDefault(m => m.Role == "Leader" && !m.IsDeleted == false);
+                        .FirstOrDefault(m => m.Role == "Leader" && m.IsDeleted == false);
 
                     if (leader != null)
                     {

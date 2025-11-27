@@ -96,11 +96,49 @@ namespace ProjectManagementSystem.Controllers
             return View(model);
         }
 
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Approve([FromBody] int id)
+        //{
+        //    var project = await _context.Projects.FindAsync(id);
+        //    if (project == null)
+        //        return Json(new { success = false, message = "Project not found." });
+
+        //    project.Status = "Approved";
+        //    project.ApprovedDate = DateTime.Now;
+        //    project.AdminComment = null;
+
+        //    await _context.SaveChangesAsync();
+        //    // ✅ Student Notification
+        //    var leader = project.ProjectMembers.FirstOrDefault(pm => pm.Role == "Leader")?.StudentPk;
+        //    if (leader != null)
+        //    {
+        //        var notification = new Notification
+        //        {
+        //            UserId = leader.StudentPkId,
+        //            Title = "Project Approved",
+        //            Message = $"Your project '{project.ProjectName}' has been approved by the teacher.",
+        //            NotificationType = "Response",
+        //            ProjectPkId = project.ProjectPkId,
+        //            CreatedAt = DateTime.Now,
+        //            IsRead = false,
+        //            IsDeleted = false
+        //        };
+        //        _context.Notifications.Add(notification);
+        //        await _context.SaveChangesAsync();
+        //    }
+
+        //    return Json(new { success = true });
+        //}
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Approve([FromBody] int id)
         {
-            var project = await _context.Projects.FindAsync(id);
+            var project = await _context.Projects
+                .Include(p => p.ProjectMembers)
+                    .ThenInclude(pm => pm.StudentPk)
+                .FirstOrDefaultAsync(p => p.ProjectPkId == id);
+
             if (project == null)
                 return Json(new { success = false, message = "Project not found." });
 
@@ -109,14 +147,40 @@ namespace ProjectManagementSystem.Controllers
             project.AdminComment = null;
 
             await _context.SaveChangesAsync();
+
+            // FIND LEADER
+            var leader = project.ProjectMembers
+                .FirstOrDefault(pm => pm.Role == "Leader")?.StudentPk;
+
+            if (leader != null)
+            {
+                var notification = new Notification
+                {
+                    UserId = leader.StudentPkId,
+                    Title = "Project Approved",
+                    Message = $"Your project '{project.ProjectName}' has been approved by the teacher.",
+                    NotificationType = "Response",
+                    ProjectPkId = project.ProjectPkId,
+                    CreatedAt = DateTime.Now,
+                    IsRead = false,
+                    IsDeleted = false
+                };
+
+                _context.Notifications.Add(notification);
+                await _context.SaveChangesAsync();
+            }
+
             return Json(new { success = true });
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reject([FromBody] RejectModel model)
         {
-            var project = await _context.Projects.FindAsync(model.Id);
+            var project = await _context.Projects
+                .Include(p => p.ProjectMembers)
+                    .ThenInclude(pm => pm.StudentPk)
+                .FirstOrDefaultAsync(p => p.ProjectPkId == model.Id);
+
             if (project == null)
                 return Json(new { success = false, message = "Project not found." });
 
@@ -128,8 +192,69 @@ namespace ProjectManagementSystem.Controllers
             project.ApprovedDate = null;
 
             await _context.SaveChangesAsync();
+
+            // FIND Leader
+            var leader = project.ProjectMembers
+                .FirstOrDefault(pm => pm.Role == "Leader")?.StudentPk;
+
+            if (leader != null)
+            {
+                var notification = new Notification
+                {
+                    UserId = leader.StudentPkId,
+                    Title = "Project Rejected",
+                    Message = $"Your project '{project.ProjectName}' has been rejected. Reason: {model.Reason}",
+                    NotificationType = "Response",
+                    ProjectPkId = project.ProjectPkId,
+                    CreatedAt = DateTime.Now,
+                    IsRead = false,
+                    IsDeleted = false
+                };
+
+                _context.Notifications.Add(notification);
+                await _context.SaveChangesAsync();
+            }
+
             return Json(new { success = true });
         }
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Reject([FromBody] RejectModel model)
+        //{
+        //    var project = await _context.Projects.FindAsync(model.Id);
+        //    if (project == null)
+        //        return Json(new { success = false, message = "Project not found." });
+
+        //    if (string.IsNullOrWhiteSpace(model.Reason))
+        //        return Json(new { success = false, message = "Rejection reason is required." });
+
+        //    project.Status = "Rejected";
+        //    project.AdminComment = model.Reason;
+        //    project.ApprovedDate = null;
+
+        //    await _context.SaveChangesAsync();
+        //    // ✅ Student Notification
+        //    var leader = project.ProjectMembers.FirstOrDefault(pm => pm.Role == "Leader")?.StudentPk;
+        //    if (leader != null)
+        //    {
+        //        var notification = new Notification
+        //        {
+        //            UserId = leader.StudentPkId,
+        //            Title = "Project Rejected",
+        //            Message = $"Your project '{project.ProjectName}' has been rejected. Reason: {model.Reason}",
+        //            NotificationType = "Response",
+        //            ProjectPkId = project.ProjectPkId,
+        //            CreatedAt = DateTime.Now,
+        //            IsRead = false,
+        //            IsDeleted = false
+        //        };
+        //        _context.Notifications.Add(notification);
+        //        await _context.SaveChangesAsync();
+        //    }
+
+        //    return Json(new { success = true });
+        //}
 
         public async Task<IActionResult> Details(int id)
         {

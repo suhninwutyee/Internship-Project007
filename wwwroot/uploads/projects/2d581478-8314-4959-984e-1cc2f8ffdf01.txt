@@ -10,7 +10,8 @@
 .Include(p => p.Files)
 .Include(p => p.ProjectMembers)
     .ThenInclude(pm => pm.Student)
-.OrderByDescending(p => p.ProjectSubmittedDate);
+.OrderByDescending(p => p.Project
+tedDate);
 
 
        var pagedProjects = await projects.ToPagedListAsync(page, pageSize);

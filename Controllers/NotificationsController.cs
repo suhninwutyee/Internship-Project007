@@ -123,37 +123,104 @@ namespace ProjectManagementSystem.Controllers
         // ---------------------
         public async Task<IActionResult> IndexStudent()
         {
-            var userId = HttpContext.Session.GetInt32("StudentPkId");
-            if (userId == null)
+            var rollNumber = HttpContext.Session.GetString("RollNumber");
+            if (string.IsNullOrEmpty(rollNumber))
                 return RedirectToAction("Login", "StudentLogin");
 
+            var student = await _context.Students
+                .FirstOrDefaultAsync(s => s.EmailPk.RollNumber == rollNumber);
+
+            if (student == null)
+                return NotFound();
+
             var notifications = await _context.Notifications
-                .Include(n => n.ProjectPk)
-                .Where(n => n.UserId == userId &&
-                            n.IsDeleted == false &&
-                            (n.NotificationType == "Announcement" ||
-                             n.NotificationType == "Response" ||
-                             n.NotificationType == "Schedule" ||
-                             n.NotificationType == "Meeting"))
+                .Where(n => n.UserId == student.StudentPkId)
                 .OrderByDescending(n => n.CreatedAt)
                 .Select(n => new NotificationViewModel
                 {
                     Id = n.NotificationPkId,
                     Title = n.Title ?? "",
                     Message = n.Message ?? "",
-                    IsRead = n.IsRead ?? false,
-                    CreatedAt = n.CreatedAt ?? DateTime.Now,
+                    CreatedAt = n.CreatedAt ?? DateTime.UtcNow,
                     ProjectId = n.ProjectPkId,
-                    ProjectName = n.ProjectPk.ProjectName ?? "",
+                    ProjectName = n.ProjectPk != null ? n.ProjectPk.ProjectName : "",
+                    IsRead = n.IsRead,
                     NotificationType = n.NotificationType ?? "",
-                    //DeadlineStatus = (n.NotificationType == "Meeting" && n.ProjectPk.MeetingTime != null)
-                    //                 ? GetDeadlineStatus(n.ProjectPk.MeetingTime.Value)
-                    //                 : ""
+                    DeadlineStatus = "" // Optional: Add deadline calculation if relevant
                 })
                 .ToListAsync();
 
-            return View("IndexStudent", notifications);
+            return View(notifications);
         }
+
+        //public async Task<IActionResult> IndexStudent()
+        //{
+        //    var userId = HttpContext.Session.GetInt32("StudentPkId"); // Student session
+        //    if (userId == null)
+        //        return RedirectToAction("Login", "StudentLogin");
+
+        //    var notifications = await _context.Notifications
+        //      .Include(n => n.ProjectPk)
+        //      .Where(n => n.UserId == userId
+        //                  && n.IsDeleted == false
+        //                  && (n.NotificationType == "Announcement" ||
+        //                      n.NotificationType == "Response" ||
+        //                      n.NotificationType == "Schedule" ||
+        //                      n.NotificationType == "Meeting" ||
+        //                      n.NotificationType == "ProjectStatus"))
+        //      .OrderByDescending(n => n.CreatedAt)
+        //      .Select(n => new NotificationViewModel
+        //      {
+        //          Id = n.NotificationPkId,
+        //          Title = n.Title ?? "",
+        //          Message = n.Message ?? "",
+        //          IsRead = n.IsRead ?? false,
+        //          CreatedAt = n.CreatedAt ?? DateTime.Now,
+        //          ProjectId = n.ProjectPkId,
+        //          ProjectName = n.ProjectPk.ProjectName ?? "",
+        //          NotificationType = n.NotificationType ?? "",
+        //          //DeadlineStatus = (n.NotificationType == "Meeting" && n.ProjectPk.MeetingTime != null)
+        //          //    ? GetDeadlineStatus(n.ProjectPk.MeetingTime.Value)
+        //          //    : ""
+        //      })
+        //      .ToListAsync();
+
+
+        //    return View("IndexStudent", notifications);
+
+        //    //var userId = HttpContext.Session.GetInt32("StudentPkId");
+        //    //if (userId == null)
+        //    //    return RedirectToAction("Login", "StudentLogin");
+
+        //    //var notifications = await _context.Notifications
+        //    //    .Include(n => n.ProjectPk)
+        //    //    .Where(n => n.UserId == userId &&
+        //    //                n.IsDeleted == false &&
+        //    //                (n.NotificationType == "Announcement" ||
+        //    //                 n.NotificationType == "Response" ||
+        //    //                 n.NotificationType == "Schedule" ||
+        //    //                 n.NotificationType == "Meeting"||
+        //    //                 n.NotificationType == "ProjectStatus"))
+
+        //    //    .OrderByDescending(n => n.CreatedAt)
+        //    //    .Select(n => new NotificationViewModel
+        //    //    {
+        //    //        Id = n.NotificationPkId,
+        //    //        Title = n.Title ?? "",
+        //    //        Message = n.Message ?? "",
+        //    //        IsRead = n.IsRead ?? false,
+        //    //        CreatedAt = n.CreatedAt ?? DateTime.Now,
+        //    //        ProjectId = n.ProjectPkId,
+        //    //        ProjectName = n.ProjectPk.ProjectName ?? "",
+        //    //        NotificationType = n.NotificationType ?? "",
+        //    //        //DeadlineStatus = (n.NotificationType == "Meeting" && n.ProjectPk.MeetingTime != null)
+        //    //        //                 ? GetDeadlineStatus(n.ProjectPk.MeetingTime.Value)
+        //    //        //                 : ""
+        //    //    })
+        //    //    .ToListAsync();
+
+        //    //return View("IndexStudent", notifications);
+        //}
 
         //Helper method to calculate deadline status
         private string GetDeadlineStatus(DateTime meetingTime)
@@ -205,65 +272,224 @@ namespace ProjectManagementSystem.Controllers
         // Shared Actions
         // ---------------------
         // Mark a single notification as read
-        [HttpPost]
-        public async Task<IActionResult> MarkAsRead(int id)
+        //[HttpPost]
+        //public async Task<IActionResult> MarkAsRead(int id)
+        //{
+        //    var notification = await _context.Notifications.FindAsync(id);
+        //    if (notification != null)
+        //    {
+        //        notification.IsRead = true;
+        //        await _context.SaveChangesAsync();
+        //    }
+        //    return Ok();
+        //}
+        public async Task<IActionResult> GetUnreadCount()
         {
-            var notification = await _context.Notifications.FindAsync(id);
-            if (notification != null)
+            var rollNumber = HttpContext.Session.GetString("RollNumber");
+            if (string.IsNullOrEmpty(rollNumber))
+                return Json(0);
+
+            var student = await _context.Students
+                .FirstOrDefaultAsync(s => s.EmailPk.RollNumber == rollNumber);
+
+            if (student == null)
+                return Json(0);
+
+            var count = await _context.Notifications
+                .Where(n => n.UserId == student.StudentPkId && (n.IsRead == false || n.IsRead == null))
+                .CountAsync();
+
+            return Json(count);
+        }
+        public async Task<IActionResult> GetReadCount()
+        {
+            var rollNumber = HttpContext.Session.GetString("RollNumber");
+            if (string.IsNullOrEmpty(rollNumber))
+                return Json(0);
+
+            var student = await _context.Students
+                .FirstOrDefaultAsync(s => s.EmailPk.RollNumber == rollNumber);
+
+            if (student == null)
+                return Json(0);
+
+            var count = await _context.Notifications
+                .Where(n => n.UserId == student.StudentPkId && (n.IsRead == true))
+                .CountAsync();
+
+            return Json(count);
+        }
+
+        //// Mark all notifications as read
+        //[HttpPost]
+        //public async Task<IActionResult> MarkAllAsRead()
+        //{
+        //    var userId = HttpContext.Session.GetInt32("StudentPkId"); // use correct session key
+        //    if (userId == null)
+        //        return Json(new { success = false, count = 0 });
+
+        //    var notifications = await _context.Notifications
+        //        .Where(n => n.UserId == userId && !(n.IsRead ?? false) && !(n.IsDeleted ?? false))
+        //        .ToListAsync();
+
+        //    foreach (var notif in notifications)
+        //        notif.IsRead = true;
+
+        //    await _context.SaveChangesAsync();
+        //    return Json(new { success = true, count = notifications.Count });
+        //}
+        //[HttpPost]
+        //public async Task<IActionResult> MarkAllRead()
+        //{
+        //    var rollNumber = HttpContext.Session.GetString("RollNumber");
+        //    if (string.IsNullOrEmpty(rollNumber))
+        //        return Unauthorized();
+
+        //    var student = await _context.Students.FirstOrDefaultAsync(s => s.EmailPk.RollNumber == rollNumber);
+        //    if (student == null)
+        //        return NotFound();
+
+        //    var notifications = await _context.Notifications
+        //        .Where(n => n.UserId == student.StudentPkId && (n.IsRead == false || n.IsRead == null))
+        //        .ToListAsync();
+
+        //    notifications.ForEach(n => n.IsRead = true);
+        //    await _context.SaveChangesAsync();
+
+        //    return Ok();
+        //}
+        [HttpPost]
+        public async Task<IActionResult> MarkAllRead()
+        {
+            var rollNumber = HttpContext.Session.GetString("RollNumber");
+            if (string.IsNullOrEmpty(rollNumber))
+                return Unauthorized();
+
+            var student = await _context.Students.FirstOrDefaultAsync(s => s.EmailPk.RollNumber == rollNumber);
+            if (student == null)
+                return NotFound();
+
+            var notifications = await _context.Notifications
+                .Where(n => n.UserId == student.StudentPkId && (n.IsRead == false || n.IsRead == null))
+                .ToListAsync();
+
+            notifications.ForEach(n => n.IsRead = true);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        // Get count of unread notifications
+        //public async Task<IActionResult> GetUnreadCount()
+        //{
+        //    var userId = HttpContext.Session.GetInt32("StudentPkId");
+        //    if (userId == null) return Json(0);
+
+        //    var count = await _context.Notifications
+        //        .Where(n => n.UserId == userId && !(n.IsRead ?? false) && !(n.IsDeleted ?? false))
+        //        .CountAsync();
+
+        //    return Json(count);
+        //}
+
+        //// Get count of read notifications
+        //public async Task<IActionResult> GetReadCount()
+        //{
+        //    var userId = HttpContext.Session.GetInt32("StudentPkId");
+        //    if (userId == null) return Json(0);
+
+        //    var count = await _context.Notifications
+        //        .Where(n => n.UserId == userId && (n.IsRead ?? false) && !(n.IsDeleted ?? false))
+        //        .CountAsync();
+
+        //    return Json(count);
+        //}
+
+
+        // GET: Notifications/Details/5
+        public async Task<IActionResult> Details(int id)
+        {
+            var notification = await _context.Notifications
+                .Include(n => n.ProjectPk)
+                .Include(n => n.User)
+                .FirstOrDefaultAsync(n => n.NotificationPkId == id);
+
+            if (notification == null)
+                return NotFound();
+
+            var model = new NotificationViewModel
+            {
+                Id = notification.NotificationPkId,
+                Title = notification.Title ?? "",
+                Message = notification.Message ?? "",
+                CreatedAt = notification.CreatedAt ?? DateTime.Now,
+                IsRead = notification.IsRead,
+                NotificationType = notification.NotificationType ?? "",
+                ProjectId = notification.ProjectPkId,
+                ProjectName = notification.ProjectPk != null ? notification.ProjectPk.ProjectName : ""
+            };
+
+            // Mark as read
+            if (!notification.IsRead==false)
             {
                 notification.IsRead = true;
                 await _context.SaveChangesAsync();
             }
-            return Ok();
+
+            return View(model);
         }
 
-        // Mark all notifications as read
+        // POST: Notifications/Delete/5
         [HttpPost]
-        public async Task<IActionResult> MarkAllAsRead()
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
         {
-            var userId = HttpContext.Session.GetInt32("StudentPkId"); // use correct session key
-            if (userId == null)
-                return Json(new { success = false, count = 0 });
+            var notification = await _context.Notifications.FindAsync(id);
+            if (notification == null)
+                return NotFound();
 
-            var notifications = await _context.Notifications
-                .Where(n => n.UserId == userId && !(n.IsRead ?? false) && !(n.IsDeleted ?? false))
-                .ToListAsync();
-
-            foreach (var notif in notifications)
-                notif.IsRead = true;
-
+            _context.Notifications.Remove(notification);
             await _context.SaveChangesAsync();
-            return Json(new { success = true, count = notifications.Count });
-        }
 
-        // Get count of unread notifications
-        public async Task<IActionResult> GetUnreadCount()
-        {
-            var userId = HttpContext.Session.GetInt32("StudentPkId");
-            if (userId == null) return Json(0);
-
-            var count = await _context.Notifications
-                .Where(n => n.UserId == userId && !(n.IsRead ?? false) && !(n.IsDeleted ?? false))
-                .CountAsync();
-
-            return Json(count);
-        }
-
-        // Get count of read notifications
-        public async Task<IActionResult> GetReadCount()
-        {
-            var userId = HttpContext.Session.GetInt32("StudentPkId");
-            if (userId == null) return Json(0);
-
-            var count = await _context.Notifications
-                .Where(n => n.UserId == userId && (n.IsRead ?? false) && !(n.IsDeleted ?? false))
-                .CountAsync();
-
-            return Json(count);
+            return RedirectToAction(nameof(IndexStudent));
         }
 
 
+        // -----------------------------
+        // Delete Project
+        // -----------------------------
+        //[HttpPost, ActionName("Delete")]
+        //public async Task<IActionResult> DeleteConfirmed(int id)
+        //{
+        //    var project = await _context.Projects
+        //        .Include(p => p.Notifications)
+        //        .Include(p => p.ProjectMembers)
+        //        .FirstOrDefaultAsync(p => p.ProjectPkId == id);
 
+        //    if (project == null)
+        //        return NotFound();
+
+        //    // 1️⃣ Delete related notifications first (manual cascade)
+        //    if (project.Notifications.Any())
+        //    {
+        //        _context.Notifications.RemoveRange(project.Notifications);
+        //    }
+
+        //    // 2️⃣ Optionally, delete related project members if needed
+        //    if (project.ProjectMembers.Any())
+        //    {
+        //        _context.ProjectMembers.RemoveRange(project.ProjectMembers);
+        //    }
+
+        //    // 3️⃣ Delete the project itself
+        //    _context.Projects.Remove(project);
+
+        //    await _context.SaveChangesAsync();
+
+        //    TempData["Success"] = "Project and related data deleted successfully.";
+        //    return RedirectToAction("Index"); // Adjust redirect as needed
+        //}
+    
 
 
         [HttpPost]

@@ -1,0 +1,30 @@
+﻿@model ProjectManagementSystem.DBModels.NotificationViewModel
+
+@{
+    ViewData["Title"] = "Notification Details";
+}
+
+<h2>@Model.Title</h2>
+
+<div class="mb-3">
+    <span class="badge bg-info">@Model.NotificationType</span>
+    <small class="text-muted ms-2">@Model.CreatedAt.ToString("dd MMM yyyy HH:mm")</small>
+</div>
+
+<p>@Model.Message</p>
+
+@if (Model.ProjectId.HasValue)
+{
+        <p>
+            Related Project: 
+            <a href="@Url.Action("Details", "Project", new { id = Model.ProjectId.Value })">
+            @Model.ProjectName
+            </a>
+        </p>
+}
+
+<form asp-action="Delete" method="post" onsubmit="return confirm('Are you sure you want to delete this notification?');">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <button type="submit" class="btn btn-danger mt-3">Delete</button>
+    <a class="btn btn-secondary mt-3" href="@Url.Action("IndexStudent")">Back to Notifications</a>
+</form>

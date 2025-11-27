@@ -1,13 +1,50 @@
-﻿@model List<ProjectManagementSystem.DBModels.NotificationViewModel>
+﻿@model IEnumerable<ProjectManagementSystem.DBModels.Notification>
 
-<ul class="list-group">
-    @foreach (var n in Model)
-    {
-        <li class="list-group-item @(n.IsRead==false ? "unread" : "")">
-            <a href="@Url.Action("Details","ProjectApproval", new { id = n.ProjectId })">
-                @n.Message
+<div class="dropdown ms-auto notification-dropdown">
+    <button class="btn btn-light position-relative"
+            type="button"
+            id="notifDropdown"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            style="border: 1px solid #8c5dd1; color: #8c5dd1; border-radius: 50%; padding: 8px 10px;">
+        <i class="fas fa-bell fa-lg"></i>
+        <span class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle notification-badge"
+              id="unreadCount"
+              style="font-size: 0.65rem;">
+            @Model.Count(n => n.IsRead==false)
+        </span>
+    </button>
+
+    <ul class="dropdown-menu dropdown-menu-end shadow"
+        aria-labelledby="notifDropdown"
+        style="width: 450px; border: 1px solid #8c5dd1; border-radius: 0.75rem; max-height: 400px; overflow-y: auto;">
+
+        @if (Model.Any())
+        {
+            @foreach (var notif in Model)
+            {
+                <li class="dropdown-item p-3 @(notif.IsRead==false ? "" : "fw-bold")"
+                    data-id="@notif.NotificationPkId"
+                    style="border-bottom: 1px solid #f0eaff;">
+                    <div class="text-decoration-none d-block" style="color: @(notif.IsRead==false ? "#333" : "#8c5dd1");">
+                        <div>@notif.Message</div>
+                        <small class="text-muted">@notif.CreatedAt?.ToString("MMM dd, yyyy HH:mm")</small>
+                    </div>
+                </li>
+            }
+        }
+        else
+        {
+            <li class="dropdown-item text-center text-muted p-3">No notifications</li>
+        }
+
+        <li><hr class="dropdown-divider" /></li>
+        <li>
+            <a class="dropdown-item text-center fw-semibold"
+               href="@Url.Action("IndexStudent", "Notifications")"
+               style="color: #8c5dd1;">
+                View All
             </a>
-            <small>@n.CreatedAt.ToString("MMM dd, yyyy HH:mm")</small>
         </li>
-    }
-</ul>
+    </ul>
+</div>
