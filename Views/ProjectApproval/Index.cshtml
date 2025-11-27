@@ -6,8 +6,10 @@
 }
 
 <head>
-    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+   @*  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> *@
+    <link href="~/Resources/fontawesome-free-6.7.2-web/css/all.min.css" rel="stylesheet" />
+    <link href="~/Resources/sweetalert/sweetalert2.min.css" rel="stylesheet" />
     <style>
         .container {
             max-width: 1200px;
@@ -389,23 +391,16 @@
 
                                 <!-- THREE DOTS MENU -->
                                 <div class="dropdown">
-                                    <button class="btn-icon more-actions" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <button class="btn-icon more-actions" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="fas fa-ellipsis-v"></i>
                                     </button>
-
                                     <ul class="dropdown-menu">
-                                        <li>
-                                            <a class="dropdown-item" href="#" onclick="openScheduleModal(@project.ProjectPkId)">
-                                                Assign Schedule
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="#" onclick="openMeetingModal(@project.ProjectPkId)">
-                                                Assign Meeting
-                                            </a>
-                                        </li>
+                                        <li><a class="dropdown-item" href="#" onclick="openScheduleModal(@project.ProjectPkId)">Assign Schedule</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="openMeetingModal(@project.ProjectPkId)">Assign Meeting</a></li>
                                     </ul>
                                 </div>
+
+                               
 
                             </div>
                         </td>
@@ -522,10 +517,13 @@
 @Html.AntiForgeryToken()
 
 @section Scripts {
-    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+    @* <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> *@
+    
+    <script src="~/Resources/bootstrap538/js/bootstrap.bundle.min.js"></script>
+    <script src="~/Resources/sweetalert/sweetalert2.all.min.js"></script>
+    <script src="~/Resources/xlsx/xlsx.full.min.js"></script>
     <script>
         function updateStatusFilter(status){
             document.querySelector('input[name="statusFilter"]').value=status;
@@ -629,19 +627,30 @@
                       // ------------------------------
         // Open Schedule Modal
         // ------------------------------
+               // Open Schedule Modal
         function openScheduleModal(projectId) {
-            $("#scheduleProjectId").val(projectId);
-            $("#scheduleModal").modal("show");
+            document.getElementById("scheduleProjectId").value = projectId;
+            var modalEl = document.getElementById('scheduleModal');
+            var modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+
+        // Open Meeting Modal
+        function openMeetingModal(projectId) {
+            document.getElementById("meetingProjectId").value = projectId;
+            var modalEl = document.getElementById('meetingModal');
+            var modal = new bootstrap.Modal(modalEl);
+            modal.show();
         }
 
         // ------------------------------
         // Save Schedule
         // ------------------------------
-        function saveSchedule() {
-
-            var dto = {
-                projectId: $("#scheduleProjectId").val(),
-                dateTime: $("#scheduleDateTime").val()
+                // Save Schedule
+        async function saveSchedule() {
+            const dto = {
+                projectId: document.getElementById("scheduleProjectId").value,
+                dateTime: document.getElementById("scheduleDateTime").value
             };
 
             if (!dto.dateTime) {
@@ -649,41 +658,29 @@
                 return;
             }
 
-            $.ajax({
-                url: "/Notifications/AssignSchedule",
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify(dto),
-                success: function (res) {
-                    if (res.success) {
-                        alert("Schedule assigned successfully!");
-                        $("#scheduleModal").modal("hide");
-                    } else {
-                        alert(res.message);
-                    }
-                },
-                error: function () {
-                    alert("Error assigning schedule.");
+            try {
+                const res = await fetch("/Notifications/AssignSchedule", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dto)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(data.message);
+                    bootstrap.Modal.getInstance(document.getElementById("scheduleModal")).hide();
+                } else {
+                    alert(data.message);
                 }
-            });
+            } catch (err) {
+                alert("Error assigning schedule: " + err.message);
+            }
         }
 
-        // ------------------------------
-        // Open Meeting Modal
-        // ------------------------------
-        function openMeetingModal(projectId) {
-            $("#meetingProjectId").val(projectId);
-            $("#meetingModal").modal("show");
-        }
-
-        // ------------------------------
         // Save Meeting
-        // ------------------------------
-        function saveMeeting() {
-
-            var dto = {
-                projectId: $("#meetingProjectId").val(),
-                dateTime: $("#meetingDateTime").val()
+        async function saveMeeting() {
+            const dto = {
+                projectId: document.getElementById("meetingProjectId").value,
+                dateTime: document.getElementById("meetingDateTime").value
             };
 
             if (!dto.dateTime) {
@@ -691,24 +688,24 @@
                 return;
             }
 
-            $.ajax({
-                url: "/Notifications/AssignMeeting",
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify(dto),
-                success: function (res) {
-                    if (res.success) {
-                        alert("Meeting assigned successfully!");
-                        $("#meetingModal").modal("hide");
-                    } else {
-                        alert(res.message);
-                    }
-                },
-                error: function () {
-                    alert("Error assigning meeting.");
+            try {
+                const res = await fetch("/Notifications/AssignMeeting", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dto)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(data.message);
+                    bootstrap.Modal.getInstance(document.getElementById("meetingModal")).hide();
+                } else {
+                    alert(data.message);
                 }
-            });
+            } catch (err) {
+                alert("Error assigning meeting: " + err.message);
+            }
         }
+
 
 
     </script>

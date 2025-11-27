@@ -28,12 +28,17 @@
     <PackageReference Include="MimeKit" Version="4.13.0" />
     <PackageReference Include="Olbrasoft.Data.Paging.X.PagedList.AspNetCore.Mvc" Version="1.7.0" />
   </ItemGroup>
+	<PropertyGroup>
+		<TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+		<TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
+	</PropertyGroup>
 
   <ItemGroup>
     <TypeScriptCompile Include="wwwroot\js\approve.js" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\Resources\xlsx\" />
     <Folder Include="wwwroot\uploads\students\" />
   </ItemGroup>
 
