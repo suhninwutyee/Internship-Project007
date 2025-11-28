@@ -276,6 +276,9 @@ public partial class PMSDbContext : IdentityDbContext<ApplicationUser>
             entity.ToTable("OTPs");
 
             entity.Property(e => e.OtpPkId).HasColumnName("OTP_PkId");
+            entity.Property(e => e.ExpiryTime)
+                .HasDefaultValueSql("(dateadd(minute,(5),getdate()))")
+                .HasColumnType("datetime");
             entity.Property(e => e.Otpcode).HasColumnName("OTPCode");
         });
 
@@ -344,6 +347,8 @@ public partial class PMSDbContext : IdentityDbContext<ApplicationUser>
 
             entity.Property(e => e.ProjectMemberPkId).HasColumnName("ProjectMember_pkId");
             entity.Property(e => e.ProjectPkId).HasColumnName("Project_pkId");
+            entity.Property(e => e.RemovedDate).HasColumnType("datetime");
+            entity.Property(e => e.RemovedReason).HasMaxLength(500);
             entity.Property(e => e.Role).HasMaxLength(150);
             entity.Property(e => e.RoleDescription).HasMaxLength(100);
             entity.Property(e => e.StudentPkId).HasColumnName("Student_pkId");

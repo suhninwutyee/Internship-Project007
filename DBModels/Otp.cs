@@ -14,4 +14,6 @@ public partial class Otp
     public DateTime SendTime { get; set; }
 
     public bool IsUsed { get; set; }
+
+    public DateTime ExpiryTime { get; set; }
 }

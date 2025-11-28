@@ -19,7 +19,9 @@ namespace ProjectManagementSystem.Controllers
     {
         private readonly PMSDbContext _context;
         private readonly IWebHostEnvironment _env;
-        private readonly ILogger<ProjectController> _logger;        
+        private readonly ILogger<ProjectController> _logger;
+        private object studentName;
+
         public ProjectController(PMSDbContext context, IWebHostEnvironment env, ILogger<ProjectController> logger)
         {
             _context = context;
@@ -52,15 +54,39 @@ namespace ProjectManagementSystem.Controllers
         //       return View(pagedProjects);
         //   }
 
+        //public async Task<IActionResult> Index(int page = 1)
+        //{
+        //    var rollNumber = HttpContext.Session.GetString("RollNumber");
+        //    if (string.IsNullOrEmpty(rollNumber))
+        //    {
+        //        return RedirectToAction("Login", "StudentLogin");
+        //    }
+
+        //    int pageSize = 1; // Show only one project per page
+        //    var projects = _context.Projects
+        //        .Include(p => p.ProjectTypePk)
+        //        .Include(p => p.LanguagePk)
+        //        .Include(p => p.FrameworkPk)
+        //        .Include(p => p.CompanyPk)
+        //        .Include(p => p.ProjectFiles)
+        //        .Include(p => p.ProjectMembers)
+        //            .ThenInclude(pm => pm.StudentPk)
+        //        .Where(p => p.ProjectMembers.Any(pm => pm.StudentPk.EmailPk.RollNumber == rollNumber)) // Filter by current student
+        //        .OrderByDescending(p => p.ProjectSubmittedDate);
+
+        //    var pagedProjects = await projects.ToPagedListAsync(page, pageSize);
+
+
+        //    return View(pagedProjects);
+        //}
         public async Task<IActionResult> Index(int page = 1)
         {
             var rollNumber = HttpContext.Session.GetString("RollNumber");
             if (string.IsNullOrEmpty(rollNumber))
-            {
                 return RedirectToAction("Login", "StudentLogin");
-            }
 
-            int pageSize = 1; // Show only one project per page
+            int pageSize = 3; // 5 projects per page
+
             var projects = _context.Projects
                 .Include(p => p.ProjectTypePk)
                 .Include(p => p.LanguagePk)
@@ -69,14 +95,16 @@ namespace ProjectManagementSystem.Controllers
                 .Include(p => p.ProjectFiles)
                 .Include(p => p.ProjectMembers)
                     .ThenInclude(pm => pm.StudentPk)
-                .Where(p => p.ProjectMembers.Any(pm => pm.StudentPk.EmailPk.RollNumber == rollNumber)) // Filter by current student
+                        .ThenInclude(s => s.EmailPk)
+                .Where(p => p.ProjectMembers
+                    .Any(pm => pm.StudentPk.EmailPk.RollNumber.ToLower() == rollNumber.ToLower()))
                 .OrderByDescending(p => p.ProjectSubmittedDate);
 
             var pagedProjects = await projects.ToPagedListAsync(page, pageSize);
 
-            
             return View(pagedProjects);
         }
+
 
         [HttpGet]
         public JsonResult GetSuggestions(string term)
@@ -260,14 +288,15 @@ namespace ProjectManagementSystem.Controllers
 
                 var notification = new DBModels.Notification
                 {
-                    UserId = member.StudentPk.StudentPkId,
+                    UserId = member.StudentPk.StudentPkId, // make sure member.StudentPk is loaded
                     Title = "Project Submitted",
-                    Message = $"Your project '{existingProject.ProjectName}' has been submitted and is pending approval.",
+                    Message = $"Student {project.StudentPk?.StudentName ?? "Unknown"} submitted the project {project.ProjectName}.",
                     CreatedAt = DateTime.Now,
                     IsRead = false,
-                    NotificationType = "ProjectStatus",
-                    ProjectPkId = existingProject.ProjectPkId
+                    NotificationType = "ProjectSubmitted",
+                    ProjectPkId = existingProject?.ProjectPkId
                 };
+
                 _context.Notifications.Add(notification);
             }
 
@@ -939,18 +968,49 @@ namespace ProjectManagementSystem.Controllers
         //    TempData["Success"] = "Project deleted successfully.";
         //    return RedirectToAction(nameof(Index));
         //}
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Delete(int id)
+        //{
+        //    var project = await _context.Projects
+        //        .Include(p => p.ProjectMembers)
+        //        .FirstOrDefaultAsync(p => p.ProjectPkId == id);
+
+        //    if (project == null)
+        //        return NotFound();
+
+        //    // Remove project members first
+        //    if (project.ProjectMembers.Any())
+        //    {
+        //        _context.ProjectMembers.RemoveRange(project.ProjectMembers);
+        //    }
+
+        //    // Remove project itself
+        //    _context.Projects.Remove(project);
+        //    await _context.SaveChangesAsync();
+
+        //    TempData["Success"] = "Project deleted successfully.";
+        //    return RedirectToAction(nameof(Index));
+        //}
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
             var project = await _context.Projects
                 .Include(p => p.ProjectMembers)
+                .Include(p => p.Notifications) // <--- include notifications
                 .FirstOrDefaultAsync(p => p.ProjectPkId == id);
 
             if (project == null)
                 return NotFound();
 
-            // Remove project members first
+            // Remove related notifications first
+            if (project.Notifications.Any())
+            {
+                _context.Notifications.RemoveRange(project.Notifications);
+            }
+
+            // Remove project members
             if (project.ProjectMembers.Any())
             {
                 _context.ProjectMembers.RemoveRange(project.ProjectMembers);

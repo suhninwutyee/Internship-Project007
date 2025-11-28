@@ -17,6 +17,10 @@ public partial class ProjectMember
 
     public string? RoleDescription { get; set; }
 
+    public string? RemovedReason { get; set; }
+
+    public DateTime? RemovedDate { get; set; }
+
     public virtual Project ProjectPk { get; set; } = null!;
 
     public virtual Student StudentPk { get; set; } = null!;

@@ -26,6 +26,10 @@ namespace ProjectManagementSystem.Controllers
 
         public IActionResult Login()
         {
+            if (TempData["Error"] != null)
+            {
+                ViewBag.Error = TempData["Error"];
+            }
             return View();
         }
         [HttpPost]
@@ -56,7 +60,7 @@ namespace ProjectManagementSystem.Controllers
 
             if (emailRecord == null)
             {
-                TempData["Error"] = "Credentials not found. Please contact Student Affairs.";
+                TempData["Error"] = "Credentials not found. Please contact Account Team.";
                 return RedirectToAction("Login");
             }
 
@@ -102,9 +106,20 @@ namespace ProjectManagementSystem.Controllers
             try
             {
                 await _emailService.SendEmailAsync(
-                    emailAddress,
-                    "Your Login OTP Code",
-                    $"Your verification code is: {otpCode}");
+    emailAddress,
+    "Your Login OTP Code",
+    $@"Hi {emailAddress},
+
+We received your request for a One-Time Password (OTP) to access your Internship Project Information System account.
+
+Your OTP is: {otpCode}
+
+If you didn't request this code, you can safely ignore this email. Someone else might have entered your email address by mistake.
+
+Thanks,
+Account Team"
+ );
+
 
                 // Invalidate previous OTPS
                 var oldOtps = await _context.Otps
@@ -121,8 +136,8 @@ namespace ProjectManagementSystem.Controllers
                     RollNumber = rollNumber,
                     Otpcode = otpCode,
                     SendTime = DateTime.Now,
-                    IsUsed = false
-                    //ExpiryTime = DateTime.Now.AddMinutes(5)
+                    IsUsed = false,
+                    ExpiryTime = DateTime.Now.AddMinutes(5)
                 };
 
                 _context.Otps.Add(otpEntry);
@@ -177,7 +192,7 @@ namespace ProjectManagementSystem.Controllers
 
             if (otp != null &&
                 otp.Otpcode == model.OTPCode &&
-                otp.SendTime.AddMinutes(1) > DateTime.Now)
+                otp.SendTime.AddMinutes(5) > DateTime.Now)
             {
                 Console.WriteLine("here success otp.......................................");
                 otp.IsUsed = true;
@@ -245,14 +260,26 @@ namespace ProjectManagementSystem.Controllers
                         message = $"Please wait {secondsLeft} seconds before requesting a new OTP."
                     });
                 }
+                var normalizedRoll = rollNumber.Trim().ToLower();
 
+                // Check email
                 var emailRecord = await _context.Emails
-                    .FirstOrDefaultAsync(e => e.RollNumber == rollNumber && e.IsDeleted == false);
+                    .FirstOrDefaultAsync(e =>
+                        e.RollNumber.Trim().ToLower() == normalizedRoll &&
+                        (e.IsDeleted ?? false) == false);
 
                 if (emailRecord == null)
                 {
                     return Json(new { success = false, message = "Email not found. Please contact support." });
                 }
+
+                //var emailRecord = await _context.Emails
+                //    .FirstOrDefaultAsync(e => e.RollNumber == rollNumber && e.IsDeleted == false);
+
+                //if (emailRecord == null)
+                //{
+                //    return Json(new { success = false, message = "Email not found. Please contact support." });
+                //}
 
                 // Invalidate previous OTPs
                 var oldOtps = await _context.Otps
@@ -280,9 +307,20 @@ namespace ProjectManagementSystem.Controllers
 
                 // Send email
                 await _emailService.SendEmailAsync(
-                    emailRecord.EmailAddress,
-                    "Your New Verification Code",
-                    $"Your new verification code is: {otpCode}\n\nThis code will expire in 5 minutes.");
+    emailRecord.EmailAddress,
+    "Your New Verification Code",
+    $@"Hi {emailRecord.EmailAddress},
+
+We received your request for a One-Time Password (OTP) to access your Internship Project Information System account.
+
+Your new OTP is: {otpCode}
+
+If you didn't request this code, you can safely ignore this email. Someone else might have entered your email address by mistake.
+
+Thanks,
+Internship Project Information System Team"
+);
+
 
                 _logger.LogInformation($"New OTP sent to {emailRecord.EmailAddress}");
 
@@ -302,16 +340,30 @@ namespace ProjectManagementSystem.Controllers
                 });
             }
         }
-
+        [HttpGet]
+        public IActionResult Logout()
+        {
+            return View();
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Logout()
+        public IActionResult LogoutConfirmed()
         {
             HttpContext.Session.Clear();
             TempData.Clear();
             TempData["Success"] = "You have been logged out successfully.";
             return RedirectToAction("Login");
         }
+
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public IActionResult Logout()
+        //{
+        //    HttpContext.Session.Clear();
+        //    TempData.Clear();
+        //    TempData["Success"] = "You have been logged out successfully.";
+        //    return RedirectToAction("Login");
+        //}
 
         public IActionResult ChooseRole()
         {

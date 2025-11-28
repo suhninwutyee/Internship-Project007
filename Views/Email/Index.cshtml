@@ -8,11 +8,16 @@
 
 
 <head>
-    <!-- SweetAlert2 -->
+   @*  <!-- SweetAlert2 -->
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet"> *@
+    <link rel="stylesheet" href="~/Resources/sweetalert/sweetalert2.min.css">
+    
+
+    <link rel="stylesheet" href="~/Resources/fontawesome-free-6.7.2-web/css/all.min.css">
+
 </head>
 
 <style>
@@ -461,180 +466,174 @@
 </div>
 @Html.AntiForgeryToken()
 @section Scripts {
+    <script src="~/Resources/sweetalert/sweetalert2.min.js"></script> 
     <script>
-        $(document).ready(function () {
+        document.addEventListener("DOMContentLoaded", function () {
 
+            function safeSetDisplay(node, value) {
+                if (!node) return;
+                node.style.display = value;
+            }
+
+            // ------------------------------
             // EDIT BUTTON
-            $(document).on('click', '.edit-btn', function () {
-                console.log("here edit click..................")
-                const row = $(this).closest('tr');
-                row.find('.view-mode').hide();
-                row.find('.edit-mode').show();
-                row.find('.view-mode.btn-group').hide();
-                row.find('.edit-mode.btn-group').show();
+            // ------------------------------
+            document.addEventListener("click", function (e) {
+                const editBtn = e.target.closest(".edit-btn");
+                if (!editBtn) return;
+
+                const row = editBtn.closest("tr");
+
+                row.querySelectorAll(".view-mode").forEach(el => safeSetDisplay(el, "none"));
+                row.querySelectorAll(".edit-mode").forEach(el => safeSetDisplay(el, "block"));
             });
 
+            // ------------------------------
             // CANCEL BUTTON
-            $(document).on('click', '.cancel-btn', function () {
-                const row = $(this).closest('tr');
-                row.find('.view-mode').show();
-                row.find('.edit-mode').hide();
-                row.find('.view-mode.btn-group').show();
-                row.find('.edit-mode.btn-group').hide();
-                row.find('.is-invalid').removeClass('is-invalid');
-        // SAVE BUTTON - CORRECTED VERSION
-$(document).on('click', '.save-btn', function () {
-    btn = $(this);
-    const row = btn.closest('tr');
-    const id = btn.data('id');
-                const btn = $(this);
-    // Get form values
-    const formData = {
-        Email_PkId: id,
-        EmailAddress: row.find('[name="EmailAddress"]').val().trim(),
-        RollNumber: row.find('[name="RollNumber"]').val().trim(),
-        Class: row.find('[name="Class"]').val().trim(),
-        AcademicYear_pkId: @(Model.FirstOrDefault()?.AcademicYearPkId ?? 0)
-    };
-                // Prepare data
-    // Clear previous validation errors
-    row.find('.is-invalid').removeClass('is-invalid');
-    row.find('.field-validation-error').text('');
+            // ------------------------------
+            document.addEventListener("click", function (e) {
+                const cancelBtn = e.target.closest(".cancel-btn");
+                if (!cancelBtn) return;
 
-    // Validate fields
-    let isValid = true;
-    if (!formData.EmailAddress) {
-        row.find('[data-valmsg-for="EmailAddress"]').text('Email address is required');
-        row.find('[name="EmailAddress"]').addClass('is-invalid');
-        isValid = false;
-    }
-    if (!formData.RollNumber) {
-        row.find('[data-valmsg-for="RollNumber"]').text('Roll number is required');
-        row.find('[name="RollNumber"]').addClass('is-invalid');
-        isValid = false;
-    }
-    if (!formData.Class) {
-        row.find('[data-valmsg-for="Class"]').text('Class is required');
-        row.find('[name="Class"]').addClass('is-invalid');
-        isValid = false;
-    }
+                const row = cancelBtn.closest("tr");
 
-    if (!isValid) {
-        return;
-    }
+                row.querySelectorAll(".view-mode").forEach(el => safeSetDisplay(el, "block"));
+                row.querySelectorAll(".edit-mode").forEach(el => safeSetDisplay(el, "none"));
 
-    // Show loading icon
-    btn.html('<i class="fas fa-spinner fa-spin"></i>');
-                    EmailAddress: row.find('[name="EmailAddress"]').val().trim(),
-    // AJAX Save
-    $.ajax({
-        url: '/Email/EditInline/' + id,
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(formData),
-        headers: {
-            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-        },
-                success: function (response) {
-                    if (response.success) {
-                        // Update UI
-                        row.find('[data-field="EmailAddress"]').text(formData.EmailAddress);
-                        row.find('[data-field="RollNumber"]').text(formData.RollNumber);
-                        row.find('[data-field="Class"]').text(formData.Class);
-
-                        // Switch modes
-                        row.find('.view-mode').show();
-                        row.find('.edit-mode').hide();
-
-                        Swal.fire('Success!', 'Updated successfully', 'success');
-                    } else {
-                        Swal.fire('Error!', response.message || 'Update failed', 'error');
-                        // Show server-side validation errors if any
-                        if (response.errors) {
-                            for (const [key, value] of Object.entries(response.errors)) {
-                                row.find(`[data-valmsg-for="${key}"]`).text(value.join(', '));
-                                row.find(`[name="${key}"]`).addClass('is-invalid');
-                            }
-                        }
-                    }
-                },
-                error: function (xhr) {
-                    let errorMsg = 'Request failed';
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        errorMsg = xhr.responseJSON.message;
-                    }
-                    Swal.fire('Error!', errorMsg, 'error');
-                },
-                complete: function () {
-                    btn.html('<i class="fas fa-check"></i>');
-                }
+                row.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
+                row.querySelectorAll(".field-validation-error").forEach(el => el.textContent = "");
             });
-        });
-     });
 
-                    // DELETE BUTTON - UPDATED VERSION
-        $(document).on('click', '.delete-btn', function () {
-            const btn = $(this);
-            const id = btn.data('id');
+            // ------------------------------
+            // SAVE INLINE
+            // ------------------------------
+            document.addEventListener("click", async function (e) {
+                const saveBtn = e.target.closest(".save-btn");
+                if (!saveBtn) return;
 
-            Swal.fire({
-                title: 'Confirm Delete',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#8C5DD1',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Delete'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Show loading icon
-                    btn.html('<i class="fas fa-spinner fa-spin"></i>');
+                const row = saveBtn.closest("tr");
+                const id = saveBtn.dataset.id;
 
-                    // Get anti-forgery token
-                    const token = $('input[name="__RequestVerificationToken"]').val();
+                const emailInput = row.querySelector('[name="EmailAddress"]');
+                const rollInput = row.querySelector('[name="RollNumber"]');
+                const classInput = row.querySelector('[name="Class"]');
 
-                    $.ajax({
-                        url: '/Email/DeleteInline/' + id,
-                        type: 'POST',
+                const formData = {
+                    EmailAddress: emailInput.value.trim(),
+                    RollNumber: rollInput.value.trim(),
+                    Class: classInput.value.trim()
+                };
+
+                // Validate (client side)
+                row.querySelectorAll(".field-validation-error").forEach(el => el.textContent = "");
+                row.querySelectorAll(".is-invalid").forEach(el => el.classList.remove("is-invalid"));
+
+                let valid = true;
+                if (!formData.EmailAddress) { emailInput.classList.add("is-invalid"); valid = false; }
+                if (!formData.RollNumber) { rollInput.classList.add("is-invalid"); valid = false; }
+                if (!formData.Class) { classInput.classList.add("is-invalid"); valid = false; }
+
+                if (!valid) return;
+
+                // Show spinner
+                const originalHtml = saveBtn.innerHTML;
+                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                try {
+                    const res = await fetch(`/Email/EditInline/${id}`, {
+                        method: "POST",
                         headers: {
-                            'RequestVerificationToken': token
+                            "Content-Type": "application/json",
+                            "RequestVerificationToken": token,
+                            "X-Requested-With": "XMLHttpRequest"
                         },
-                        data: JSON.stringify({ id: id }),
-                        contentType: 'application/json',
-                        success: function (response) {
-                            if (response.success) {
-                                $('#row-' + id).fadeOut(300, function () {
-                                    $(this).remove();
-                                    // Update row numbers after deletion
-                                    updateRowNumbers();
-                                });
-                                Swal.fire('Deleted!', 'Record removed', 'success');
-                            } else {
-                                Swal.fire('Error!', response.message || 'Delete failed', 'error');
-                            }
-                        },
-                        error: function (xhr) {
-                            let errorMsg = 'Request failed';
-                            if (xhr.responseJSON && xhr.responseJSON.message) {
-                                errorMsg = xhr.responseJSON.message;
-                            }
-                            Swal.fire('Error!', errorMsg, 'error');
-                        },
-                        complete: function () {
-                            btn.html('<i class="fas fa-trash-alt"></i>');
-                        }
+                        body: JSON.stringify(formData)
                     });
+
+                    const result = await res.json();
+                            if (result && result.success === false && result.message === "No changes detected") {
+            Swal.fire("No Changes", "You did not modify any fields.", "info");
+            return;
+        }
+
+
+                    if (result.success) {
+                        row.querySelector('[data-field="EmailAddress"]').textContent = formData.EmailAddress;
+                        row.querySelector('[data-field="RollNumber"]').textContent = formData.RollNumber;
+                        row.querySelector('[data-field="Class"]').textContent = formData.Class;
+
+                        row.querySelectorAll(".view-mode").forEach(el => safeSetDisplay(el, "block"));
+                        row.querySelectorAll(".edit-mode").forEach(el => safeSetDisplay(el, "none"));
+
+                        Swal.fire("Success!", "Updated successfully", "success");
+                    } else {
+                        Swal.fire("Error!", result.message || "Update failed", "error");
+                    }
+                }
+                catch {
+                    Swal.fire("Error!", "Request failed!", "error");
+                }
+                finally {
+                    saveBtn.innerHTML = originalHtml;
                 }
             });
-        });
 
-        // Helper function to update row numbers after deletion
-        function updateRowNumbers() {
-            $('tbody tr').each(function(index) {
-                $(this).find('td:first').text(index + 1);
+            // ------------------------------
+            // DELETE INLINE
+            // ------------------------------
+            document.addEventListener("click", async function (e) {
+                const deleteBtn = e.target.closest(".delete-btn");
+                if (!deleteBtn) return;
+
+                const id = parseInt(deleteBtn.dataset.id);
+
+                const confirm = await Swal.fire({
+                    title: "Confirm Delete",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#8C5DD1",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Delete"
+                });
+
+                if (!confirm.isConfirmed) return;
+
+                const originalHtml = deleteBtn.innerHTML;
+                deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                const res = await fetch('/Email/DeleteInline', {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "RequestVerificationToken": token,
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    body: JSON.stringify(id)
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    const row = document.querySelector(`#row-${id}`);
+                    row.style.opacity = "0";
+                    setTimeout(() => row.remove(), 300);
+                    Swal.fire("Deleted!", "Record removed", "success");
+                } else {
+                    Swal.fire("Error!", data.message, "error");
+                }
+
+                deleteBtn.innerHTML = originalHtml;
             });
-        }
 
         });
     </script>
+
+
+
+
 }

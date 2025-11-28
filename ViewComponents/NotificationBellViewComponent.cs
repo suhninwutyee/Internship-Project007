@@ -17,36 +17,24 @@ namespace ProjectManagementSystem.ViewComponents
             _context = context;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(string role)
+        public async Task<IViewComponentResult> InvokeAsync()
         {
-            var userId = HttpContext.Session.GetInt32("StudentPkId");
-            if (userId == null) return View(new List<NotificationViewModel>());
+            var rollNumber = HttpContext.Session.GetString("RollNumber");
 
-            IQueryable<Notification> query = _context.Notifications
-                .Include(n => n.ProjectPk)
-                .Where(n => n.UserId == userId && n.IsDeleted == false);
+            if (string.IsNullOrEmpty(rollNumber))
+                return View(Enumerable.Empty<ProjectManagementSystem.DBModels.Notification>());
 
-            if (role == "Student")
-            {
-                query = query.Where(n => n.NotificationType == "Announcement" || n.NotificationType == "Response");
-            }
-            else
-            {
-                query = query.Where(n => n.NotificationType == "ProjectSubmitted");
-            }
+            var student = await _context.Students
+                .Include(s => s.EmailPk)
+                .FirstOrDefaultAsync(s => s.EmailPk.RollNumber == rollNumber);
 
-            var notifications = await query
+            if (student == null)
+                return View(Enumerable.Empty<ProjectManagementSystem.DBModels.Notification>());
+
+            var notifications = await _context.Notifications
+                .Where(n => n.UserId == student.StudentPkId)
                 .OrderByDescending(n => n.CreatedAt)
                 .Take(5)
-                .Select(n => new NotificationViewModel
-                {
-                    Id = n.NotificationPkId,
-                    Message = n.Message,
-                    CreatedAt = n.CreatedAt ?? DateTime.Now,
-                    ProjectId = n.ProjectPkId,
-                    ProjectName = n.ProjectPk != null ? n.ProjectPk.ProjectName : "No Project",
-                    IsRead = n.IsRead
-                })
                 .ToListAsync();
 
             return View(notifications);

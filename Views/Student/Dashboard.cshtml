@@ -584,111 +584,164 @@
 
             <!-- Team Members Card -->
             <div class="card border-0 shadow-sm">
-                @*  <div class="card-header bg-white"> *@
-                @* <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-bold text-purple me-2">Team Members</h5> *@
-                @if (isProjectLeader)
-                {
-                    <div class="card-header bg-white">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0 fw-bold text-purple me-2">Team Members</h5>
-                            <div>
-                                <div class="dropdown d-inline-block me-2">
-                                    <button class="btn btn-sm btn-outline-purple dropdown-toggle" type="button"
-                                            id="teamFilter" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fas fa-filter me-1"></i>Filter Teams
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="teamFilter">
-                                        <li><a class="dropdown-item active" href="#" data-project-id="all">All Teams</a></li>
-                                        @foreach (var project in leaderProjects)
-                                        {
-                                            <li>
-                                                <a class="dropdown-item" href="#" data-project-id="@project.ProjectPkId">
-                                                    @project.ProjectName
-                                                </a>
-                                            </li>
-                                        }
-                                    </ul>
-                                </div>
-                                <a asp-action="AddMember" asp-controller="Project"
-                                   asp-route-projectId="@leaderProjects.First().ProjectPkId" class="btn btn-sm btn-purple">
-                                    <i class="fas fa-user-plus me-1"></i>Add Member
-                                </a>
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold text-purple me-2">Team Members</h5>
+                    @if (isProjectLeader)
+                    {
+                        <div class="d-flex align-items-center">
+                            <div class="dropdown d-inline-block me-2">
+                                <button class="btn btn-sm btn-outline-purple dropdown-toggle" type="button"
+                                        id="teamFilter" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-filter me-1"></i>Filter Teams
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="teamFilter">
+                                    <li><a class="dropdown-item active" href="#" data-project-id="all">All Teams</a></li>
+                                    @foreach (var project in leaderProjects)
+                                    {
+                                        <li>
+                                            <a class="dropdown-item" href="#" data-project-id="@project.ProjectPkId">
+                                                @project.ProjectName
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
                             </div>
+
+                            <a asp-action="AddMember" asp-controller="Project"
+                               asp-route-projectId="@leaderProjects.First().ProjectPkId"
+                               class="btn btn-sm btn-purple">
+                                <i class="fas fa-user-plus me-1"></i>Add Member
+                            </a>
                         </div>
-                    </div>
-                }
-                @*  </div> *@
-                @* </div> *@
+                    }
+                </div>
+
                 <div class="card-body">
                     @if (Model.TeamMembers.Any())
                     {
-                        <div class="row" id="teamMembersContainer">
-                            @foreach (var member in Model.TeamMembers)
-                            {
-                                <div class="col-md-6 mb-3" data-project-id="@member.ProjectPkId">
-                                    <div class="team-member-card p-3 bg-white rounded">
-                                        <div class="d-flex align-items-center">
-                                            @* <div class="member-avatar me-3">
-                                                @member.Student?.StudentName[0]
-                                            </div> *@
-                                            <div class="member-avatar me-3">
-                                                <img src="@Url.Content(!string.IsNullOrEmpty(member.StudentPk?.ProfilePhotoUrl)
-                                                    ? member.StudentPk.ProfilePhotoUrl
-                                                    : "~/uploads/students/default-avatar.png")"
-                                                     alt="@member.StudentPk?.StudentName"
-                                                     class="rounded-circle shadow"
-                                                     style="width:50px; height:50px; object-fit:cover;" />
-                                            </div>
+                        @* Group Team Members by Project *@
+                        @foreach (var projectGroup in Model.TeamMembers.GroupBy(tm => tm.ProjectPkId))
+                        {
+                            var projectName = Model.Projects.FirstOrDefault(p => p.ProjectPkId == projectGroup.Key)?.ProjectName ?? "Unknown Project";
 
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-0 fw-bold">@member.StudentPk?.StudentName</h6>
-                                                <p class="text-muted small mb-1">@member.StudentPk?.EmailPk?.RollNumber</p>
-                                                <div class="d-flex align-items-center mb-2">
+                            <h6 class="fw-semibold text-purple mt-3">@projectName</h6>
+                            <div class="row mb-4" data-project-id="@projectGroup.Key">
+                                @foreach (var member in projectGroup)
+                                {
+                                    <div class="col-md-6 mb-3">
+                                        <div class="team-member-card p-3 bg-white rounded">
+                                            <div class="d-flex align-items-center">
+                                                <div class="member-avatar me-3">
+                                                    <img src="@Url.Content(!string.IsNullOrEmpty(member.StudentPk?.ProfilePhotoUrl)
+                                            ? member.StudentPk.ProfilePhotoUrl
+                                            : "~/uploads/students/default-avatar.png")"
+                                                         alt="@member.StudentPk?.StudentName"
+                                                         class="rounded-circle shadow"
+                                                         style="width:50px; height:50px; object-fit:cover;" />
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-0 fw-bold">@member.StudentPk?.StudentName</h6>
+                                                    <p class="text-muted small mb-1">@member.StudentPk?.EmailPk?.RollNumber</p>
                                                     <span class="badge @(member.Role == "Leader" ? "bg-purple" : "bg-secondary") me-2">
                                                         @member.Role
                                                     </span>
-                                                    <span class="text-muted small">
-                                                        @member.StudentPk?.DepartmentPk?.DepartmentName
-                                                    </span>
-                                                </div>
+                                                    <span class="text-muted small">@member.StudentPk?.DepartmentPk?.DepartmentName</span>
 
-                                                @if (!string.IsNullOrEmpty(member.RoleDescription))
-                                                {
-                                                    <div class="text-muted small">
-                                                        Responsibility: <strong>@member.RoleDescription</strong>
-                                                    </div>
-                                                }
-                                                <div>
-                                                    <small class="text-muted">Project: @Model.Projects.First(p => p.ProjectPkId == member.ProjectPkId).ProjectName</small>
+                                                    @if (!string.IsNullOrEmpty(member.RoleDescription))
+                                                    {
+                                                        <div class="text-muted small">
+                                                            Responsibility: <strong>@member.RoleDescription</strong>
+                                                        </div>
+                                                    }
                                                 </div>
-                                            </div>
-                                            <div class="d-flex flex-column">
-                                                <a href="mailto:@member.StudentPk?.EmailPk?.EmailAddress"
-                                                   class="btn btn-sm btn-outline-purple mb-2 remove-member-btn" title="Email">
-                                                    <i class="fas fa-envelope"></i>
-                                                </a>
-                                                @if (isProjectLeader && member.Role != "Leader")
-                                                {
-                                                    <form asp-action="RemoveMember" asp-controller="Project" method="post"
-                                                          class="remove-member-form" data-member-name="@member.StudentPk?.StudentName">
-                                                        @Html.AntiForgeryToken()
-                                                        <input type="hidden" name="projectId" value="@member.ProjectPkId" />
-                                                        <input type="hidden" name="studentId" value="@member.StudentPkId" />
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger remove-member-btn"
-                                                                title="Remove">
-                                                            <i class="fas fa-user-minus"></i>
-                                                        </button>
-                                                    </form>
-                                                }
+                                                <div class="d-flex flex-column">
+                                                    <a href="mailto:@member.StudentPk?.EmailPk?.EmailAddress"
+                                                       class="btn btn-sm btn-outline-purple mb-2 remove-member-btn" title="Email">
+                                                        <i class="fas fa-envelope"></i>
+                                                    </a>
+                                                    @if (isProjectLeader && member.Role != "Leader")
+                                                    {
+                                                        <form asp-action="RemoveMember" asp-controller="Project" method="post"
+                                                              class="remove-member-form" data-member-name="@member.StudentPk?.StudentName">
+                                                            @Html.AntiForgeryToken()
+                                                            <input type="hidden" name="projectId" value="@member.ProjectPkId" />
+                                                            <input type="hidden" name="studentId" value="@member.StudentPkId" />
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger remove-member-btn"
+                                                                    title="Remove">
+                                                                <i class="fas fa-user-minus"></i>
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
+                                }
+                            </div>
+                        }
+                    }
+                    else if (isMember && !isProjectLeader)
+                    {
+                        @* Member-only card for students who are not leaders *@
+                        <div class="card border-0 shadow-lg p-4 mt-4" style="background: #ffffff; border-left: 6px solid #8C5DD1; border-radius: 16px;">
+                            <h4 class="fw-bold mb-3" style="color: #8C5DD1;">
+                                <i class="fas fa-user-check me-2"></i>
+                                You are a <span class="text-dark">Member</span> in
+                                <span style="color:#8C5DD1;">"@memberProjectName"</span>
+                            </h4>
+
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded shadow-sm h-100">
+                                        <h6 class="fw-semibold text-secondary mb-2">
+                                            <i class="fas fa-id-badge me-2"></i>Role
+                                        </h6>
+                                        <p class="mb-0 text-dark">Member</p>
+                                    </div>
                                 </div>
-                            }
+
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded shadow-sm h-100">
+                                        <h6 class="fw-semibold text-secondary mb-2">
+                                            <i class="fas fa-clipboard-check me-2"></i>Responsibility
+                                        </h6>
+                                        <p class="mb-0 text-dark">
+                                            @(Model.MemberResponsibility ?? "Not assigned")
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded shadow-sm h-100">
+                                        <h6 class="fw-semibold text-secondary mb-2">
+                                            <i class="fas fa-user-alt me-2"></i>
+                                            Leader Name
+                                        </h6>
+                                        <p class="mb-0 text-dark">
+                                            @(Model.LeaderName ?? "Unknown")
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded shadow-sm h-100">
+                                        <h6 class="fw-semibold text-secondary mb-2">
+                                            <i class="fas fa-envelope me-2"></i>Leader Email
+                                        </h6>
+                                        <a href="mailto:@Model.LeaderEmail" class="text-decoration-none" style="color: #8C5DD1;">
+                                            @Model.LeaderEmail
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="alert mt-4 mb-0" style="background:#f8f5ff; color:#5a4b91; border-left:4px solid #8C5DD1;">
+                                <i class="fas fa-info-circle me-2"></i>
+                                You can view your project details and progress updates here.
+                            </div>
                         </div>
                     }
-                    @*   else
+                    else
                     {
                         <div class="text-center py-4">
                             <div class="member-avatar mx-auto mb-3" style="width: 80px; height: 80px;">
@@ -696,111 +749,44 @@
                             </div>
                             <h4 class="mt-4 fw-bold">No Team Members</h4>
                             <p class="text-muted mb-4">You haven't joined any teams yet</p>
-                            @if (isProjectLeader)
-                            {
-                                <a asp-action="AddMember" asp-controller="Project"
-                                   asp-route-projectId="@leaderProjects.First().Project_pkId" class="btn btn-purple">
-                                    <i class="fas fa-user-plus me-2"></i>Add Members
-                                </a>
-                            }
-                        </div>
-                    } *@
-                    else
-                    {
-                        <div class="text-center py-4">
-                            @*   <div class="member-avatar mx-auto mb-3" style="width: 80px; height: 80px;">
-                                <i class="fas fa-users fa-2x"></i>
-                            </div>
- *@
-                            @if (isMember && !isProjectLeader)
-                            {
-                                <div class="card border-0 shadow-lg p-4 mt-4" style="background: #ffffff; border-left: 6px solid #8C5DD1; border-radius: 16px;">
-                                    <h4 class="fw-bold mb-3" style="color: #8C5DD1;">
-                                        <i class="bi bi-person-check me-2"></i>
-                                        You are a <span class="text-dark">Member</span> in
-                                        <span style="color:#8C5DD1;">"@memberProjectName"</span>
-                                    </h4>
-
-                                    <div class="row g-3 mt-2">
-                                        <div class="col-md-6">
-                                            <div class="p-3 bg-light rounded shadow-sm h-100">
-                                                <h6 class="fw-semibold text-secondary mb-2">
-                                                    <i class="bi bi-person-badge me-2"></i>Role
-                                                </h6>
-                                                <p class="mb-0 text-dark">Member</p>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <div class="p-3 bg-light rounded shadow-sm h-100">
-                                                <h6 class="fw-semibold text-secondary mb-2">
-                                                    <i class="bi bi-clipboard-check me-2"></i>Responsibility
-                                                </h6>
-                                                <p class="mb-0 text-dark">
-                                                    @(Model.MemberResponsibility ?? "Not assigned")
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <div class="p-3 bg-light rounded shadow-sm h-100">
-                                                <h6 class="fw-semibold text-secondary mb-2">
-                                                    <i class="bi bi-person-lines-fill me-2"></i>Leader Name
-                                                </h6>
-                                                <p class="mb-0 text-dark">
-                                                    @(Model.LeaderName ?? "Unknown")
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <div class="p-3 bg-light rounded shadow-sm h-100">
-                                                <h6 class="fw-semibold text-secondary mb-2">
-                                                    <i class="bi bi-envelope-paper me-2"></i>Leader Email
-                                                </h6>
-                                                <a href="mailto:@Model.LeaderEmail" class="text-decoration-none" style="color: #8C5DD1;">
-                                                    @Model.LeaderEmail
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="alert mt-4 mb-0" style="background:#f8f5ff; color:#5a4b91; border-left:4px solid #8C5DD1;">
-                                        <i class="bi bi-info-circle me-2"></i>
-                                        You can view your project details and progress updates here.
-                                    </div>
-                                </div>
-                            }
-
-                            else
-                            {
-                                <div class="member-avatar mx-auto mb-3" style="width: 80px; height: 80px;">
-                                    <i class="fas fa-users fa-2x"></i>
-                                </div>
-
-                                <h4 class="mt-4 fw-bold">No Team Members</h4>
-                                <p class="text-muted mb-4">You haven't joined any teams yet</p>
-
-                                @if (isProjectLeader)
-                                {
-                                    @* <a asp-action="AddMember" asp-controller="Project"
-                                       asp-route-projectId="@leaderProjects.First().Project_pkId" class="btn btn-purple">
-                                        <i class="fas fa-user-plus me-2"></i>Add Members
-                                    </a> *@
-                                }
-                            }
                         </div>
                     }
-
                 </div>
             </div>
+
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   @*  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> *@
+    <script src="~/lib/sweetalert2/sweetalert2.min.js"></script>
+
     <script>
+
+               $(document).ready(function () {
+            // dropdown item click
+            $('#teamFilter .dropdown-item').click(function (e) {
+                e.preventDefault();
+
+                var projectId = $(this).data('project-id');
+
+                // mark the clicked item as active
+                $('#teamFilter .dropdown-item').removeClass('active');
+                $(this).addClass('active');
+
+                // show/hide team member cards based on projectId
+                if (projectId === 'all') {
+                    // show all
+                    $('.team-member-card').closest('[data-project-id]').show();
+                } else {
+                    // hide others
+                    $('.team-member-card').closest('[data-project-id]').hide();
+                    $('.team-member-card').closest('[data-project-id="' + projectId + '"]').show();
+                }
+            });
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
             // Project Filtering
             const projectFilterLinks = document.querySelectorAll('[data-filter]');
