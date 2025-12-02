@@ -51,8 +51,11 @@
                         <i class="bx bx-chevron-right submenu-toggle"></i>
                     </div>
                     <ul class="submenu">
+                        <li class="submenu-item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Student" ? "active" : "")">
+                            <a asp-area="" asp-controller="Student" asp-action="Index">Student Management</a>
+                        </li>
                         <li class="submenu-item @(ViewContext.RouteData.Values["Action"]?.ToString() == "StudentManagement" ? "active" : "")">
-                            <a asp-area="" asp-controller="Email" asp-action="Index">Student Management</a>
+                            <a asp-area="" asp-controller="Email" asp-action="Index">Email Management</a>
                         </li>
                         <li class="submenu-item @(ViewContext.RouteData.Values["Action"]?.ToString() == "Company" ? "active" : "")">
                             <a asp-area="" asp-controller="Company" asp-action="Index">Company</a>
@@ -125,6 +128,34 @@
                 </div>
 
                 <div class="nav-icons-container">
+                    <!-- Notification Bell -->
+                    <div class="cute-notifications">
+                        <a class="cute-bell" href="#" id="notificationDropdown">
+                            <svg class="bell-icon" viewBox="0 0 24 24">
+                                <path fill="#8C5DD1" d="M12,22A2,2 0 0,0 14,20H10A2,2 0 0,0 12,22M18,16V11C18,7.93 16.36,5.36 13.5,4.68V4A1.5,1.5 0 0,0 12,2.5A1.5,1.5 0 0,0 10.5,4V4.68C7.63,5.36 6,7.92 6,11V16L4,18V19H20V18L18,16Z" />
+                                <circle class="pulse" fill="#FF6B6B" cx="18" cy="5" r="3.2" />
+                            </svg>
+                            <span class="cute-badge" id="notificationBadge">
+                                @await Component.InvokeAsync(typeof(ProjectManagementSystem.ViewComponents.NotificationCountViewComponent))
+                            </span>
+                        </a>
+
+                        <!-- Notification Dropdown -->
+                        <div class="cute-notification-box">
+                            <div class="notification-header">
+                                <div class="header-left">
+                                    <h6 class="cute-title">My Notifications</h6>
+
+                                </div>
+                                 <button class="mark-all-read" id="markAllRead"></button> 
+                            </div>
+
+                            <div class="notification-list">
+                                @await Component.InvokeAsync("Notification")
+                            </div>
+                            
+                        </div>
+                    </div>
                    @*  <!-- Notification Bell -->
                     <div class="cute-notifications">
                         <a class="cute-bell" href="#" id="notificationDropdown">
@@ -155,7 +186,7 @@
                             
                         </div>
                     </div> *@
-                    <div class="cute-notifications">
+                 @*    <div class="cute-notifications">
                         <a class="cute-bell" href="@Url.Action("IndexTeacher","Notifications")" id="notificationDropdown">
                             <svg class="bell-icon" viewBox="0 0 24 24">
                                 <path fill="#8C5DD1" d="M12,22A2,2 0 0,0 14,20H10A2,2 0 0,0 12,22M18,16V11C18,7.93 16.36,5.36 13.5,4.68V4A1.5,1.5 0 0,0 12,2.5A1.5,1.5 0 0,0 10.5,4V4.68C7.63,5.36 6,7.92 6,11V16L4,18V19H20V18L18,16Z" />
@@ -178,7 +209,7 @@
                                 @await Component.InvokeAsync("Notification", new { role = "Teacher" })
                             </div>
                         </div>
-                        </div>
+                        </div> *@
 
                     <div class="profile-container">
                         <span class="avatar">@User.FindFirst("Initial")?.Value</span>
