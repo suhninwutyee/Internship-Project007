@@ -20,32 +20,24 @@ namespace ProjectManagementSystem.Controllers
         {
             int pageSize = 15;
 
-            var query = _context.Emails
-                 .Include(e => e.AcademicYearPkId) // Include first
-        .Where(e => e.IsDeleted == false); // Include the AcademicYear navigation property
+            // Base query: Emails joined with AcademicYears
+            var query = from e in _context.Emails
+                        join a in _context.AcademicYears on e.AcademicYearPkId equals a.AcademicYearPkId
+                        where e.IsDeleted == false
+                        select new { Email = e, Year = a.YearRange };
 
+            // Filter by selected year
             if (!string.IsNullOrEmpty(selectedYear))
             {
-                //query = query.Where(e => e.AcademicYearPkId == selectedYear);
-                query = from e in _context.Emails
-                        join aca in _context.AcademicYears
-                        on e.AcademicYearPkId equals aca.AcademicYearPkId
-                        where aca.YearRange == selectedYear
-                        select new DBModels.Email
-                        {
-                            EmailPkId = e.EmailPkId,
-                            EmailAddress = e.EmailAddress,
-                            RollNumber = e.RollNumber,
-                            Class = e.Class,
-                            IsDeleted = e.IsDeleted,
-                            AcademicYearPkId = e.AcademicYearPkId
-                        };
+                query = query.Where(x => x.Year == selectedYear);
             }
             else
             {
-                // Don't load anything if no year selected
+                // If no year selected, show empty
                 ViewBag.Emails = new List<DBModels.Email>();
-                ViewBag.AcademicYears = await GetAcademicYearsAsync();
+                ViewBag.AcademicYears = await _context.AcademicYears
+                                                      .OrderByDescending(y => y.YearRange)
+                                                      .ToListAsync();
                 ViewBag.SelectedYear = null;
                 ViewBag.TotalPages = 0;
                 ViewBag.CurrentPage = 1;
@@ -53,15 +45,22 @@ namespace ProjectManagementSystem.Controllers
                 return View(new List<DBModels.Email>());
             }
 
+            // Count total items for pagination
             var totalEmails = await query.CountAsync();
             var totalPages = (int)Math.Ceiling(totalEmails / (double)pageSize);
-            var emails = await query
-                .OrderBy(e => e.EmailPkId)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
 
-            ViewBag.AcademicYears = await GetAcademicYearsAsync();
+            // Fetch current page items
+            var emails = await query
+                                .OrderBy(x => x.Email.EmailPkId)
+                                .Skip((page - 1) * pageSize)
+                                .Take(pageSize)
+                                .Select(x => x.Email) // select tracked Email entities
+                                .ToListAsync();
+
+            // Pass data to View
+            ViewBag.AcademicYears = await _context.AcademicYears
+                                                  .OrderByDescending(y => y.YearRange)
+                                                  .ToListAsync();
             ViewBag.SelectedYear = selectedYear;
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = totalPages;
@@ -69,6 +68,7 @@ namespace ProjectManagementSystem.Controllers
 
             return View(emails);
         }
+
 
         private async Task<List<DBModels.AcademicYear>> GetAcademicYearsAsync()
         {
@@ -78,73 +78,85 @@ namespace ProjectManagementSystem.Controllers
         }
 
         // GET: Email/Create
+        // GET: Email/Create
         [HttpGet]
         public async Task<IActionResult> Create()
         {
             ViewBag.AcademicYears = await GetAcademicYearsAsync();
-            Console.WriteLine("create ------------");
-            Console.WriteLine(ViewBag.AcademicYears);
             return View();
         }
 
-        // POST: Email/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("EmailAddress,RollNumber,AcademicYearPkId")] DBModels.Email email)
         {
+            // Always check model state first
+            if (!ModelState.IsValid)
+            {
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    // Return JSON for AJAX requests
+                    var errors = ModelState.ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                    );
+
+                    return Json(new
+                    {
+                        success = false,
+                        errors,
+                        message = "Validation failed"
+                    });
+                }
+
+                // Normal post fallback
+                ViewBag.AcademicYears = await GetAcademicYearsAsync();
+                return View(email);
+            }
+
             try
             {
+                // Fill required fields
                 email.Class = "Final Year";
-                email.CreatedDate = DateTime.Now;
-                _context.Add(email);
+                email.IsDeleted = false;
+                email.CreatedDate = DateTimeOffset.Now;
+
+                _context.Emails.Add(email);
                 await _context.SaveChangesAsync();
 
-                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                    {
-                        return Json(new
-                        {
-                            success = true,
-                            message = "Email created successfully!",
-                            redirectUrl = Url.Action("Index", new { selectedYear = _context.AcademicYears.Find(email.AcademicYearPkId)?.YearRange })
-                        });
-                    }
+                var yearRange = (await _context.AcademicYears.FindAsync(email.AcademicYearPkId))?.YearRange;
 
-                    TempData["SuccessMessage"] = "Email created successfully!";
-                    return RedirectToAction("Index", new { selectedYear = _context.AcademicYears.Find(email.AcademicYearPkId)?.YearRange });
-                }
-                catch (Exception ex)
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
-                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new
                     {
-                        return Json(new
-                        {
-                            success = false,
-                            message = "Error creating email: " + ex.Message
-                        });
-                    }
+                        success = true,
+                        message = "Email created successfully!",
+                        redirectUrl = Url.Action("Index", new { selectedYear = yearRange })
+                    });
+                }
+
+                TempData["SuccessMessage"] = "Email created successfully!";
+                return RedirectToAction("Index", new { selectedYear = yearRange });
+            }
+            catch (Exception ex)
+            {
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Error creating email: " + ex.Message
+                    });
+                }
 
                 ModelState.AddModelError("", "Error creating email: " + ex.Message);
+                ViewBag.AcademicYears = await GetAcademicYearsAsync();
+                return View(email);
             }
-
-
-            // Handle errors for AJAX
-            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-            {
-                var errors = ModelState.ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
-                );
-                return Json(new
-                {
-                    success = false,
-                    errors,
-                    message = "Please fix the validation errors"
-                });
-            }
-
-            ViewBag.AcademicYears = await GetAcademicYearsAsync();
-            return View(email);
         }
+
+
 
 
         // GET: Email/UploadBulk
@@ -197,12 +209,12 @@ namespace ProjectManagementSystem.Controllers
 
                     emails.Add(new DBModels.Email
                     {
-                      
+
                         EmailAddress = emailAddress,
                         RollNumber = rollNumber,
                         Class = "Final Year",
                         AcademicYearPkId = AcademicYearPkId,
-                        CreatedDate= DateTime.Now,
+                        CreatedDate = DateTime.Now,
                     });
                 }
             }
@@ -226,32 +238,35 @@ namespace ProjectManagementSystem.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditInline(int id, [FromForm] DBModels.Email model)
+        public async Task<IActionResult> EditInline(int id, [FromBody] DBModels.Email model)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new
-                {
-                    success = false,
-                    message = "Validation failed",
-                    errors = ModelState.ToDictionary(
-                        kvp => kvp.Key,
-                        kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
-                    )
-                });
-            }
+            if (model == null)
+                return BadRequest(new { success = false, message = "Invalid data" });
 
             try
             {
                 var existingEmail = await _context.Emails.FindAsync(id);
                 if (existingEmail == null)
-                {
                     return NotFound(new { success = false, message = "Email not found" });
+
+                if ((bool)existingEmail.IsDeleted)
+                    return BadRequest(new { success = false, message = "Cannot edit deleted email" });
+
+                // ✅ NEW: Check if no fields changed
+                bool noChanges =
+                    existingEmail.EmailAddress == model.EmailAddress &&
+                    existingEmail.RollNumber == model.RollNumber &&
+                    existingEmail.Class == model.Class;
+
+                if (noChanges)
+                {
+                    return Json(new { success = false, message = "No changes detected" });
                 }
 
-                    existingEmail.EmailAddress = model.EmailAddress;
-                    existingEmail.RollNumber = model.RollNumber;
-                    existingEmail.Class = model.Class;
+                // Update fields
+                existingEmail.EmailAddress = model.EmailAddress;
+                existingEmail.RollNumber = model.RollNumber;
+                existingEmail.Class = model.Class;
 
                 await _context.SaveChangesAsync();
 
@@ -267,20 +282,26 @@ namespace ProjectManagementSystem.Controllers
             }
         }
 
+
+
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteInline(int id)
+        public async Task<IActionResult> DeleteInline([FromBody] int id)
         {
-            var email = await _context.Emails.FindAsync(id);
+            var email = await _context.Emails.IgnoreQueryFilters().FirstOrDefaultAsync(e => e.EmailPkId == id);
             if (email == null)
-            {
-                return NotFound(new { success = false, message = "Email not found" });
-            }
+                return Json(new { success = false, message = "Email not found" });
+
+            if ((bool)email.IsDeleted)
+                return Json(new { success = false, message = "Already deleted" });
 
             email.IsDeleted = true;
             await _context.SaveChangesAsync();
 
             return Json(new { success = true });
         }
+
+
     }
 }

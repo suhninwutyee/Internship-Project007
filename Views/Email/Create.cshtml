@@ -86,8 +86,11 @@
 </div>
 
 @section Styles {
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+   @*  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" /> *@
+    <link rel="stylesheet" href="~/Resources/animate/animate.min.css" />
+    <link rel="stylesheet" href="~/Resources/fontawesome-free-6.7.2-web/css/all.min.css" />
+
     <style>
         /* Add to your existing styles */
         .is-invalid {
@@ -314,143 +317,81 @@
 
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+   @*  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> *@
+    <script src="~/Resources/sweetalert/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="~/Resources/sweetalert/sweetalert2.min.css" />
+
     <script>
-        $(document).ready(function() {
-            // Display any TempData messages on page load
-            @if (TempData["SuccessMessage"] != null)
-            {
-                    <text>
-                    showToast('success', '@TempData["SuccessMessage"]');
-                    </text>
-            }
-            @if (TempData["ErrorMessage"] != null)
-            {
-                    <text>
-                    showToast('error', '@TempData["ErrorMessage"]');
-                    </text>
-            }
+                     document.addEventListener("DOMContentLoaded", function () {
+            const createForm = document.getElementById('createForm');
+            if (!createForm) return;
 
-            // Initialize form submission handler
-            $('#createForm').on('submit', function(e) {
+            createForm.addEventListener('submit', async function (e) {
                 e.preventDefault();
-                handleFormSubmission(this);
-            });
 
-            // Clear validation errors when user starts typing
-            $('input, select').on('input', function() {
-                clearFieldError(this);
-            });
-        });
+                // Remove old validation messages
+                createForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+                createForm.querySelectorAll('[data-valmsg-for]').forEach(el => el.textContent = '');
 
-        // Handle form submission with AJAX
-        function handleFormSubmission(form) {
-            if (!$(form).valid()) return;
+                const submitBtn = createForm.querySelector('button[type="submit"]');
+                if (submitBtn.disabled) return;
+                submitBtn.disabled = true;
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Processing...`;
 
-            var submitBtn = $(form).find('button[type="submit"]');
-            var originalBtnText = submitBtn.html();
+                const formData = new FormData(createForm);
 
-            // Set loading state
-            submitBtn.prop('disabled', true);
-            submitBtn.html(`
-                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Processing...
-            `);
+                try {
+                    const response = await fetch(createForm.action, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
 
-            $.ajax({
-                url: $(form).attr('action'),
-                type: 'POST',
-                data: $(form).serialize(),
-                success: function(response) {
-                    if (response.success) {
-                        // Show success message
+                    const contentType = response.headers.get('content-type');
+                    let result;
+                    if (contentType && contentType.includes('application/json')) {
+                        result = await response.json();
+                    } else {
+                        throw new Error('Server returned HTML instead of JSON.');
+                    }
+
+                    if (result.success) {
                         Swal.fire({
                             icon: 'success',
                             title: 'Success!',
-                            text: response.message,
-                            confirmButtonColor: '#8C5DD1',
-                            showCancelButton: false,
-                            confirmButtonText: 'Continue',
-                            allowOutsideClick: false,
-                            allowEscapeKey: false
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                // Redirect to Index page with selected year
-                                if (response.redirectUrl) {
-                                    window.location.href = response.redirectUrl;
-                                } else {
-                                    window.location.href = '@Url.Action("Index")';
-                                }
-                            }
+                            text: result.message,
+                            confirmButtonColor: '#8C5DD1'
+                        }).then(() => {
+                            window.location.href = result.redirectUrl || '@Url.Action("Index")';
                         });
                     } else {
-                        // Handle validation errors
-                        if (response.errors) {
-                            $.each(response.errors, function(key, errors) {
-                                showFieldError(key, errors.join(', '));
-                            });
+                        if (result.errors) {
+                            for (const key in result.errors) {
+                                const field = document.querySelector(`[name="${key}"]`);
+                                if (field) field.classList.add('is-invalid');
+
+                                const validationElement = document.querySelector(`[data-valmsg-for="${key}"]`);
+                                if (validationElement) validationElement.textContent = result.errors[key].join(', ');
+                            }
                         }
-                        showToast('error', response.message || 'An error occurred');
+                        Swal.fire('Error!', result.message || 'Validation failed', 'error');
                     }
-                },
-                error: function(xhr) {
-                    var errorMessage = xhr.responseJSON?.message ||
-                                     xhr.statusText ||
-                                     'An unexpected error occurred';
-                    showToast('error', errorMessage);
-                },
-                complete: function() {
-                    // Reset button state
-                    submitBtn.prop('disabled', false);
-                    submitBtn.html(originalBtnText);
+
+                } catch (err) {
+                    Swal.fire('Error!', err.message || 'Unexpected error occurred', 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
                 }
             });
-        }
+        });
 
-        // Helper function to display toast notifications
-        function showToast(icon, message) {
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true,
-                didOpen: (toast) => {
-                    toast.addEventListener('mouseenter', Swal.stopTimer)
-                    toast.addEventListener('mouseleave', Swal.resumeTimer)
-                }
-            });
 
-            Toast.fire({
-                icon: icon,
-                title: message
-            });
-        }
-
-        // Helper function to show field validation errors
-        function showFieldError(fieldName, errorMessage) {
-            var field = $('[name="' + fieldName + '"]');
-            var validationElement = $('[data-valmsg-for="' + fieldName + '"]');
-
-            field.addClass('is-invalid');
-            if (validationElement.length) {
-                validationElement.text(errorMessage);
-            } else {
-                field.after('<div class="invalid-feedback">' + errorMessage + '</div>');
-            }
-        }
-
-        // Helper function to clear field errors
-        function clearFieldError(field) {
-            var fieldName = $(field).attr('name');
-            var validationElement = $('[data-valmsg-for="' + fieldName + '"]');
-
-            $(field).removeClass('is-invalid');
-            if (validationElement.length) {
-                validationElement.text('');
-            } else {
-                $(field).next('.invalid-feedback').remove();
-            }
-        }
+       
     </script>
+
 }
