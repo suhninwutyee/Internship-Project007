@@ -108,10 +108,11 @@
                     </a>
                 </li> *@
                 <li class="menu-item">
-                    <a href="#" onclick="document.getElementById('logoutForm').submit(); return false;">
+                    <a href="#" onclick="return confirmLogout();">
                         <i class="bx bx-log-out"></i>
                         <span class="menu-text">Logout</span>
                     </a>
+
                     <form id="logoutForm" asp-controller="Admin" asp-action="Logout" method="post" style="display: none;"></form>
                 </li>
             </ul>
@@ -202,6 +203,12 @@
     <script src="~/Resources/bootstrap538/js/bootstrap.bundle.min.js"></script>
     <script src="~/Resources/bootstrap538/js/bootstrap.min.js"></script>
     <script>
+                function confirmLogout() {
+            if(confirm("Do you really want to log out?")) {
+                document.getElementById('logoutForm').submit();
+            }
+            return false; // prevent default link
+        }
         //Noti
                 $(document).ready(function() {
 
