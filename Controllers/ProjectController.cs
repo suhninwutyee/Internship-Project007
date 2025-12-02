@@ -286,11 +286,14 @@ namespace ProjectManagementSystem.Controllers
                 if (existingProject.ProjectPkId == 0)
                     throw new Exception("Project PK not assigned yet!");
 
+                var leader = existingProject.ProjectMembers
+               .FirstOrDefault(pm => pm.Role == "Leader")?.StudentPk?.StudentName ?? "Unknown Leader";
+
                 var notification = new DBModels.Notification
                 {
                     UserId = member.StudentPk.StudentPkId, // make sure member.StudentPk is loaded
                     Title = "Project Submitted",
-                    Message = $"Student {project.StudentPk?.StudentName ?? "Unknown"} submitted the project {project.ProjectName}.",
+                    Message = $"Leader {leader} submitted the project '{existingProject.ProjectName}'.",
                     CreatedAt = DateTime.Now,
                     IsRead = false,
                     NotificationType = "ProjectSubmitted",

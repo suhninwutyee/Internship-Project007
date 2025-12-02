@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ProjectManagementSystem.ViewComponents
 {
-    public class NotificationViewComponent : ViewComponent // ✅ name ends with ViewComponent
+    public class NotificationViewComponent : ViewComponent 
     {
         private readonly PMSDbContext _context;
 
@@ -16,34 +16,22 @@ namespace ProjectManagementSystem.ViewComponents
             _context = context;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(string role)
+        public async Task<IViewComponentResult> InvokeAsync()
         {
-            var userId = HttpContext.Session.GetInt32("StudentPkId");
-            if (userId == null) return View(new List<NotificationViewModel>());
-
-            IQueryable<Notification> query = _context.Notifications
+            var notifications = await _context.Notifications
                 .Include(n => n.ProjectPk)
-                .Where(n => n.UserId == userId && n.IsDeleted == false);
-
-            if (role == "Student")
-                query = query.Where(n => n.NotificationType == "Announcement" || n.NotificationType == "Response");
-            else if (role == "Teacher")
-                query = query.Where(n => n.NotificationType == "ProjectSubmitted");
-
-            var notifications = await query
+                .Where(n => n.IsRead==false)
+                .Where(n => n.NotificationType == "ProjectSubmitted" && n.IsRead == false)
                 .OrderByDescending(n => n.CreatedAt)
                 .Take(5)
                 .Select(n => new NotificationViewModel
                 {
                     Id = n.NotificationPkId,
                     Message = n.Message,
-                    CreatedAt = n.CreatedAt ?? System.DateTime.Now,
-                    ProjectId = n.ProjectPkId,
-                    ProjectName = n.ProjectPkId == null
-                     ? "No Project"
-                     : (n.ProjectPk != null ? n.ProjectPk.ProjectName : "No Project"),
-                    //ProjectName = n.ProjectPk != null ? n.ProjectPk.ProjectName : "No Project",
-                    IsRead = n.IsRead
+                    CreatedAt = (DateTime)n.CreatedAt, 
+                    ProjectId = n.ProjectPkId ?? 0,         
+                    ProjectName = n.ProjectPk != null ? n.ProjectPk.ProjectName : "No Project",
+                    IsRead = n.IsRead,
                 })
                 .ToListAsync();
 

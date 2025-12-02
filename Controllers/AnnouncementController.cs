@@ -193,7 +193,9 @@ namespace ProjectManagementSystem.Controllers
                         Message = entity.Title,
                         NotificationType = "Announcement",
                         CreatedAt = DateTime.Now,
-                        ProjectPkId = projectId
+                        ProjectPkId = projectId,
+                        IsRead=false,
+                        IsDeleted=false
                     };
                     _context.Notifications.Add(notification);
                 }

@@ -32,6 +32,8 @@ namespace ProjectManagementSystem.ViewComponents
                 return View(Enumerable.Empty<ProjectManagementSystem.DBModels.Notification>());
 
             var notifications = await _context.Notifications
+                .Where(n => n.UserId == student.StudentPkId && n.NotificationType != "ProjectSubmitted")
+
                 .Where(n => n.UserId == student.StudentPkId)
                 .OrderByDescending(n => n.CreatedAt)
                 .Take(5)

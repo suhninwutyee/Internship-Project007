@@ -20,6 +20,38 @@ namespace ProjectManagementSystem.Controllers
             _env = env;
 
         }
+        public async Task<IActionResult> Index(int? yearId, int page = 1, int pageSize = 20)
+        {
+            // 1️⃣ Academic Years list
+            var years = await _context.AcademicYears
+                .OrderByDescending(y => y.YearRange)
+                .ToListAsync();
+            ViewBag.AcademicYears = years;      
+            ViewBag.SelectedYear = yearId;     
+
+            // 2️⃣ Students query
+            var studentsQuery = _context.Students
+                .Include(s => s.EmailPk)
+                .Include(s => s.DepartmentPk)
+                .Include(s => s.NrcPk)
+                .Include(s => s.NrctypePk)
+                .Include(s => s.AcademicYearPk)
+                .Where(s => s.IsDeleted == false)
+                .AsQueryable();
+
+            if (yearId.HasValue)
+            {
+                studentsQuery = studentsQuery.Where(s => s.AcademicYearPkId == yearId.Value);
+            }
+
+            studentsQuery = studentsQuery.OrderBy(s => s.StudentName);
+
+            // 3️⃣ Pagination
+            var pagedStudents = await studentsQuery.ToPagedListAsync(page, pageSize);
+
+            return View(pagedStudents);
+        }
+
 
         public IActionResult Create()
         {
@@ -56,6 +88,11 @@ namespace ProjectManagementSystem.Controllers
                 {
                     email = emailEntry.EmailAddress;
                     HttpContext.Session.SetString("EmailAddress", email);
+                    // Academic Year auto-select for Leader
+                    if (!string.IsNullOrEmpty(role) && role == "Leader")
+                    {
+                        viewModel.Student.AcademicYearPkId = emailEntry.AcademicYearPkId;
+                    }
                 }
             }
 
@@ -76,7 +113,34 @@ namespace ProjectManagementSystem.Controllers
             return View(viewModel);
         }
 
-        
+        public async Task<IActionResult> Detail(int id)
+        {
+            var student = await _context.Students
+                .Include(s => s.EmailPk)
+                .Include(s => s.DepartmentPk)
+                .Include(s => s.NrcPk)
+                .Include(s => s.NrctypePk)
+                .Include(s => s.AcademicYearPk)
+                .Include(s => s.ProjectMembers)
+                    .ThenInclude(pm => pm.ProjectPk)
+                        .ThenInclude(p => p.LanguagePk)
+                .Include(s => s.ProjectMembers)
+                    .ThenInclude(pm => pm.ProjectPk)
+                        .ThenInclude(p => p.FrameworkPk)
+                .Include(s => s.ProjectMembers)
+                    .ThenInclude(pm => pm.ProjectPk)
+                        .ThenInclude(p => p.CompanyPk)
+                            .ThenInclude(c => c.CityPk)
+                .FirstOrDefaultAsync(s => s.StudentPkId == id && s.IsDeleted == false);
+
+            if (student == null)
+            {
+                return NotFound();
+            }
+
+            return View(student);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(NRCFormViewModel model, IFormFile? ProfilePhoto, string? nextAction)
@@ -169,6 +233,12 @@ namespace ProjectManagementSystem.Controllers
             // DB query
             var emailEntry = _context.Emails.FirstOrDefault(e =>
                 e.RollNumber == roll && e.EmailAddress == email && e.IsDeleted == false);
+   
+
+            if (emailEntry != null)
+            {
+                model.Student.AcademicYearPkId = emailEntry.AcademicYearPkId; // <-- important
+            }
 
 
             // Save student to DB
@@ -219,6 +289,7 @@ namespace ProjectManagementSystem.Controllers
                 .Include(s => s.NrcPk)
                 .Include(s => s.NrctypePk)
                 .Include(s => s.DepartmentPk)
+                .Include(s=>s.AcademicYearPk)
                 
                 .FirstOrDefaultAsync(s => s.StudentPkId == id);
 
@@ -470,7 +541,7 @@ namespace ProjectManagementSystem.Controllers
                 var projects = await _context.Projects
                     .Where(p => p.SubmittedByStudentPkId == studentId ||
                                p.ProjectMembers.Any(pm => pm.StudentPkId == studentId && pm.IsDeleted == false))
-                    //.Include(p => p.ProjectType)
+                    .Include(p => p.ProjectTypePk)
                     .Include(p => p.LanguagePk)
                     .Include(p => p.FrameworkPk)
                     .Include(p => p.CompanyPk)
