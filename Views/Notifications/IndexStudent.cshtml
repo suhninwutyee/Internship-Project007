@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ProjectManagementSystem.DBModels.NotificationViewModel>
+﻿@* @model IEnumerable<ProjectManagementSystem.DBModels.NotificationViewModel>
 
 @{
     ViewData["Title"] = "Your Notifications";
@@ -117,5 +117,171 @@
 
         let firstTab = document.querySelector(".noti-tab");
         if (firstTab) { firstTab.classList.add("active"); showTab(firstTab.id.replace("tab-", "")); }
+    </script>
+}
+ *@
+@model IEnumerable<ProjectManagementSystem.DBModels.NotificationViewModel>
+
+@{
+    ViewData["Title"] = "Your Notifications";
+}
+
+<h2 class="mb-3">Your Notifications</h2>
+
+<!-- Counters + Mark all as read button -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <span class="fw-bold">Unread:</span>
+        <span id="unreadCount">@Model.Count(n => n.IsRead==false)</span>
+
+        <span class="ms-3 fw-bold">Read:</span>
+        <span id="readCount">@Model.Count(n => n.IsRead==true)</span>
+    </div>
+
+    <button class="btn btn-sm btn-primary" id="markAllReadBtn">Mark All as Read</button>
+</div>
+
+<style>
+
+    body {
+        background: linear-gradient(135deg, #e4eefd);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    /* Tab styling */
+    .noti-tab {
+        display: inline-block;
+        padding: 10px 18px;
+        margin-right: 8px;
+        background: #e9ddff;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #5d33a6;
+        border: 1px solid transparent;
+        transition: 0.2s;
+    }
+
+        .noti-tab.active {
+            background: #8c5dd1;
+            color: white;
+            border-color: #6d3fb7;
+        }
+
+        .noti-tab:hover {
+            background: #d9c5ff;
+        }
+
+    /* Notification list styling */
+    .noti-panel li {
+        transition: background 0.3s;
+    }
+
+        .noti-panel li.unread {
+            background-color: #f3e8ff; /* Light purple for unread */
+            color: #5d33a6;
+            font-weight: 600;
+        }
+
+        .noti-panel li.read {
+            background-color: #f8f9fa; /* Light grey for read */
+            color: #6c757d;
+            font-weight: normal;
+        }
+
+        .noti-panel li:hover {
+            background-color: #e0d0ff;
+        }
+
+    .noti-badge {
+        background-color: #8c5dd1 !important;
+        color: white !important;
+    }
+</style>
+
+<!-- Horizontal Tabs -->
+<div class="mb-3">
+    @foreach (var group in Model.GroupBy(n => n.NotificationType))
+    {
+        <span class="noti-tab" onclick="showTab('@group.Key')" id="tab-@group.Key">
+            @group.Key (@group.Count())
+        </span>
+    }
+</div>
+
+<!-- Notification Lists -->
+@foreach (var group in Model.GroupBy(n => n.NotificationType))
+{
+    <ul class="list-group mb-4 noti-panel" id="panel-@group.Key" style="display:none;">
+        @foreach (var noti in group)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-start @(noti.IsRead==true ? "read" : "unread")">
+                <div class="ms-2 me-auto">
+                    <div class="fw-bold">@noti.Title</div>
+                    <div>@noti.Message</div>
+
+                    @if (noti.ProjectId.HasValue)
+                    {
+                        <small class="text-muted">
+                            Project:
+                            <a href="javascript:void(0)" onclick="openDetail(@noti.Id)">
+                                @noti.ProjectName
+                            </a>
+                        </small>
+                    }
+                    else
+                    {
+                        <a href="javascript:void(0)" onclick="openDetail(@noti.Id)">
+                            View Details
+                        </a>
+                    }
+
+                    <br />
+                    <small class="text-muted">@noti.CreatedAt.ToString("dd MMM yyyy HH:mm")</small>
+                </div>
+                <span class="badge noti-badge rounded-pill">@noti.NotificationType</span>
+            </li>
+        }
+    </ul>
+}
+
+@section Scripts {
+    <script>
+        // Open notification detail & mark as read
+        function openDetail(id) {
+            fetch('/Notifications/MarkAsRead?id=' + id, { method: "POST" })
+                .then(() => window.location.href = '/Notifications/Details/' + id);
+        }
+
+        // Update unread/read counters
+        function loadCounts() {
+            fetch('/Notifications/GetUnreadCount')
+                .then(r => r.json())
+                .then(count => document.getElementById("unreadCount").innerText = count);
+
+            fetch('/Notifications/GetReadCount')
+                .then(r => r.json())
+                .then(count => document.getElementById("readCount").innerText = count);
+        }
+
+        // Mark all as read
+        document.getElementById("markAllReadBtn").addEventListener("click", function () {
+            fetch('@Url.Action("MarkAllRead", "Notifications")', { method: "POST" })
+                .then(() => { loadCounts(); location.reload(); });
+        });
+
+        // Tab switch
+        function showTab(type) {
+            document.querySelectorAll(".noti-panel").forEach(p => p.style.display = "none");
+            document.querySelectorAll(".noti-tab").forEach(t => t.classList.remove("active"));
+            document.getElementById("panel-" + type).style.display = "block";
+            document.getElementById("tab-" + type).classList.add("active");
+        }
+
+        // Show first tab by default
+        let firstTab = document.querySelector(".noti-tab");
+        if (firstTab) {
+            showTab(firstTab.id.replace("tab-", ""));
+        }
     </script>
 }

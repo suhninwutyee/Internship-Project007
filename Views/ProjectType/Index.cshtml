@@ -11,7 +11,7 @@
     </div>
 
     <!-- Project Type Cards -->
-    <div class="row g-4">
+    <div class="row g-4 justify-content-center">
         @foreach (var item in Model)
         {
             <div class="col-md-6 col-lg-4">
@@ -51,7 +51,19 @@
         border-radius: 20px;
         padding: 30px;
         box-shadow: 0 10px 30px rgba(140, 93, 209, 0.1);
-        /* text-align: center; */
+        /* Center align horizontally */
+        margin: 50px auto; /* auto will center horizontally */
+    }
+
+    .project-dashboard {
+        max-width: 800px;
+        width: 100%;
+        background: var(--white);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(140, 93, 209, 0.1);
+        /* Center align horizontally */
+        margin: 50px auto; /* auto will center horizontally */
     }
 
     .

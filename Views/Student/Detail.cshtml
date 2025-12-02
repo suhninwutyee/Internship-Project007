@@ -1,0 +1,62 @@
+﻿@model ProjectManagementSystem.DBModels.Student
+@{
+    ViewData["Title"] = "Student Detail";
+    Layout = "~/Views/Shared/_TeacherLayout.cshtml";
+    var primaryColor = "#8c5dd1";
+}
+
+<h2 style="color:@primaryColor;">Student Detail</h2>
+
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <p><strong>Name:</strong> @Model.StudentName</p>
+        <p><strong>Roll Number:</strong> @Model.EmailPk?.RollNumber</p>
+        <p><strong>Email:</strong> @Model.EmailPk?.EmailAddress</p>
+        <p><strong>Department:</strong> @Model.DepartmentPk?.DepartmentName</p>
+        <p><strong>Academic Year:</strong> @Model.AcademicYearPk?.YearRange</p>
+        <p><strong>NRC:</strong> @Model.Nrcnumber</p>
+        <p><strong>Phone:</strong> @Model.PhoneNumber</p>
+    </div>
+</div>
+
+<h4 style="color:@primaryColor;">Projects</h4>
+@if (Model.ProjectMembers != null && Model.ProjectMembers.Any(pm => pm.IsDeleted==false))
+{
+    <table class="table table-bordered">
+        <thead class="text-white" style="background-color:@primaryColor;">
+            <tr>
+                <th>#</th>
+                <th>Project Name</th>
+                <th>Language</th>
+                <th>Framework</th>
+                <th>Company</th>
+                <th>City</th>
+                <th>Role</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                int i = 1;
+                foreach (var pm in Model.ProjectMembers.Where(pm => pm.IsDeleted==false))
+                {
+                    <tr>
+                        <td>@i</td>
+                        <td>@pm.ProjectPk?.ProjectName</td>
+                        <td>@pm.ProjectPk?.LanguagePk?.LanguageName</td>
+                        <td>@pm.ProjectPk?.FrameworkPk?.FrameworkName</td>
+                        <td>@pm.ProjectPk?.CompanyPk?.CompanyName</td>
+                        <td>@pm.ProjectPk?.CompanyPk?.CityPk?.CityName</td>
+                        <td>@pm.Role</td>
+                    </tr>
+                    i++;
+                }
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No projects assigned.</p>
+}
+
+<a asp-action="Index" class="btn mt-3" style="background-color:@primaryColor; color:white;">Back to List</a>
